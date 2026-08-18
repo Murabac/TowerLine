@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    .data-card {
+        @apply bg-white rounded-2xl border border-gray-200/90 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_rgba(16,24,40,0.04)] overflow-hidden;
+    }
+
+    .data-toolbar {
+        @apply flex flex-col lg:flex-row lg:items-center gap-3 px-4 py-3.5 border-b border-gray-100 bg-gray-50/70;
+    }
+
+    .data-table {
+        @apply w-full min-w-[720px] text-sm border-collapse;
+    }
+
+    .data-table thead th {
+        @apply px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-500 bg-white border-b border-gray-200 text-left whitespace-nowrap;
+    }
+
+    .data-table tbody td {
+        @apply px-4 py-3.5 text-gray-700 border-b border-gray-100 align-middle;
+    }
+
+    .data-table tbody tr {
+        @apply transition-colors;
+    }
+
+    .data-table tbody tr:hover td {
+        @apply bg-[#F4F8F6];
+    }
+
+    .data-table tbody tr:last-child td {
+        @apply border-b-0;
+    }
+
+    .data-table tbody td.actions {
+        @apply text-right whitespace-nowrap;
+    }
+
+    .icon-btn {
+        @apply inline-flex h-8 w-8 items-center justify-center rounded-lg text-gray-500 hover:text-brand hover:bg-brand/10 transition;
+    }
+
+    .field {
+        @apply block w-full rounded-lg border-gray-200 text-sm shadow-none focus:border-brand focus:ring-brand/30;
+    }
+
+    .stat-tile {
+        @apply rounded-xl bg-gray-50 px-4 py-3.5 border border-gray-100;
+    }
+
+    .stat-label {
+        @apply text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-400;
+    }
+
+    .stat-value {
+        @apply mt-1 text-lg font-semibold tracking-tight text-gray-900;
+    }
+}
