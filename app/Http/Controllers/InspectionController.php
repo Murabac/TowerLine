@@ -23,8 +23,23 @@ class InspectionController extends Controller
         $this->authorize('create', [Inspection::class, $tower]);
 
         $paths = [];
-        foreach ($request->file('photos', []) as $photo) {
-            $paths[] = $photo->store('inspections/'.$tower->id, 'public');
+        foreach (Inspection::photoSlots() as $slot) {
+            $files = $request->file('photos.'.$slot);
+            if (! $files) {
+                continue;
+            }
+
+            $files = is_array($files) ? $files : [$files];
+            $stored = [];
+            foreach ($files as $file) {
+                if ($file) {
+                    $stored[] = $file->store('inspections/'.$tower->id, 'public');
+                }
+            }
+
+            if ($stored !== []) {
+                $paths[$slot] = $stored;
+            }
         }
 
         $inspection = $tower->inspections()->create([

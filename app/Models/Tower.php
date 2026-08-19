@@ -44,6 +44,10 @@ class Tower extends Model
                 return;
             }
 
+            if (DB::connection()->getDriverName() !== 'mysql') {
+                return;
+            }
+
             $wkt = sprintf('POINT(%F %F)', $tower->longitude, $tower->latitude);
 
             DB::update('UPDATE towers SET location = ST_GeomFromText(?) WHERE id = ?', [$wkt, $tower->id]);
@@ -117,6 +121,19 @@ class Tower extends Model
         return $latest->inspected_at->lt(now()->subDays(90));
     }
 
+    public function scopeInspectionOverdue(Builder $query): Builder
+    {
+        $cutoff = now()->subDays(90);
+
+        return $query->where(function (Builder $q) use ($cutoff) {
+            $q->where(function (Builder $neverInspected) {
+                $neverInspected->where('status', 'active')->whereDoesntHave('latestInspection');
+            })->orWhereHas('latestInspection', function (Builder $inspection) use ($cutoff) {
+                $inspection->where('inspected_at', '<', $cutoff);
+            });
+        });
+    }
+
     public function statusColor(): string
     {
         return match ($this->status) {
@@ -126,7 +143,7 @@ class Tower extends Model
                 'good' => '#22C55E',
                 'needs_attention' => '#F59E0B',
                 'critical' => '#DC2626',
-                default => '#6B7280',
+                default => '#94A3B8',
             },
         };
     }

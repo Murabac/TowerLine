@@ -51,14 +51,8 @@ class TowerSeeder extends Seeder
 
             foreach ($site['towns'] as $i => $town) {
                 $operator = $telecom[$n % $telecom->count()];
-                $status = 'active';
-
-                if ($regionName === 'Maroodi Jeex' && $town === 'Salahley') {
-                    $status = 'under_construction';
-                }
-                if ($regionName === 'Sool' && $town === 'Xudun') {
-                    $status = 'decommissioned';
-                }
+                $status = $this->randomStatus();
+                $health = $this->randomHealth($status);
 
                 $lat = $site['anchor'][0] + (($i % 2) * 0.07) - 0.03;
                 $lng = $site['anchor'][1] + ((int) ($i / 2) * 0.11) - 0.05;
@@ -74,7 +68,8 @@ class TowerSeeder extends Seeder
                     capacity: '3G / 4G',
                     radius: 9000 + ($i * 2500),
                     status: $status,
-                    commissioned: $status === 'under_construction' ? null : now()->subYears(3 - ($i % 3))->toDateString(),
+                    health: $health,
+                    commissioned: $status === 'under_construction' ? null : now()->subYears(fake()->numberBetween(1, 8))->toDateString(),
                 );
 
                 $n++;
@@ -96,6 +91,7 @@ class TowerSeeder extends Seeder
                 capacity: 'TV / cable headend',
                 radius: 32000 + ($i * 3000),
                 status: 'active',
+                health: $this->randomHealth('active'),
                 commissioned: now()->subYears(8 - $i)->toDateString(),
             );
 
@@ -110,6 +106,7 @@ class TowerSeeder extends Seeder
                 capacity: 'TV / cable headend',
                 radius: 18000,
                 status: 'under_construction',
+                health: 'unknown',
                 commissioned: null,
             );
         }
@@ -126,6 +123,7 @@ class TowerSeeder extends Seeder
         string $capacity,
         int $radius,
         string $status,
+        string $health,
         ?string $commissioned,
     ): void {
         Tower::query()->create([
@@ -139,8 +137,43 @@ class TowerSeeder extends Seeder
             'capacity' => $capacity,
             'signal_radius_m' => $radius,
             'status' => $status,
-            'health_status' => 'unknown',
+            'health_status' => $health,
             'commissioned_at' => $commissioned,
+        ]);
+    }
+
+    private function randomStatus(): string
+    {
+        return fake()->randomElement([
+            'active',
+            'active',
+            'active',
+            'active',
+            'active',
+            'active',
+            'active',
+            'under_construction',
+            'under_construction',
+            'decommissioned',
+        ]);
+    }
+
+    private function randomHealth(string $status): string
+    {
+        if ($status !== 'active') {
+            return 'unknown';
+        }
+
+        return fake()->randomElement([
+            'good',
+            'good',
+            'good',
+            'good',
+            'good',
+            'needs_attention',
+            'needs_attention',
+            'critical',
+            'unknown',
         ]);
     }
 }

@@ -19,8 +19,15 @@ class StoreInspectionRequest extends FormRequest
             'generator_condition' => ['required', Rule::in(['good', 'fair', 'poor', 'n_a'])],
             'physical_condition' => ['required', Rule::in(['good', 'fair', 'poor'])],
             'notes' => ['nullable', 'string', 'max:5000'],
-            'photos' => ['nullable', 'array', 'max:6'],
-            'photos.*' => ['image', 'max:5120'],
+            'photos' => ['nullable', 'array'],
+            'photos.wide' => ['nullable', 'array', 'max:8'],
+            'photos.wide.*' => ['image', 'max:5120'],
+            'photos.base' => ['nullable', 'array', 'max:8'],
+            'photos.base.*' => ['image', 'max:5120'],
+            'photos.power' => ['nullable', 'array', 'max:8'],
+            'photos.power.*' => ['image', 'max:5120'],
+            'photos.condition' => ['nullable', 'array', 'max:8'],
+            'photos.condition.*' => ['image', 'max:5120'],
         ];
     }
 }

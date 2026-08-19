@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AuditLog;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -31,7 +32,14 @@ class AuditLogController extends Controller
         }
 
         return view('audit-logs.index', [
-            'logs' => $query->paginate(30)->withQueryString(),
+            'logs' => $query->paginate(20)->withQueryString(),
+            'users' => User::query()->orderBy('name')->get(['id', 'name']),
+            'actions' => ['created', 'updated', 'deleted'],
+            'counts' => [
+                'created' => AuditLog::query()->where('action', 'created')->count(),
+                'updated' => AuditLog::query()->where('action', 'updated')->count(),
+                'deleted' => AuditLog::query()->where('action', 'deleted')->count(),
+            ],
         ]);
     }
 }

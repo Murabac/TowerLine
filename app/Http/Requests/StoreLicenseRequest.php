@@ -26,6 +26,10 @@ class StoreLicenseRequest extends FormRequest
             'license_type' => ['required', Rule::in(['A', 'B', 'C'])],
             'issued_at' => ['required', 'date'],
             'expires_at' => ['required', 'date', 'after:issued_at'],
+            'documents' => ['nullable', 'array', 'max:10'],
+            'documents.*' => ['file', 'mimes:pdf,jpg,jpeg,png,webp,doc,docx', 'max:10240'],
+            'remove_documents' => ['nullable', 'array'],
+            'remove_documents.*' => ['string', 'max:255'],
         ];
     }
 }

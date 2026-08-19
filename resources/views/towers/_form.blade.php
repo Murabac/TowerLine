@@ -70,7 +70,17 @@
 </div>
 
 <div class="mt-6">
-    <p class="text-sm font-medium text-gray-700">{{ __('app.towers.pick_map') }}</p>
+    <div class="flex flex-wrap items-center justify-between gap-3">
+        <p class="text-sm font-medium text-gray-700">{{ __('app.towers.pick_map') }}</p>
+        <button type="button" id="use-gps" class="inline-flex items-center gap-2 px-4 py-2.5 bg-brand text-white text-sm font-semibold rounded-xl hover:bg-brand-dark">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21s7-5.4 7-11a7 7 0 1 0-14 0c0 5.6 7 11 7 11Z"/>
+                <circle cx="12" cy="10" r="2.25" />
+            </svg>
+            <span data-gps-label>{{ __('app.towers.use_gps') }}</span>
+        </button>
+    </div>
+    <p id="gps-status" class="mt-2 text-sm text-gray-500 hidden"></p>
     <div class="mt-2 grid sm:grid-cols-2 gap-4">
         <div>
             <x-input-label for="latitude" :value="__('app.towers.latitude')" />
@@ -83,5 +93,5 @@
             <x-input-error :messages="$errors->get('longitude')" class="mt-1" />
         </div>
     </div>
-    <div id="picker-map" class="mt-3 h-72 rounded-md border border-gray-200"></div>
+    <div id="picker-map" class="mt-3 h-72 rounded-xl border border-gray-200 overflow-hidden"></div>
 </div>

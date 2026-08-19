@@ -58,9 +58,13 @@ class LicenseController extends Controller
         $this->authorize('update', $tower);
 
         $license = License::query()->create([
-            ...$request->validated(),
+            ...$request->safe()->except(['documents', 'remove_documents']),
             'operator_id' => $tower->operator_id,
+            'documents' => [],
         ]);
+
+        $files = $request->file('documents');
+        $license->syncDocuments(is_array($files) ? $files : array_filter([$files]));
 
         Audits::log('created', $license, $license->only(['tower_id', 'license_type', 'expires_at']));
 
@@ -71,6 +75,8 @@ class LicenseController extends Controller
     {
         $this->authorize('update', $license);
 
+        $license->load(['tower.region', 'tower.operator', 'operator']);
+
         return view('licenses.edit', compact('license'));
     }
 
@@ -79,6 +85,13 @@ class LicenseController extends Controller
         $this->authorize('update', $license);
 
         $license->update($request->safe()->only(['license_type', 'issued_at', 'expires_at']));
+
+        $files = $request->file('documents');
+        $license->syncDocuments(
+            is_array($files) ? $files : array_filter([$files]),
+            $request->input('remove_documents', []),
+        );
+
         Audits::log('updated', $license, $license->only(['license_type', 'expires_at']));
 
         return redirect()->route('licenses.index')->with('status', __('app.licenses.updated'));

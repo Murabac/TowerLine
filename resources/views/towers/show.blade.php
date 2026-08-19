@@ -25,6 +25,11 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-2 shrink-0">
+                    @can('create', [App\Models\Inspection::class, $tower])
+                        <a href="{{ route('towers.inspections.create', $tower) }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 text-sm font-semibold rounded-xl hover:border-brand hover:text-brand">
+                            {{ __('app.towers.new_inspection') }}
+                        </a>
+                    @endcan
                     @can('update', $tower)
                         <a href="{{ route('towers.edit', $tower) }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-brand text-white text-sm font-semibold rounded-xl hover:bg-brand-dark">
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L8.193 18.46a4.5 4.5 0 0 1-1.897 1.13L4.5 20.25l.66-1.796a4.5 4.5 0 0 1 1.13-1.897Z"/></svg>
@@ -41,7 +46,7 @@
                 </div>
             </div>
 
-            <div class="grid sm:grid-cols-2 xl:grid-cols-4 gap-3 p-5">
+            <div class="grid sm:grid-cols-2 xl:grid-cols-3 gap-3 p-5">
                 <div class="stat-tile">
                     <p class="stat-label">{{ __('app.towers.type') }}</p>
                     <p class="stat-value">{{ __('app.status.'.$tower->type) }}</p>
@@ -55,8 +60,22 @@
                     <p class="stat-value tabular-nums">{{ number_format($tower->signal_radius_m) }} <span class="text-sm font-medium text-gray-400">m</span></p>
                 </div>
                 <div class="stat-tile">
+                    <p class="stat-label">{{ __('app.towers.health') }}</p>
+                    <p class="stat-value"><x-status-badge :value="$tower->health_status" /></p>
+                </div>
+                <div class="stat-tile">
                     <p class="stat-label">{{ __('app.towers.commissioned') }}</p>
                     <p class="stat-value">{{ $tower->commissioned_at?->format('d M Y') ?: '—' }}</p>
+                </div>
+                <div class="stat-tile">
+                    <p class="stat-label">{{ __('app.licenses.state') }}</p>
+                    <p class="stat-value">
+                        @if ($tower->licenses->first())
+                            <x-status-badge :value="$tower->licenses->first()->display_status" />
+                        @else
+                            <span class="text-sm font-medium text-gray-400">{{ __('app.map.no_license') }}</span>
+                        @endif
+                    </p>
                 </div>
             </div>
         </div>
@@ -100,6 +119,101 @@
                 <div id="detail-map" class="h-[22rem]"></div>
             </div>
         </div>
+
+        <div class="data-card">
+            <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+                <h2 class="text-sm font-semibold text-brand">{{ __('app.towers.history_inspections') }}</h2>
+                @if ($tower->isInspectionOverdue())
+                    <span class="text-xs font-medium text-amber-700">{{ __('app.inspections.overdue') }}</span>
+                @endif
+            </div>
+            <div class="overflow-x-auto">
+                <table class="data-table min-w-0">
+                    <thead>
+                        <tr>
+                            <th>{{ __('app.inspections.date') }}</th>
+                            <th>{{ __('app.inspections.inspector') }}</th>
+                            <th>{{ __('app.inspections.power') }}</th>
+                            <th>{{ __('app.inspections.physical') }}</th>
+                            <th>{{ __('app.inspections.notes') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($tower->inspections as $inspection)
+                            <tr>
+                                <td class="whitespace-nowrap">{{ $inspection->inspected_at->format('d M Y') }}</td>
+                                <td>{{ $inspection->inspector?->name ?: '—' }}</td>
+                                <td>{{ $inspection->power_status === 'generator' ? __('app.inspections.generator_power') : __('app.inspections.'.$inspection->power_status) }}</td>
+                                <td>{{ __('app.inspections.'.$inspection->physical_condition) }}</td>
+                                <td class="max-w-xs">
+                                    <p class="truncate text-gray-500">{{ $inspection->notes ?: '—' }}</p>
+                                    @if ($inspection->photoUrls())
+                                        <div class="mt-2 flex flex-wrap gap-1">
+                                            @foreach ($inspection->photoUrls() as $url)
+                                                <a href="{{ $url }}" target="_blank" rel="noopener" class="block h-10 w-10 overflow-hidden rounded-md border border-gray-200">
+                                                    <img src="{{ $url }}" alt="" class="h-full w-full object-cover">
+                                                </a>
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="!py-10 text-center text-sm text-gray-500">{{ __('app.inspections.empty') }}</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="data-card">
+            <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+                <h2 class="text-sm font-semibold text-brand">{{ __('app.towers.history_licenses') }}</h2>
+                @can('create', App\Models\License::class)
+                    <a href="{{ route('licenses.create', ['tower_id' => $tower->id]) }}" class="text-sm font-medium text-brand hover:underline">{{ __('app.licenses.create') }}</a>
+                @endcan
+            </div>
+            <div class="overflow-x-auto">
+                <table class="data-table min-w-0">
+                    <thead>
+                        <tr>
+                            <th>{{ __('app.licenses.type') }}</th>
+                            <th>{{ __('app.licenses.issued') }}</th>
+                            <th>{{ __('app.licenses.expires') }}</th>
+                            <th>{{ __('app.licenses.state') }}</th>
+                            <th>{{ __('app.licenses.documents') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($tower->licenses as $license)
+                            <tr>
+                                <td><x-status-badge :value="$license->license_type" /></td>
+                                <td>{{ $license->issued_at->format('d M Y') }}</td>
+                                <td>{{ $license->expires_at->format('d M Y') }}</td>
+                                <td><x-status-badge :value="$license->display_status" /></td>
+                                <td>
+                                    @if ($license->documentList())
+                                        <div class="flex flex-col gap-1">
+                                            @foreach ($license->documentList() as $document)
+                                                <a href="{{ $document['url'] }}" target="_blank" rel="noopener" class="truncate text-sm font-medium text-brand hover:underline">{{ $document['name'] }}</a>
+                                            @endforeach
+                                        </div>
+                                    @else
+                                        <span class="text-gray-400">—</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="!py-10 text-center text-sm text-gray-500">{{ __('app.licenses.empty') }}</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     @push('head')
@@ -111,10 +225,13 @@
             const lat = {{ $tower->latitude }};
             const lng = {{ $tower->longitude }};
             const color = @json($tower->operator->color);
-            const map = L.map('detail-map').setView([lat, lng], 11);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' }).addTo(map);
-            L.circle([lat, lng], {
-                radius: {{ $tower->signal_radius_m }},
+            const map = L.map('detail-map').setView([lat, lng], 12);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap',
+                maxZoom: 19,
+            }).addTo(map);
+            const circle = L.circle([lat, lng], {
+                radius: {{ (int) $tower->signal_radius_m }},
                 color,
                 fillColor: color,
                 fillOpacity: 0.12,
@@ -127,6 +244,27 @@
                 iconAnchor: [9, 9],
             });
             L.marker([lat, lng], { icon }).addTo(map).bindPopup(@json($tower->name));
+
+            function fitCoverage() {
+                const size = map.getSize();
+                if (size.x < 50 || size.y < 50) {
+                    return false;
+                }
+                map.invalidateSize();
+                map.fitBounds(circle.getBounds(), {
+                    padding: [28, 28],
+                    maxZoom: 15,
+                    animate: false,
+                });
+                return true;
+            }
+
+            map.whenReady(() => {
+                if (! fitCoverage()) {
+                    setTimeout(fitCoverage, 150);
+                }
+            });
+            window.addEventListener('load', () => setTimeout(fitCoverage, 50));
         </script>
     @endpush
 </x-app-layout>

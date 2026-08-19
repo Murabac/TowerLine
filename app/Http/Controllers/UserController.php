@@ -13,12 +13,18 @@ use Illuminate\View\View;
 
 class UserController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
         $this->authorize('viewAny', User::class);
 
+        $query = User::query()->with(['region', 'operator'])->orderBy('name');
+
+        if ($request->filled('role')) {
+            $query->where('role', $request->string('role'));
+        }
+
         return view('users.index', [
-            'users' => User::query()->with(['region', 'operator'])->orderBy('name')->paginate(20),
+            'users' => $query->paginate(20)->withQueryString(),
         ]);
     }
 
@@ -35,7 +41,10 @@ class UserController extends Controller
         $data['region_id'] = $data['role'] === 'inspector' ? ($data['region_id'] ?? null) : null;
         $data['operator_id'] = $data['role'] === 'operator_viewer' ? ($data['operator_id'] ?? null) : null;
 
-        $user = User::query()->create($data);
+        $user = User::query()->create([
+            ...$data,
+            'email_verified_at' => now(),
+        ]);
         Audits::log('created', $user, $user->only(['name', 'email', 'role']));
 
         return redirect()->route('users.index')->with('status', __('app.users.created'));
@@ -65,7 +74,7 @@ class UserController extends Controller
         return redirect()->route('users.index')->with('status', __('app.users.updated'));
     }
 
-    public function destroy(Request $request, User $user): RedirectResponse
+    public function destroy(User $user): RedirectResponse
     {
         $this->authorize('delete', $user);
         Audits::log('deleted', $user, ['email' => $user->email]);

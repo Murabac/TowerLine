@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+[x-cloak] {
+    display: none !important;
+}
+
 @layer components {
     .data-card {
         @apply bg-white rounded-2xl border border-gray-200/90 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_rgba(16,24,40,0.04)] overflow-hidden;
@@ -57,5 +61,17 @@
 
     .stat-value {
         @apply mt-1 text-lg font-semibold tracking-tight text-gray-900;
+    }
+}
+
+@media print {
+    .no-print {
+        display: none !important;
+    }
+
+    #tower-map {
+        position: static !important;
+        height: 90vh !important;
+        width: 100% !important;
     }
 }

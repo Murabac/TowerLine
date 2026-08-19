@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 class License extends Model
 {
@@ -15,6 +17,7 @@ class License extends Model
         'license_type',
         'issued_at',
         'expires_at',
+        'documents',
     ];
 
     protected function casts(): array
@@ -22,7 +25,17 @@ class License extends Model
         return [
             'issued_at' => 'date',
             'expires_at' => 'date',
+            'documents' => 'array',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::deleting(function (License $license) {
+            foreach ($license->documentRecords() as $document) {
+                Storage::disk('public')->delete($document['path']);
+            }
+        });
     }
 
     public function tower(): BelongsTo
@@ -77,5 +90,83 @@ class License extends Model
         }
 
         return $query->whereRaw('1 = 0');
+    }
+
+    /**
+     * @return list<array{path: string, name: string, size: int|null}>
+     */
+    public function documentRecords(): array
+    {
+        return collect($this->documents ?? [])
+            ->map(function ($document) {
+                if (is_string($document) && $document !== '') {
+                    return [
+                        'path' => $document,
+                        'name' => basename($document),
+                        'size' => null,
+                    ];
+                }
+
+                if (! is_array($document) || empty($document['path'])) {
+                    return null;
+                }
+
+                return [
+                    'path' => $document['path'],
+                    'name' => $document['name'] ?? basename($document['path']),
+                    'size' => $document['size'] ?? null,
+                ];
+            })
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return list<array{path: string, name: string, size: int|null, url: string}>
+     */
+    public function documentList(): array
+    {
+        return collect($this->documentRecords())
+            ->map(fn (array $document) => [
+                ...$document,
+                'url' => asset('storage/'.$document['path']),
+            ])
+            ->all();
+    }
+
+    /**
+     * @param  array<int, UploadedFile>|null  $files
+     * @param  array<int, string>  $removePaths
+     */
+    public function syncDocuments(?array $files, array $removePaths = [], int $max = 10): void
+    {
+        $documents = collect($this->documentRecords());
+
+        foreach ($removePaths as $path) {
+            if ($documents->contains(fn (array $document) => $document['path'] === $path)) {
+                Storage::disk('public')->delete($path);
+            }
+        }
+
+        $documents = $documents
+            ->reject(fn (array $document) => in_array($document['path'], $removePaths, true))
+            ->values();
+
+        foreach ($files ?? [] as $file) {
+            if (! $file instanceof UploadedFile || $documents->count() >= $max) {
+                continue;
+            }
+
+            $documents->push([
+                'path' => $file->store('licenses/'.$this->tower_id, 'public'),
+                'name' => $file->getClientOriginalName(),
+                'size' => $file->getSize(),
+            ]);
+        }
+
+        $this->forceFill([
+            'documents' => $documents->all(),
+        ])->save();
     }
 }

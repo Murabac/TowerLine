@@ -63,7 +63,7 @@ class User extends Authenticatable
 
     public function homeRouteName(): string
     {
-        return 'dashboard';
+        return $this->isAdmin() ? 'dashboard' : 'map';
     }
 
     public function roleLabel(): string

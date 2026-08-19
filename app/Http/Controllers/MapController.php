@@ -13,15 +13,32 @@ class MapController extends Controller
 {
     public function index(Request $request): View
     {
+        $this->authorize('viewAny', Tower::class);
+
+        $user = $request->user();
+
+        $regions = Region::query()->orderBy('name_en');
+        $operators = Operator::query()->orderBy('name');
+
+        if ($user->isInspector()) {
+            $regions->whereKey($user->region_id);
+        }
+
+        if ($user->isOperatorViewer()) {
+            $operators->whereKey($user->operator_id);
+        }
+
         return view('map.index', [
-            'regions' => Region::query()->orderBy('name_en')->get(),
-            'operators' => Operator::query()->orderBy('name')->get(),
-            'filters' => $request->only(['region_id', 'operator_id', 'category', 'status', 'license_state', 'health_status']),
+            'regions' => $regions->get(),
+            'operators' => $operators->get(),
+            'filters' => $request->only(['region_id', 'operator_id', 'category', 'status', 'license_state', 'health_status', 'overdue']),
         ]);
     }
 
     public function towers(Request $request): JsonResponse
     {
+        $this->authorize('viewAny', Tower::class);
+
         $query = Tower::query()
             ->visibleTo($request->user())
             ->with(['operator', 'region', 'latestInspection', 'currentLicense']);
@@ -46,18 +63,27 @@ class MapController extends Controller
             $query->where('health_status', $request->string('health_status'));
         }
 
+        if ($request->boolean('overdue')) {
+            $query->inspectionOverdue();
+        }
+
         if ($request->filled('license_state')) {
             $state = $request->string('license_state')->toString();
-            $query->whereHas('currentLicense', function ($licenses) use ($state) {
-                if ($state === 'expired') {
-                    $licenses->whereDate('expires_at', '<', now()->toDateString());
-                } elseif ($state === 'expiring_soon') {
-                    $licenses->whereDate('expires_at', '>=', now()->toDateString())
-                        ->whereDate('expires_at', '<=', now()->addDays(30)->toDateString());
-                } elseif ($state === 'active') {
-                    $licenses->whereDate('expires_at', '>', now()->addDays(30)->toDateString());
-                }
-            });
+
+            if ($state === 'none') {
+                $query->whereDoesntHave('currentLicense');
+            } else {
+                $query->whereHas('currentLicense', function ($licenses) use ($state) {
+                    if ($state === 'expired') {
+                        $licenses->whereDate('expires_at', '<', now()->toDateString());
+                    } elseif ($state === 'expiring_soon') {
+                        $licenses->whereDate('expires_at', '>=', now()->toDateString())
+                            ->whereDate('expires_at', '<=', now()->addDays(30)->toDateString());
+                    } elseif ($state === 'active') {
+                        $licenses->whereDate('expires_at', '>', now()->addDays(30)->toDateString());
+                    }
+                });
+            }
         }
 
         $towers = $query->get()->map(function (Tower $tower) {
@@ -66,8 +92,8 @@ class MapController extends Controller
             return [
                 'id' => $tower->id,
                 'name' => $tower->name,
-                'lat' => $tower->latitude,
-                'lng' => $tower->longitude,
+                'lat' => (float) $tower->latitude,
+                'lng' => (float) $tower->longitude,
                 'status' => $tower->status,
                 'health_status' => $tower->health_status,
                 'color' => $tower->statusColor(),
@@ -80,10 +106,12 @@ class MapController extends Controller
                 ],
                 'region' => $tower->region->localizedName(),
                 'last_inspection_at' => $tower->latestInspection?->inspected_at?->toDateString(),
+                'overdue' => $tower->isInspectionOverdue(),
                 'license' => $license ? [
                     'type' => $license->license_type,
                     'expires_at' => $license->expires_at->toDateString(),
                     'status' => $license->display_status,
+                    'status_label' => __('app.status.'.$license->display_status),
                 ] : null,
                 'url' => route('towers.show', $tower),
             ];

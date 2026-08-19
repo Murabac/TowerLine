@@ -12,36 +12,45 @@ class DashboardController extends Controller
     public function __invoke(Request $request): View
     {
         $user = $request->user();
-
         $towers = Tower::query()->visibleTo($user);
-        $licenses = License::query()->visibleTo($user)->with('tower');
+        $licenses = License::query()->visibleTo($user);
 
-        $totalTowers = (clone $towers)->count();
-        $critical = (clone $towers)->where('health_status', 'critical')->count();
-        $needingInspection = (clone $towers)
-            ->where('status', 'active')
-            ->where(function ($query) {
-                $query->where('health_status', 'unknown')
-                    ->orWhereDoesntHave('inspections', function ($inspections) {
-                        $inspections->where('inspected_at', '>=', now()->subDays(90));
-                    });
-            })
-            ->count();
-
-        $expiringLicenses = (clone $licenses)->expiringSoon()->with(['tower', 'operator'])->orderBy('expires_at')->get();
-        $expiredLicenses = (clone $licenses)->expired()->count();
-
-        $mapTowers = (clone $towers)
-            ->with(['operator', 'region', 'latestInspection', 'currentLicense'])
-            ->get();
+        $preview = Tower::query()
+            ->visibleTo($user)
+            ->with('operator')
+            ->orderBy('name')
+            ->get(['id', 'name', 'latitude', 'longitude', 'status', 'health_status', 'operator_id']);
 
         return view('dashboard', [
-            'totalTowers' => $totalTowers,
-            'critical' => $critical,
-            'needingInspection' => $needingInspection,
-            'expiringLicenses' => $expiringLicenses,
-            'expiredLicenses' => $expiredLicenses,
-            'mapTowers' => $mapTowers,
+            'towerCount' => (clone $towers)->count(),
+            'criticalCount' => (clone $towers)->where('health_status', 'critical')->count(),
+            'attentionCount' => (clone $towers)->where('health_status', 'needs_attention')->count(),
+            'overdueCount' => (clone $towers)->inspectionOverdue()->count(),
+            'expiringCount' => (clone $licenses)->expiringSoon()->count(),
+            'expiredCount' => (clone $licenses)->expired()->count(),
+            'alerts' => Tower::query()
+                ->visibleTo($user)
+                ->with(['region', 'operator'])
+                ->where(function ($query) {
+                    $query->whereIn('health_status', ['critical', 'needs_attention'])
+                        ->orWhere(fn ($overdue) => $overdue->inspectionOverdue());
+                })
+                ->limit(20)
+                ->get()
+                ->sortBy(fn (Tower $tower) => match ($tower->health_status) {
+                    'critical' => 0,
+                    'needs_attention' => 1,
+                    default => 2,
+                })
+                ->take(8)
+                ->values(),
+            'previewTowers' => $preview->map(fn (Tower $tower) => [
+                'name' => $tower->name,
+                'lat' => (float) $tower->latitude,
+                'lng' => (float) $tower->longitude,
+                'color' => $tower->statusColor(),
+                'url' => route('towers.show', $tower),
+            ]),
         ]);
     }
 }

@@ -5,7 +5,8 @@
 **Client:** Ministry of Communication and Information Technology (MoCIT), Somaliland  
 **Languages:** English (default) + Somali toggle  
 **Status:** Building **one week at a time** (see §13).  
-**Current week:** **Week 4 complete.** Next: **Week 5 — Registry UI polish**  
+**Current week:** **Week 11 complete — Users & audit log UI**  
+**Last completed:** **Week 10 — Licenses**  
 **Source of truth:** this file. Update it when a product decision changes.
 
 ---
@@ -248,6 +249,7 @@ Overdue: no inspection in **90 days**.
 - tower_id, operator_id
 - license_type: `A` / `B` / `C`
 - issued_at, expires_at
+- documents: JSON list of scanned files (PDF / photo / Word), stored on the public disk
 - Display status **computed from dates** (not stored): expired / expiring_soon (≤30 days) / active
 
 ### `users` — Breeze + role (`admin`/`inspector`/`operator_viewer`) + region_id + operator_id
@@ -307,16 +309,16 @@ Do **not** build the whole product in one pass. Each session finishes **one week
 | 2 | Design | **Done as context** — no Figma; design reference + this file |
 | 3 | Data model & architecture | **Done** |
 | 4 | Tower registry backend + sample seed + registry screens | **Done** |
-| 5 | Tower registry UI | Later |
-| 6 | Map v1 | Later |
-| 7 | Map polish | Later |
-| 8 | Inspections | Later |
-| 9 | Health rollup & alerts | Later |
-| 10 | Licenses (A/B/C), dashboard banner | Later |
-| 11 | Roles polish & audit log UI | Later |
+| 5 | Tower registry UI (list, form, detail, search/filter, bilingual, locale toggle) | **Done** |
+| 6 | Map v1 | **Done** |
+| 7 | Map polish (clustering, layer toggles, mobile) | **Done** |
+| 8 | Inspections | **Done** |
+| 9 | Health rollup & alerts | **Done** |
+| 10 | Licenses (A/B/C), dashboard banner, documents | **Done** |
+| 11 | Roles polish & audit log UI | **Done** |
 | 12 | Test, pilot, handover | Later |
 
-Auth (Breeze) is installed early so Week 3 can be logged into. Map, inspections, licenses, and user-admin screens wait for their week.
+Auth (Breeze) is installed. User-admin and audit-log screens are live for ministry admins.
 
 - User-facing strings go through lang files (`en` default)
 - Writes ministry staff care about → `audit_logs`
@@ -391,13 +393,13 @@ erDiagram
 |---|---|---|
 | GET/POST | `/login` `/logout` | 3 (Breeze) |
 | GET | `/dashboard` | 3 stub → 9 cards |
-| GET | `/map` `/map/towers` | 6–7 |
+| GET | `/map` `/map/towers` | 6–7 (done) |
 | resource | `/towers` | 4–5 |
-| POST | `/towers/{tower}/inspections` | 8 |
-| resource | `/licenses` | 10 |
-| resource | `/users` | 11 |
-| GET | `/audit-logs` | 11 |
-| POST | `/locale` | 5 |
+| POST | `/towers/{tower}/inspections` | 8 (done) |
+| resource | `/licenses` | 10 (done) |
+| resource | `/users` | 11 (done) |
+| GET | `/audit-logs` | 11 (done) |
+| POST | `/locale` | 5 (done) |
 
 ## 15. Still open (not blocking demo)
 

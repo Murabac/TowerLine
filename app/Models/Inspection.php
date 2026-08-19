@@ -59,7 +59,15 @@ class Inspection extends Model
     public function photoUrls(): array
     {
         return collect($this->photos ?? [])
+            ->flatMap(fn ($path) => is_array($path) ? $path : [$path])
+            ->filter(fn ($path) => is_string($path) && $path !== '')
             ->map(fn (string $path) => asset('storage/'.$path))
+            ->values()
             ->all();
+    }
+
+    public static function photoSlots(): array
+    {
+        return ['wide', 'base', 'power', 'condition'];
     }
 }

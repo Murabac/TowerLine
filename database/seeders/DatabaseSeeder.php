@@ -96,5 +96,8 @@ class DatabaseSeeder extends Seeder
         }
 
         $this->call(TowerSeeder::class);
+        $this->call(InspectionSeeder::class);
+        $this->call(LicenseSeeder::class);
+        $this->call(AuditLogSeeder::class);
     }
 }
