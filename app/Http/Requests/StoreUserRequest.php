@@ -26,20 +26,16 @@ class StoreUserRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($managed?->id)],
             'password' => [$creating ? 'required' : 'nullable', 'string', 'min:8'],
-            'role' => ['required', Rule::in(['admin', 'inspector', 'operator_viewer'])],
-            'region_id' => ['nullable', 'required_if:role,inspector', 'exists:regions,id'],
-            'operator_id' => ['nullable', 'required_if:role,operator_viewer', 'exists:operators,id'],
+            'role' => ['required', Rule::in(['admin', 'inspector'])],
+            'region_ids' => ['nullable', 'array', 'required_if:role,inspector'],
+            'region_ids.*' => ['integer', 'exists:regions,id'],
         ];
     }
 
     protected function passedValidation(): void
     {
         if ($this->input('role') !== 'inspector') {
-            $this->merge(['region_id' => null]);
-        }
-
-        if ($this->input('role') !== 'operator_viewer') {
-            $this->merge(['operator_id' => null]);
+            $this->merge(['region_ids' => []]);
         }
     }
 }

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\HelpController;
 use App\Http\Controllers\InspectionController;
 use App\Http\Controllers\LicenseController;
 use App\Http\Controllers\LocaleController;
@@ -21,6 +22,7 @@ Route::post('/locale', LocaleController::class)->name('locale.update');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    Route::get('/help', HelpController::class)->name('help');
     Route::get('/map', [MapController::class, 'index'])->name('map');
     Route::get('/map/towers', [MapController::class, 'towers'])->name('map.towers');
     Route::resource('towers', TowerController::class);

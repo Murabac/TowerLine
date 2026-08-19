@@ -36,6 +36,15 @@ class UserFactory extends Factory
         ];
     }
 
+    public function configure(): static
+    {
+        return $this->afterCreating(function (User $user) {
+            if ($user->isInspector() && $user->region_id) {
+                $user->regions()->syncWithoutDetaching([(int) $user->region_id]);
+            }
+        });
+    }
+
     /**
      * Indicate that the model's email address should be unverified.
      */

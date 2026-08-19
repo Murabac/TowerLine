@@ -15,6 +15,45 @@ class AuthenticationTest extends TestCase
         $response = $this->get('/login');
 
         $response->assertStatus(200);
+        $this->assertGuest();
+        $response->assertSee(__('app.demo.quick_login'), false);
+        $response->assertSee(__('app.demo.admin'), false);
+        $response->assertSee(__('app.demo.inspector_maroodi'), false);
+        $response->assertSee(__('app.demo.inspector_west'), false);
+        $response->assertDontSee('viewer.telesom@mocit.local', false);
+    }
+
+    public function test_operator_viewers_cannot_log_in_while_the_role_is_disabled(): void
+    {
+        $operator = \App\Models\Operator::query()->create([
+            'name' => 'Telesom',
+            'category' => 'telecom',
+            'color' => '#0F766E',
+        ]);
+        $viewer = User::factory()->create([
+            'role' => 'operator_viewer',
+            'operator_id' => $operator->id,
+        ]);
+
+        $this->from('/login')->post('/login', [
+            'email' => $viewer->email,
+            'password' => 'password',
+        ])->assertRedirect('/login')->assertSessionHasErrors('email');
+
+        $this->assertGuest();
+    }
+
+    public function test_demo_quick_login_signs_in_an_admin(): void
+    {
+        $this->seed(\Database\Seeders\DatabaseSeeder::class);
+
+        $this->post('/login', [
+            'email' => 'admin@mocit.local',
+            'password' => 'password',
+        ])->assertRedirect(route('dashboard', absolute: false));
+
+        $this->assertAuthenticated();
+        $this->assertSame('admin', auth()->user()->role);
     }
 
     public function test_users_can_authenticate_using_the_login_screen(): void

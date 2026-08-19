@@ -108,7 +108,7 @@ class TowerController extends Controller
 
         $regions = Region::query()->orderBy('name_en')->get();
         if ($user->isInspector()) {
-            $regions = $regions->where('id', $user->region_id)->values();
+            $regions = $regions->whereIn('id', $user->regionIds() ?: [0])->values();
         }
 
         return [

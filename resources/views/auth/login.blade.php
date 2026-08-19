@@ -12,7 +12,7 @@
             @csrf
             <div>
                 <x-input-label for="email" :value="__('app.email')" />
-                <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email', 'admin@mocit.local')" required autofocus />
+                <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus />
                 <x-input-error :messages="$errors->get('email')" class="mt-2" />
             </div>
             <div>
@@ -26,8 +26,29 @@
             </label>
             <x-primary-button class="w-full justify-center">{{ __('app.log_in') }}</x-primary-button>
         </form>
-        <p class="mt-6 text-[11px] text-gray-500 leading-relaxed">
-            Demo: <code>admin@mocit.local</code> / <code>password</code>
-        </p>
+
+        @unless (app()->isProduction())
+            <div class="mt-6 border-t border-gray-100 pt-5">
+                <p class="text-[11px] font-semibold uppercase tracking-[0.12em] text-gray-400">{{ __('app.demo.quick_login') }}</p>
+                <p class="mt-1 text-xs text-gray-500">{{ __('app.demo.quick_login_hint') }}</p>
+                <div class="mt-3 grid gap-2">
+                    @foreach ([
+                        ['email' => 'admin@mocit.local', 'label' => __('app.demo.admin'), 'class' => 'border-emerald-200 bg-emerald-50 text-emerald-900 hover:bg-emerald-100'],
+                        ['email' => 'inspector.maroodi@mocit.local', 'label' => __('app.demo.inspector_maroodi'), 'class' => 'border-sky-200 bg-sky-50 text-sky-900 hover:bg-sky-100'],
+                        ['email' => 'inspector.sahil@mocit.local', 'label' => __('app.demo.inspector_sahil'), 'class' => 'border-sky-200 bg-sky-50 text-sky-900 hover:bg-sky-100'],
+                        ['email' => 'inspector.west@mocit.local', 'label' => __('app.demo.inspector_west'), 'class' => 'border-sky-200 bg-sky-50 text-sky-900 hover:bg-sky-100'],
+                    ] as $account)
+                        <form method="POST" action="{{ route('login') }}">
+                            @csrf
+                            <input type="hidden" name="email" value="{{ $account['email'] }}">
+                            <input type="hidden" name="password" value="password">
+                            <button type="submit" class="w-full rounded-xl border px-3 py-2.5 text-sm font-semibold text-left {{ $account['class'] }}">
+                                {{ $account['label'] }}
+                            </button>
+                        </form>
+                    @endforeach
+                </div>
+            </div>
+        @endunless
     </div>
 </x-guest-layout>

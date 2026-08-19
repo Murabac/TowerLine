@@ -19,14 +19,11 @@
     </div>
     <div>
         <x-input-label for="region_id" :value="__('app.towers.region')" />
-        <select id="region_id" name="region_id" class="mt-1 block w-full rounded-md border-gray-300 focus:border-brand focus:ring-brand" required @disabled(auth()->user()->isInspector())>
+        <select id="region_id" name="region_id" class="mt-1 block w-full rounded-md border-gray-300 focus:border-brand focus:ring-brand" required>
             @foreach ($regions as $region)
-                <option value="{{ $region->id }}" @selected(old('region_id', $tower?->region_id ?? auth()->user()->region_id) == $region->id)>{{ $region->localizedName() }}</option>
+                <option value="{{ $region->id }}" @selected(old('region_id', $tower?->region_id ?? auth()->user()->regionIds()[0] ?? null) == $region->id)>{{ $region->localizedName() }}</option>
             @endforeach
         </select>
-        @if (auth()->user()->isInspector())
-            <input type="hidden" name="region_id" value="{{ auth()->user()->region_id }}">
-        @endif
         <x-input-error :messages="$errors->get('region_id')" class="mt-1" />
     </div>
     <div>

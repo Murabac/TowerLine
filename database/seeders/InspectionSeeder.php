@@ -14,7 +14,7 @@ class InspectionSeeder extends Seeder
         Inspection::query()->delete();
 
         $admin = User::query()->where('role', 'admin')->first();
-        $inspectors = User::query()->where('role', 'inspector')->get()->keyBy('region_id');
+        $inspectors = User::query()->where('role', 'inspector')->with('regions')->get();
 
         $profiles = [
             ['on_grid', 'good', 'good', 20],
@@ -34,7 +34,7 @@ class InspectionSeeder extends Seeder
             }
 
             $profile = $profiles[$i % count($profiles)];
-            $inspector = $inspectors->get($tower->region_id) ?? $admin;
+            $inspector = $inspectors->first(fn (User $user) => $user->coversRegion((int) $tower->region_id)) ?? $admin;
 
             if (! $inspector) {
                 continue;

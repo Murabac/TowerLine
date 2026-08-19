@@ -17,20 +17,19 @@ class StoreTowerRequest extends FormRequest
             : $this->user()->can('create', Tower::class);
     }
 
-    protected function prepareForValidation(): void
-    {
-        if ($this->user()->isInspector()) {
-            $this->merge(['region_id' => $this->user()->region_id]);
-        }
-    }
-
     public function rules(): array
     {
+        $regionRule = ['required', 'exists:regions,id'];
+
+        if ($this->user()->isInspector()) {
+            $regionRule[] = Rule::in($this->user()->regionIds());
+        }
+
         return [
             'name' => ['required', 'string', 'max:255'],
             'latitude' => ['required', 'numeric', 'between:-90,90'],
             'longitude' => ['required', 'numeric', 'between:-180,180'],
-            'region_id' => ['required', 'exists:regions,id'],
+            'region_id' => $regionRule,
             'operator_id' => ['required', 'exists:operators,id'],
             'type' => ['required', Rule::in(['guyed', 'monopole', 'rooftop'])],
             'height_m' => ['required', 'numeric', 'min:1', 'max:500'],

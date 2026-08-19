@@ -28,13 +28,16 @@ class UserAdminAndAuditTest extends TestCase
                 'email' => 'inspector.sahil.test@mocit.local',
                 'password' => 'password',
                 'role' => 'inspector',
-                'region_id' => $region->id,
+                'region_ids' => [$region->id],
             ])
             ->assertRedirect(route('users.index'));
 
         $this->assertDatabaseHas('users', [
             'email' => 'inspector.sahil.test@mocit.local',
             'role' => 'inspector',
+        ]);
+        $this->assertDatabaseHas('region_user', [
+            'user_id' => \App\Models\User::query()->where('email', 'inspector.sahil.test@mocit.local')->value('id'),
             'region_id' => $region->id,
         ]);
 

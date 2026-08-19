@@ -39,7 +39,7 @@ class TowerPolicy
         }
 
         if ($user->isInspector()) {
-            return (int) $user->region_id === (int) $tower->region_id;
+            return $user->coversRegion((int) $tower->region_id);
         }
 
         if ($user->isOperatorViewer()) {

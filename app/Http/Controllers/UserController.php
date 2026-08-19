@@ -17,7 +17,7 @@ class UserController extends Controller
     {
         $this->authorize('viewAny', User::class);
 
-        $query = User::query()->with(['region', 'operator'])->orderBy('name');
+        $query = User::query()->with(['regions', 'operator'])->orderBy('name');
 
         if ($request->filled('role')) {
             $query->where('role', $request->string('role'));
@@ -38,13 +38,16 @@ class UserController extends Controller
     public function store(StoreUserRequest $request): RedirectResponse
     {
         $data = $request->validated();
-        $data['region_id'] = $data['role'] === 'inspector' ? ($data['region_id'] ?? null) : null;
-        $data['operator_id'] = $data['role'] === 'operator_viewer' ? ($data['operator_id'] ?? null) : null;
+        $regionIds = $data['role'] === 'inspector' ? ($data['region_ids'] ?? []) : [];
+        unset($data['region_ids']);
+        $data['region_id'] = $regionIds[0] ?? null;
+        $data['operator_id'] = null;
 
         $user = User::query()->create([
             ...$data,
             'email_verified_at' => now(),
         ]);
+        $user->syncInspectorRegions($regionIds);
         Audits::log('created', $user, $user->only(['name', 'email', 'role']));
 
         return redirect()->route('users.index')->with('status', __('app.users.created'));
@@ -54,7 +57,7 @@ class UserController extends Controller
     {
         $this->authorize('update', $user);
 
-        return view('users.edit', array_merge($this->formData(), ['managedUser' => $user]));
+        return view('users.edit', array_merge($this->formData(), ['managedUser' => $user->load('regions')]));
     }
 
     public function update(StoreUserRequest $request, User $user): RedirectResponse
@@ -65,11 +68,14 @@ class UserController extends Controller
         if (empty($data['password'])) {
             unset($data['password']);
         }
-        $data['region_id'] = $data['role'] === 'inspector' ? ($data['region_id'] ?? null) : null;
-        $data['operator_id'] = $data['role'] === 'operator_viewer' ? ($data['operator_id'] ?? null) : null;
+        $regionIds = $data['role'] === 'inspector' ? ($data['region_ids'] ?? []) : [];
+        unset($data['region_ids']);
+        $data['region_id'] = $regionIds[0] ?? null;
+        $data['operator_id'] = null;
 
         $user->update($data);
-        Audits::log('updated', $user, $user->only(['name', 'email', 'role', 'region_id', 'operator_id']));
+        $user->syncInspectorRegions($regionIds);
+        Audits::log('updated', $user, $user->only(['name', 'email', 'role']));
 
         return redirect()->route('users.index')->with('status', __('app.users.updated'));
     }

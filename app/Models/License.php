@@ -82,7 +82,7 @@ class License extends Model
         }
 
         if ($user->isInspector()) {
-            return $query->whereHas('tower', fn (Builder $towers) => $towers->where('region_id', $user->region_id));
+            return $query->whereHas('tower', fn (Builder $towers) => $towers->whereIn('region_id', $user->regionIds() ?: [0]));
         }
 
         if ($user->isOperatorViewer()) {

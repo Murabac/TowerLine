@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -29,6 +30,11 @@ class User extends Authenticatable
     public function region(): BelongsTo
     {
         return $this->belongsTo(Region::class);
+    }
+
+    public function regions(): BelongsToMany
+    {
+        return $this->belongsToMany(Region::class)->withTimestamps();
     }
 
     public function operator(): BelongsTo
@@ -54,6 +60,36 @@ class User extends Authenticatable
     public function isOperatorViewer(): bool
     {
         return $this->role === 'operator_viewer';
+    }
+
+    /**
+     * @return list<int>
+     */
+    public function regionIds(): array
+    {
+        return $this->regions->pluck('id')->map(fn ($id) => (int) $id)->all();
+    }
+
+    public function coversRegion(?int $regionId): bool
+    {
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        if (! $this->isInspector() || $regionId === null) {
+            return false;
+        }
+
+        return in_array($regionId, $this->regionIds(), true);
+    }
+
+    public function syncInspectorRegions(array $regionIds): void
+    {
+        $ids = collect($regionIds)->filter()->map(fn ($id) => (int) $id)->unique()->values();
+
+        $this->regions()->sync($ids->all());
+        $this->forceFill(['region_id' => $ids->first()])->saveQuietly();
+        $this->unsetRelation('regions');
     }
 
     public function canWrite(): bool

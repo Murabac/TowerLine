@@ -40,59 +40,51 @@ class DatabaseSeeder extends Seeder
 
         $maroodi = Region::query()->where('name_en', 'Maroodi Jeex')->first();
         $sahil = Region::query()->where('name_en', 'Sahil')->first();
-        $telesom = Operator::query()->where('name', 'Telesom')->first();
-        $truecable = Operator::query()->where('name', 'Truecable')->first();
+        $awdal = Region::query()->where('name_en', 'Awdal')->first();
 
         $users = [
             [
                 'email' => 'admin@mocit.local',
                 'name' => 'MoCIT Admin',
                 'role' => 'admin',
-                'region_id' => null,
-                'operator_id' => null,
+                'region_ids' => [],
             ],
             [
                 'email' => 'inspector.maroodi@mocit.local',
                 'name' => 'Inspector Maroodi Jeex',
                 'role' => 'inspector',
-                'region_id' => $maroodi?->id,
-                'operator_id' => null,
+                'region_ids' => array_filter([$maroodi?->id]),
             ],
             [
                 'email' => 'inspector.sahil@mocit.local',
                 'name' => 'Inspector Sahil',
                 'role' => 'inspector',
-                'region_id' => $sahil?->id,
-                'operator_id' => null,
+                'region_ids' => array_filter([$sahil?->id]),
             ],
             [
-                'email' => 'viewer.telesom@mocit.local',
-                'name' => 'Telesom Viewer',
-                'role' => 'operator_viewer',
-                'region_id' => null,
-                'operator_id' => $telesom?->id,
-            ],
-            [
-                'email' => 'viewer.truecable@mocit.local',
-                'name' => 'Truecable Viewer',
-                'role' => 'operator_viewer',
-                'region_id' => null,
-                'operator_id' => $truecable?->id,
+                'email' => 'inspector.west@mocit.local',
+                'name' => 'Inspector West',
+                'role' => 'inspector',
+                'region_ids' => array_filter([$awdal?->id, $maroodi?->id, $sahil?->id]),
             ],
         ];
 
+        User::query()->where('role', 'operator_viewer')->delete();
+
         foreach ($users as $user) {
-            User::query()->updateOrCreate(
+            $record = User::query()->updateOrCreate(
                 ['email' => $user['email']],
                 [
                     'name' => $user['name'],
                     'password' => Hash::make('password'),
                     'role' => $user['role'],
-                    'region_id' => $user['region_id'],
-                    'operator_id' => $user['operator_id'],
+                    'region_id' => $user['region_ids'][0] ?? null,
+                    'operator_id' => null,
                     'email_verified_at' => now(),
                 ]
             );
+
+            $record->syncInspectorRegions($user['region_ids']);
         }
 
         $this->call(TowerSeeder::class);

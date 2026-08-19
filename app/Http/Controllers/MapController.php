@@ -21,7 +21,7 @@ class MapController extends Controller
         $operators = Operator::query()->orderBy('name');
 
         if ($user->isInspector()) {
-            $regions->whereKey($user->region_id);
+            $regions->whereIn('id', $user->regionIds() ?: [0]);
         }
 
         if ($user->isOperatorViewer()) {

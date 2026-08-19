@@ -4,9 +4,9 @@
 **Official product name:** Wasaaradda Isgaarsiinta iyo Technology — Tower Management & Monitoring System  
 **Client:** Ministry of Communication and Information Technology (MoCIT), Somaliland  
 **Languages:** English (default) + Somali toggle  
-**Status:** Building **one week at a time** (see §13).  
-**Current week:** **Week 11 complete — Users & audit log UI**  
-**Last completed:** **Week 10 — Licenses**  
+**Status:** 12-week plan complete for the demo / pilot app.  
+**Current week:** **Week 12 complete — Test, pilot guide, handover**  
+**Last completed:** **Week 12**  
 **Source of truth:** this file. Update it when a product decision changes.
 
 ---
@@ -37,6 +37,7 @@ This is **not** a consumer product. Official, bilingual, usable on tablet/phone 
 | `Tower Mangement Design refrence.md` | Build spec (stack, branding, schema, screens) |
 | `wasaarada logo.jpg` | Official Somaliland emblem — use in header / login |
 | `CONTEXT.md` (this file) | Locked decisions + implementation guide |
+| `HANDOVER.md` | Staff training, pilot steps, local/server runbook |
 
 Build from the design reference + this file. No separate Figma phase — the app **is** the design.
 
@@ -49,7 +50,7 @@ Build from the design reference + this file. No separate Figma phase — the app
 | Tower inventory | Real list comes later. Demo uses sample data only. |
 | Operators | **Telecom:** Telesom, Somtel, Sogasho. **Broadcast:** Truecable, Astaan, Horncable |
 | Regions | Awdal, Maroodi Jeex, Sahil, Togdheer, Sanaag, Sool |
-| Inspectors | Ministry members (MoCIT staff), scoped to a region |
+| Inspectors | Ministry members (MoCIT staff), assigned **one or more regions** |
 | Hosting | Not decided; likely **government server**. Keep standard Laravel (Apache/Nginx + PHP + MySQL). No Redis required. |
 | Map success | Daily use **and** live briefings **and** snapshot/print |
 | Default language | **English** (`en`). Somali available via toggle. |
@@ -96,8 +97,8 @@ Inspectors are **ministry employees**, not contractors.
 | Role | Key | Access |
 |---|---|---|
 | Ministry admin | `admin` | Everything |
-| Regional inspector | `inspector` | View/edit towers and submit inspections **only in their `region_id`**. Map scoped. No user admin. |
-| Operator viewer | `operator_viewer` | Read-only, scoped to their `operator_id` (including inspections and licenses) |
+| Regional inspector | `inspector` | View/edit towers and submit inspections **in one or more assigned regions** (`region_user`). Map scoped. No user admin. |
+| Operator viewer | `operator_viewer` | **Disabled for now** (login blocked). Policies remain for a later phase. |
 
 ---
 
@@ -294,8 +295,7 @@ Password for all: `password`
 | admin@mocit.local | admin | all |
 | inspector.maroodi@mocit.local | inspector | Maroodi Jeex |
 | inspector.sahil@mocit.local | inspector | Sahil |
-| viewer.telesom@mocit.local | operator_viewer | Telesom |
-| viewer.truecable@mocit.local | operator_viewer | Truecable |
+| inspector.west@mocit.local | inspector | Awdal, Maroodi Jeex, Sahil |
 
 ---
 
@@ -316,15 +316,16 @@ Do **not** build the whole product in one pass. Each session finishes **one week
 | 9 | Health rollup & alerts | **Done** |
 | 10 | Licenses (A/B/C), dashboard banner, documents | **Done** |
 | 11 | Roles polish & audit log UI | **Done** |
-| 12 | Test, pilot, handover | Later |
+| 12 | Test, pilot, handover | **Done** — automated tests + Help screen + `HANDOVER.md`. Live government-server cutover and in-person MoCIT training wait on hosting. |
 
-Auth (Breeze) is installed. User-admin and audit-log screens are live for ministry admins.
+Auth (Breeze) is installed. User-admin, audit-log, and Help screens are live for ministry staff.
 
 - User-facing strings go through lang files (`en` default)
 - Writes ministry staff care about → `audit_logs`
 - Map JSON is role-scoped
 - Boring Laravel: controllers, Blade, Form Requests, Policies, seeders
 - When the real tower list arrives, add an importer; do not hand-edit production coordinates in seeders
+- Public self-registration is off. Admins create users. Staff cannot delete their own account from Profile.
 
 ---
 
@@ -399,6 +400,7 @@ erDiagram
 | resource | `/licenses` | 10 (done) |
 | resource | `/users` | 11 (done) |
 | GET | `/audit-logs` | 11 (done) |
+| GET | `/help` | 12 (done) |
 | POST | `/locale` | 5 (done) |
 
 ## 15. Still open (not blocking demo)

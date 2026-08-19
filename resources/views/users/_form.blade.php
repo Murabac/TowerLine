@@ -32,8 +32,8 @@
         <legend class="text-sm font-semibold text-gray-900">{{ __('app.users.role') }}</legend>
         <p class="mt-1 text-sm text-gray-500">{{ __('app.users.role_help') }}</p>
         @error('role') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
-        <div class="mt-3 grid sm:grid-cols-3 gap-2.5">
-            @foreach (['admin', 'inspector', 'operator_viewer'] as $role)
+        <div class="mt-3 grid sm:grid-cols-2 gap-2.5">
+            @foreach (['admin', 'inspector'] as $role)
                 <label class="cursor-pointer rounded-2xl border border-gray-200 bg-white px-3 py-4 text-center transition has-[:checked]:border-brand has-[:checked]:bg-[#F4F8F6] has-[:checked]:shadow-[inset_0_0_0_1px_#1B4D3E]">
                     <input type="radio" name="role" value="{{ $role }}" class="sr-only" x-model="role" @checked(old('role', $managedUser?->role ?? 'inspector') === $role) required>
                     <span class="block text-sm font-semibold text-gray-900">{{ __('app.roles.'.$role) }}</span>
@@ -43,24 +43,19 @@
     </fieldset>
 
     <div x-show="role === 'inspector'" x-cloak>
-        <label for="region_id" class="text-sm font-semibold text-gray-900">{{ __('app.users.region') }}</label>
-        <select id="region_id" name="region_id" class="field mt-2" :required="role === 'inspector'">
-            <option value="">{{ __('app.users.region') }}</option>
+        <p class="text-sm font-semibold text-gray-900">{{ __('app.users.regions') }}</p>
+        <p class="mt-1 text-sm text-gray-500">{{ __('app.users.regions_help') }}</p>
+        @error('region_ids') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+        @php
+            $selectedRegions = collect(old('region_ids', $managedUser?->regions?->pluck('id')->all() ?? []))->map(fn ($id) => (string) $id);
+        @endphp
+        <div class="mt-3 grid sm:grid-cols-2 gap-2">
             @foreach ($regions as $region)
-                <option value="{{ $region->id }}" @selected((string) old('region_id', $managedUser?->region_id) === (string) $region->id)>{{ $region->localizedName() }}</option>
+                <label class="flex cursor-pointer items-center gap-3 rounded-xl border border-gray-200 bg-white px-3 py-3 text-sm has-[:checked]:border-brand has-[:checked]:bg-[#F4F8F6]">
+                    <input type="checkbox" name="region_ids[]" value="{{ $region->id }}" class="rounded border-gray-300 text-brand focus:ring-brand/30" @checked($selectedRegions->contains((string) $region->id))>
+                    <span class="font-medium text-gray-900">{{ $region->localizedName() }}</span>
+                </label>
             @endforeach
-        </select>
-        @error('region_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-    </div>
-
-    <div x-show="role === 'operator_viewer'" x-cloak>
-        <label for="operator_id" class="text-sm font-semibold text-gray-900">{{ __('app.users.operator') }}</label>
-        <select id="operator_id" name="operator_id" class="field mt-2" :required="role === 'operator_viewer'">
-            <option value="">{{ __('app.users.operator') }}</option>
-            @foreach ($operators as $operator)
-                <option value="{{ $operator->id }}" @selected((string) old('operator_id', $managedUser?->operator_id) === (string) $operator->id)>{{ $operator->name }}</option>
-            @endforeach
-        </select>
-        @error('operator_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+        </div>
     </div>
 </div>
