@@ -55,6 +55,18 @@ Standard Laravel on Apache or Nginx + PHP 8.3+ + MySQL 8:
 - `php artisan storage:link` and `npm run build` (or deploy already-built `public/build`)
 - Backup MySQL and `storage/app` (inspection photos, license scans)
 
+### Bluehost (cPanel shared) — ZIP + SQL (no SSH)
+
+Preferred for shared hosting: **[DEPLOY-BLUEHOST.md](DEPLOY-BLUEHOST.md)**
+
+1. On PC: `npm run build`, zip the project (include `vendor/` + `public/build/`, exclude `.env`)
+2. Export local DB → `towerline.sql` (phpMyAdmin or mysqldump)
+3. Bluehost: create MySQL DB, upload/extract zip, point domain at `towerline/public`
+4. Create production `.env`, import `.sql` in phpMyAdmin, link `public/storage`
+5. Open HTTPS URL and change demo passwords
+
+PHP **8.3+** required.
+
 Live production cutover, in-person training, and the real tower import wait on MoCIT’s server and inventory file.
 
 ## Tests

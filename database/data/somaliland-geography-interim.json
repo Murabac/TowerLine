@@ -1,0 +1,139 @@
+{
+  "_meta": {
+    "source": "Somaliland Regions and Districts Self-management Law No. 23/2019 (Article 10)",
+    "url": "http://www.somalilandlaw.com/Xeerka__wkb__Gobolada_iyo_Degmooyinka_2019SLLaw.pdf",
+    "status": "interim",
+    "note": "Replace with MoCIT official list when provided. Sub-districts are placeholders (one per district) until ministry supplies real xaafad / sub-degmo names."
+  },
+  "regions": {
+    "Maroodi Jeex": {
+      "districts": [
+        {"name_en": "Hargeisa", "name_so": "Hargeysa", "grade": "A"},
+        {"name_en": "Gabiley", "name_so": "Gabiley", "grade": "A"},
+        {"name_en": "Baligubadle", "name_so": "Baligubad", "grade": "C"},
+        {"name_en": "Salahlay", "name_so": "Salaxlay", "grade": "C"},
+        {"name_en": "Farawayne", "name_so": "Farawayne", "grade": "D"},
+        {"name_en": "Sabawanaag", "name_so": "Sabawanaag", "grade": "D"},
+        {"name_en": "Cadaley", "name_so": "Cadaaley", "grade": "D"},
+        {"name_en": "Dar as Salaam", "name_so": "Daarasalaam", "grade": "D"},
+        {"name_en": "Allaybaday", "name_so": "Allaybaday", "grade": "D"},
+        {"name_en": "Bali-Mataan", "name_so": "Bali-Maataan", "grade": "D"},
+        {"name_en": "Laas Geel", "name_so": "Laas-geel", "grade": "D"},
+        {"name_en": "Wajaale", "name_so": "Wajaale", "grade": "D"},
+        {"name_en": "Agabar", "name_so": "Agabar", "grade": "D"},
+        {"name_en": "Geed Balaadh", "name_so": "Geed-Balaadh", "grade": "D"},
+        {"name_en": "Arabsiyo", "name_so": "Arabsiyo", "grade": "D"},
+        {"name_en": "Dacarta", "name_so": "Dacarta", "grade": "D"},
+        {"name_en": "Gumburaha", "name_so": "Gumburaha", "grade": "D"},
+        {"name_en": "Saylab Barri", "name_so": "Saylab-barri", "grade": "D"},
+        {"name_en": "Bali Cabane", "name_so": "Bali-cabane", "grade": "D"}
+      ]
+    },
+    "Togdheer": {
+      "districts": [
+        {"name_en": "Burao", "name_so": "Burco", "grade": "A"},
+        {"name_en": "Odweyne", "name_so": "Oodwayne", "grade": "B"},
+        {"name_en": "Buuhoodle", "name_so": "Buuhoodle", "grade": "B"},
+        {"name_en": "Duruqsi", "name_so": "Duruqsi", "grade": "D"},
+        {"name_en": "Sheikh Hassan Geele", "name_so": "Sh. Xasan Geele", "grade": "D"},
+        {"name_en": "Qoryaale", "name_so": "Qoryaale", "grade": "D"},
+        {"name_en": "War Cimraan", "name_so": "War-cimraan", "grade": "D"},
+        {"name_en": "Qoyta", "name_so": "Qoyta", "grade": "D"},
+        {"name_en": "Waraabeeye", "name_so": "Waraabeeye", "grade": "D"},
+        {"name_en": "Qori Lugud", "name_so": "Qori-lugud", "grade": "D"},
+        {"name_en": "Riyo Xidho", "name_so": "Riyo-xidho", "grade": "D"},
+        {"name_en": "Rayadab Khaatumo", "name_so": "Rayadab-khaatumo", "grade": "D"},
+        {"name_en": "Nasiye", "name_so": "Nasiye", "grade": "D"},
+        {"name_en": "Kalbar", "name_so": "Kalbar", "grade": "D"},
+        {"name_en": "Fiqi Ayuub", "name_so": "Fiqi-ayuub", "grade": "D"},
+        {"name_en": "Gabo Gabo", "name_so": "Gabo-gabo", "grade": "D"},
+        {"name_en": "Dhoqoshay", "name_so": "Dhoqoshay", "grade": "D"},
+        {"name_en": "Haro Sheikh", "name_so": "Haro-sheekh", "grade": "D"},
+        {"name_en": "Xaaji Saalax", "name_so": "Xaaji Saalax", "grade": "D"},
+        {"name_en": "Masalaha Gorad", "name_so": "Masalaha Gorad", "grade": "D"},
+        {"name_en": "Xamar Lagu Xidh", "name_so": "Xamar lagu xidh", "grade": "D"},
+        {"name_en": "Widh Widh", "name_so": "Widh-widh", "grade": "D"}
+      ]
+    },
+    "Sanaag": {
+      "districts": [
+        {"name_en": "Erigavo", "name_so": "Ceergaabo", "grade": "A"},
+        {"name_en": "Badhan", "name_so": "Badhan", "grade": "B"},
+        {"name_en": "El Afweyn", "name_so": "Ceel-afwayn", "grade": "B"},
+        {"name_en": "Las Khorey", "name_so": "Laas-qoray", "grade": "C"},
+        {"name_en": "Dhahar", "name_so": "Dhahar", "grade": "C"},
+        {"name_en": "Garadag", "name_so": "Gar-adag", "grade": "C"},
+        {"name_en": "Xiingalool", "name_so": "Xiingalool", "grade": "D"},
+        {"name_en": "Maydh", "name_so": "Maydh", "grade": "D"},
+        {"name_en": "Dararwayne", "name_so": "Dararwayne", "grade": "D"},
+        {"name_en": "Fiqi Fuliye", "name_so": "Fiqi-fuliye", "grade": "D"},
+        {"name_en": "Xiis", "name_so": "Xiis", "grade": "D"},
+        {"name_en": "Yube", "name_so": "Yube", "grade": "D"},
+        {"name_en": "Yufle", "name_so": "Yufle", "grade": "D"},
+        {"name_en": "Huluul", "name_so": "Huluul", "grade": "D"},
+        {"name_en": "Gudmo Biyo Cas", "name_so": "Gudmo-biyo Cas", "grade": "D"},
+        {"name_en": "Ceelaayo", "name_so": "Ceelaayo", "grade": "D"},
+        {"name_en": "Laasa Surad", "name_so": "Laasa-surad", "grade": "D"},
+        {"name_en": "Aw Boogays", "name_so": "Aw-boogays", "grade": "D"},
+        {"name_en": "Goof Badarsalaam", "name_so": "Goof-badarsalaam", "grade": "D"}
+      ]
+    },
+    "Awdal": {
+      "districts": [
+        {"name_en": "Borama", "name_so": "Boorame", "grade": "A"},
+        {"name_en": "Zeila", "name_so": "Saylac", "grade": "B"},
+        {"name_en": "Baki", "name_so": "Baki", "grade": "C"},
+        {"name_en": "Lughaya", "name_so": "Lughaya", "grade": "C"},
+        {"name_en": "Dilla", "name_so": "Dilla", "grade": "D"},
+        {"name_en": "Boon", "name_so": "Boon", "grade": "D"},
+        {"name_en": "Xariirad", "name_so": "Xariirad", "grade": "D"},
+        {"name_en": "Garbo Dadar", "name_so": "Garbo-dadar", "grade": "D"},
+        {"name_en": "Qol Ujeed", "name_so": "Qol-ujeed", "grade": "D"},
+        {"name_en": "Xeego", "name_so": "Xeego", "grade": "D"},
+        {"name_en": "Cali Xaydh", "name_so": "Cali-xaydh", "grade": "D"},
+        {"name_en": "Magaalo Cad", "name_so": "Magaalo-cad", "grade": "D"}
+      ]
+    },
+    "Sool": {
+      "districts": [
+        {"name_en": "Las Anod", "name_so": "Laas-caanood", "grade": "A"},
+        {"name_en": "Aynabo", "name_so": "Caynabo", "grade": "C"},
+        {"name_en": "Taleh", "name_so": "Taleex", "grade": "C"},
+        {"name_en": "Hudun", "name_so": "Xudun", "grade": "C"},
+        {"name_en": "War Idaad", "name_so": "War-Idaad", "grade": "D"},
+        {"name_en": "Ceelal", "name_so": "Ceelal", "grade": "D"},
+        {"name_en": "Dhanaano", "name_so": "Dhanaano", "grade": "D"},
+        {"name_en": "Oog", "name_so": "Oog", "grade": "D"},
+        {"name_en": "Ceegaag", "name_so": "Ceegaag", "grade": "D"},
+        {"name_en": "Wadaamo Goo", "name_so": "Wadaamo goo", "grade": "D"},
+        {"name_en": "Xalin", "name_so": "Xalin", "grade": "D"},
+        {"name_en": "Boocame", "name_so": "Boocame", "grade": "D"},
+        {"name_en": "Yagoori", "name_so": "Yagoori", "grade": "D"},
+        {"name_en": "Kala Baydh", "name_so": "Kala-baydh", "grade": "D"},
+        {"name_en": "Dharkayngeeye", "name_so": "Dharkayngeeye", "grade": "D"},
+        {"name_en": "Adhicadeeye", "name_so": "Adhicadeeye", "grade": "D"},
+        {"name_en": "Bohol", "name_so": "Bohol", "grade": "D"},
+        {"name_en": "Sarmaanyo", "name_so": "Sarmaanyo", "grade": "D"},
+        {"name_en": "Shaxda", "name_so": "Shaxda", "grade": "D"},
+        {"name_en": "God Aalo", "name_so": "God-aalo", "grade": "D"},
+        {"name_en": "Caroolay", "name_so": "Caroolay", "grade": "D"}
+      ]
+    },
+    "Sahil": {
+      "districts": [
+        {"name_en": "Berbera", "name_so": "Bebera", "grade": "A"},
+        {"name_en": "Sheikh", "name_so": "Sheekh", "grade": "C"},
+        {"name_en": "Mandheera", "name_so": "Mandheera", "grade": "D"},
+        {"name_en": "Bulaxaar", "name_so": "Bulaxaar", "grade": "D"},
+        {"name_en": "Xagal", "name_so": "Xagal", "grade": "D"},
+        {"name_en": "Laas Ciidle", "name_so": "Laas-ciidle", "grade": "D"},
+        {"name_en": "Go'dawayn", "name_so": "Go'dawayn", "grade": "D"},
+        {"name_en": "Laasa Dawaco", "name_so": "Laasa-dawaco", "grade": "D"}
+      ]
+    }
+  },
+  "sub_district_placeholder_template": {
+    "name_en": "{district} — Central",
+    "name_so": "{district_so} — Dhexe"
+  }
+}

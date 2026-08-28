@@ -37,6 +37,7 @@ This is **not** a consumer product. Official, bilingual, usable on tablet/phone 
 | `Tower Mangement Design refrence.md` | Build spec (stack, branding, schema, screens) |
 | `wasaarada logo.jpg` | Official Somaliland emblem — use in header / login |
 | `CONTEXT.md` (this file) | Locked decisions + implementation guide |
+| `MINISTRY-PHASE2-PLAN.md` | Phase 2 roadmap from MoCIT meeting (Aug 2026) — weeks 13–23 |
 | `HANDOVER.md` | Staff training, pilot steps, local/server runbook |
 
 Build from the design reference + this file. No separate Figma phase — the app **is** the design.
