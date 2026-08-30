@@ -217,7 +217,7 @@ class RoleScopeAndHandoverTest extends TestCase
             'operator_id' => $operator->id,
             'type' => 'monopole',
             'height_m' => 40,
-            'capacity' => 'Demo',
+            'capacity' => '4g',
             'signal_radius_m' => 10000,
             'status' => 'active',
             'health_status' => 'unknown',

@@ -1,9 +1,9 @@
 <x-app-layout>
-    <div class="p-4 lg:p-6 max-w-5xl">
+    <div class="p-4 lg:p-6 max-w-6xl">
         <a href="{{ route('towers.show', $tower) }}" class="text-sm text-brand hover:underline">{{ __('app.back') }}</a>
         <h1 class="mt-2 text-2xl font-semibold text-brand">{{ __('app.edit') }} — {{ $tower->name }}</h1>
 
-        <form method="POST" action="{{ route('towers.update', $tower) }}" class="mt-6 bg-white border border-gray-200 rounded-lg p-4 lg:p-6">
+        <form method="POST" action="{{ route('towers.update', $tower) }}" enctype="multipart/form-data" class="mt-6 bg-white border border-gray-200 rounded-lg p-4 lg:p-6">
             @csrf
             @method('PUT')
             @include('towers._form', ['tower' => $tower])
@@ -13,5 +13,5 @@
             </div>
         </form>
     </div>
-    @include('towers._picker-script')
+    @include('towers._picker-script', ['previewTowerId' => $tower->id])
 </x-app-layout>

@@ -72,6 +72,10 @@
                     <p class="stat-value"><x-status-badge :value="$tower->health_status" /></p>
                 </div>
                 <div class="stat-tile">
+                    <p class="stat-label">{{ __('app.towers.power_source') }}</p>
+                    <p class="stat-value text-sm leading-snug">{{ $tower->powerSourceLabel() }}</p>
+                </div>
+                <div class="stat-tile">
                     <p class="stat-label">{{ __('app.towers.commissioned') }}</p>
                     <p class="stat-value">{{ $tower->commissioned_at?->format('d M Y') ?: '—' }}</p>
                 </div>
@@ -96,15 +100,52 @@
                         [__('app.towers.name'), $tower->name],
                         [__('app.towers.operator'), $tower->operator->name],
                         [__('app.towers.region'), $tower->region->localizedName()],
-                        [__('app.towers.capacity'), $tower->capacity ?: '—'],
+                        [__('app.towers.district'), $tower->district?->localizedName() ?? '—'],
+                        [__('app.towers.sub_district'), $tower->subDistrict?->localizedName() ?? '—'],
+                        [__('app.towers.form_fields.city'), $tower->city ?: '—'],
+                        [__('app.towers.power_source'), $tower->powerSourceLabel()],
+                        [__('app.towers.form_fields.land_area'), $tower->land_area ?: '—'],
+                        [__('app.towers.form_fields.nearest_school_m'), $tower->proximityLabel($tower->nearest_school_name, $tower->nearest_school_m)],
+                        [__('app.towers.form_fields.nearest_hospital_m'), $tower->proximityLabel($tower->nearest_hospital_name, $tower->nearest_hospital_m)],
+                        [__('app.towers.form_fields.nearest_house_m'), $tower->proximityLabel($tower->nearest_house_name, $tower->nearest_house_m)],
+                        [__('app.towers.form_fields.fence_distance_m'), $tower->fence_distance_m !== null ? rtrim(rtrim(number_format($tower->fence_distance_m, 1), '0'), '.').' m' : '—'],
+                        [__('app.towers.form_fields.other_towers_nearby'), 'nearby'],
+                        [__('app.towers.form_fields.site_map_notes'), $tower->site_map_notes ?: '—'],
+                        [__('app.towers.form_fields.site_map_file'), $tower->site_map_path ? 'file' : '—'],
+                        [__('app.towers.capacity'), $tower->capacityLabel()],
                         [__('app.towers.status'), null],
                         [__('app.towers.coordinates'), number_format($tower->latitude, 6).', '.number_format($tower->longitude, 6)],
+                        [__('app.towers.form_fields.application_date'), $tower->application_date?->format('d M Y') ?: '—'],
+                        [__('app.towers.form_fields.inspector_notes'), $tower->registration_inspector_notes ?: '—'],
+                        [__('app.towers.form_fields.director_notes'), $tower->registration_director_notes ?: '—'],
                     ] as [$label, $value])
                         <div class="flex items-start justify-between gap-4 py-3 first:pt-0 last:pb-0">
                             <dt class="text-sm text-gray-500 shrink-0">{{ $label }}</dt>
                             <dd class="text-sm font-medium text-gray-900 text-right">
                                 @if ($label === __('app.towers.status'))
                                     <x-status-badge :value="$tower->status" />
+                                @elseif ($value === 'nearby')
+                                    @php $nearbyTowers = $tower->nearbyTowers(); @endphp
+                                    @if ($nearbyTowers->isNotEmpty())
+                                        <ul class="space-y-1 text-right">
+                                            @foreach ($nearbyTowers as $item)
+                                                <li>
+                                                    <a href="{{ route('towers.show', $item['tower']) }}" class="text-brand hover:underline">{{ $item['tower']->name }}</a>
+                                                    <span class="block text-xs text-gray-500">{{ $item['tower']->operator->name }} · {{ number_format($item['distance_m']) }} m</span>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    @elseif ($tower->other_towers_nearby)
+                                        {{ $tower->other_towers_nearby }}
+                                    @else
+                                        —
+                                    @endif
+                                @elseif ($value === 'file')
+                                    @if ($tower->site_map_path)
+                                        <a href="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($tower->site_map_path) }}" class="text-brand hover:underline" target="_blank" rel="noopener">{{ __('app.towers.view_site_map') }}</a>
+                                    @else
+                                        —
+                                    @endif
                                 @elseif ($label === __('app.towers.coordinates'))
                                     <span class="font-mono text-xs text-gray-600">{{ $value }}</span>
                                 @else

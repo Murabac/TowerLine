@@ -13,7 +13,7 @@ class TowerGeographyBackfillSeeder extends Seeder
         $resolver = new TowerGeographyResolver;
 
         Tower::query()->each(function (Tower $tower) use ($resolver) {
-            $town = $resolver->townFromTowerName($tower->name);
+            $town = $tower->city ?: $resolver->townFromTowerName($tower->name);
 
             if (! $town) {
                 return;

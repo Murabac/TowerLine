@@ -39,9 +39,15 @@
                         <option value="{{ $status }}" @selected(request('status') === $status)>{{ __('app.status.'.$status) }}</option>
                     @endforeach
                 </select>
+                <select name="power_source" class="field lg:w-44">
+                    <option value="">{{ __('app.towers.power_source') }}</option>
+                    @foreach (\App\Support\TowerPowerSource::OPTIONS as $source)
+                        <option value="{{ $source }}" @selected(request('power_source') === $source)>{{ __('app.towers.power_sources.'.$source) }}</option>
+                    @endforeach
+                </select>
                 <div class="flex items-center gap-2">
                     <button class="inline-flex items-center px-4 py-2 bg-brand text-white text-sm font-semibold rounded-lg hover:bg-brand-dark">{{ __('app.filter') }}</button>
-                    @if (request()->hasAny(['q', 'region_id', 'district_id', 'sub_district_id', 'operator_id', 'status']))
+                    @if (request()->hasAny(['q', 'region_id', 'district_id', 'sub_district_id', 'operator_id', 'status', 'power_source']))
                         <a href="{{ route('towers.index') }}" class="text-sm text-gray-500 hover:text-brand">{{ __('app.reset') }}</a>
                     @endif
                 </div>

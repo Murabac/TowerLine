@@ -14,6 +14,7 @@
                 'last_inspection' => __('app.map.last_inspection'),
                 'license_expiry' => __('app.map.license_expiry'),
                 'signal_radius' => __('app.map.signal_radius'),
+                'power_source' => __('app.towers.power_source'),
                 'no_license' => __('app.map.no_license'),
                 'shown' => __('app.map.shown'),
                 'overdue' => __('app.inspections.overdue'),
@@ -93,6 +94,13 @@
                     <option value="">{{ __('app.map.health') }}</option>
                     @foreach (['good', 'needs_attention', 'critical', 'unknown'] as $health)
                         <option value="{{ $health }}">{{ __('app.status.'.$health) }}</option>
+                    @endforeach
+                </select>
+
+                <select name="power_source" x-model="filters.power_source" class="field">
+                    <option value="">{{ __('app.towers.power_source') }}</option>
+                    @foreach (\App\Support\TowerPowerSource::OPTIONS as $source)
+                        <option value="{{ $source }}">{{ __('app.towers.power_sources.'.$source) }}</option>
                     @endforeach
                 </select>
 
@@ -219,6 +227,10 @@
                                 <dd x-text="selected.license ? (selected.license.status_label + ' · ' + selected.license.expires_at) : labels.no_license"></dd>
                             </div>
                             <div class="flex justify-between gap-3">
+                                <dt class="text-gray-400" x-text="labels.power_source"></dt>
+                                <dd class="text-right" x-text="selected.power_sources_label || labels.none"></dd>
+                            </div>
+                            <div class="flex justify-between gap-3">
                                 <dt class="text-gray-400" x-text="labels.signal_radius"></dt>
                                 <dd x-text="(selected.signal_radius_m / 1000).toFixed(1) + ' km'"></dd>
                             </div>
@@ -271,6 +283,7 @@
                         category: config.filters.category || '',
                         status: config.filters.status || '',
                         health_status: config.filters.health_status || '',
+                        power_source: config.filters.power_source || '',
                         license_state: config.filters.license_state || '',
                         overdue: config.filters.overdue ? '1' : '',
                     },

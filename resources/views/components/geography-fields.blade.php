@@ -2,16 +2,19 @@
     'regions',
     'initialDistricts' => [],
     'initialSubDistricts' => [],
+    'initialCities' => [],
     'tower' => null,
     'regionId' => null,
     'districtId' => null,
     'subDistrictId' => null,
+    'city' => null,
 ])
 
 @php
     $regionId = old('region_id', $regionId ?? ($tower->region_id ?? null));
     $districtId = old('district_id', $districtId ?? ($tower->district_id ?? null));
     $subDistrictId = old('sub_district_id', $subDistrictId ?? ($tower->sub_district_id ?? null));
+    $city = old('city', $city ?? ($tower->city ?? ''));
 @endphp
 
 <div
@@ -19,14 +22,18 @@
     x-data="geographyCascade({
         districtsUrl: @js(route('geography.districts')),
         subDistrictsUrl: @js(route('geography.sub-districts')),
+        citiesUrl: @js(route('geography.cities')),
         regionId: @js($regionId ? (string) $regionId : ''),
         districtId: @js($districtId ? (string) $districtId : ''),
         subDistrictId: @js($subDistrictId ? (string) $subDistrictId : ''),
+        city: @js($city),
         districts: @js($initialDistricts),
         subDistricts: @js($initialSubDistricts),
+        cities: @js($initialCities),
         labels: {
             district: @js(__('app.geography.select_district')),
             subDistrict: @js(__('app.geography.select_sub_district')),
+            city: @js(__('app.towers.form_fields.select_city')),
         },
     })"
     x-init="init()"
@@ -60,6 +67,16 @@
         </select>
         <x-input-error :messages="$errors->get('sub_district_id')" class="mt-1" />
     </div>
+    <div>
+        <x-input-label for="city" :value="__('app.towers.form_fields.city')" />
+        <select id="city" name="city" class="mt-1 block w-full rounded-md border-gray-300 focus:border-brand focus:ring-brand" required x-model="city" @change="$dispatch('input', $event)">
+            <option value="" x-text="labels.city"></option>
+            <template x-for="cityName in cities" :key="cityName">
+                <option :value="cityName" x-text="cityName"></option>
+            </template>
+        </select>
+        <x-input-error :messages="$errors->get('city')" class="mt-1" />
+    </div>
 </div>
 
 @once
@@ -69,11 +86,14 @@
                 return {
                     districtsUrl: config.districtsUrl,
                     subDistrictsUrl: config.subDistrictsUrl,
+                    citiesUrl: config.citiesUrl,
                     regionId: config.regionId || '',
                     districtId: config.districtId || '',
                     subDistrictId: config.subDistrictId || '',
+                    city: config.city || '',
                     districts: config.districts || [],
                     subDistricts: config.subDistricts || [],
+                    cities: config.cities || [],
                     labels: config.labels,
                     init() {
                         if (this.regionId && ! this.districts.length) {
@@ -82,16 +102,22 @@
                         if (this.districtId && ! this.subDistricts.length) {
                             this.loadSubDistricts(false);
                         }
+                        if (this.districtId && ! this.cities.length) {
+                            this.loadCities(false);
+                        }
                     },
                     async onRegionChange() {
                         this.districtId = '';
                         this.subDistrictId = '';
+                        this.city = '';
                         this.subDistricts = [];
+                        this.cities = [];
                         await this.loadDistricts(true);
                     },
                     async onDistrictChange() {
                         this.subDistrictId = '';
-                        await this.loadSubDistricts(true);
+                        this.city = '';
+                        await Promise.all([this.loadSubDistricts(true), this.loadCities(true)]);
                     },
                     async loadDistricts(clearSelection) {
                         if (! this.regionId) {
@@ -119,6 +145,21 @@
                         this.subDistricts = data.sub_districts || [];
                         if (clearSelection) {
                             this.subDistrictId = '';
+                        }
+                    },
+                    async loadCities(autoSelect) {
+                        if (! this.districtId) {
+                            this.cities = [];
+                            return;
+                        }
+                        const response = await fetch(`${this.citiesUrl}?district_id=${this.districtId}`, {
+                            headers: { Accept: 'application/json' },
+                        });
+                        const data = await response.json();
+                        this.cities = data.cities || [];
+                        if (autoSelect && this.cities.length && ! this.city) {
+                            this.city = this.cities[0];
+                            document.getElementById('city')?.dispatchEvent(new Event('change', { bubbles: true }));
                         }
                     },
                 };

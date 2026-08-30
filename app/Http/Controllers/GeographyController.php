@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\District;
 use App\Models\SubDistrict;
+use App\Support\TowerCityOptions;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -60,5 +61,25 @@ class GeographyController extends Controller
             ]);
 
         return response()->json(['sub_districts' => $subDistricts]);
+    }
+
+    public function cities(Request $request): JsonResponse
+    {
+        $this->authorize('viewAny', District::class);
+
+        $request->validate([
+            'district_id' => ['required', 'integer', 'exists:districts,id'],
+        ]);
+
+        $district = District::query()->findOrFail($request->integer('district_id'));
+        $user = $request->user();
+
+        if ($user->isInspector() && ! in_array($district->region_id, $user->regionIds(), true)) {
+            abort(403);
+        }
+
+        return response()->json([
+            'cities' => TowerCityOptions::forDistrict($district),
+        ]);
     }
 }

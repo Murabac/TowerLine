@@ -5,6 +5,11 @@ namespace App\Http\Requests;
 use App\Models\District;
 use App\Models\SubDistrict;
 use App\Models\Tower;
+use App\Support\TowerCapacity;
+use App\Support\TowerFenceDistance;
+use App\Support\TowerLandArea;
+use App\Support\TowerPowerSource;
+use App\Support\TowerSignalRadius;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
@@ -29,19 +34,36 @@ class StoreTowerRequest extends FormRequest
         }
 
         return [
-            'name' => ['required', 'string', 'max:255'],
             'latitude' => ['required', 'numeric', 'between:-90,90'],
             'longitude' => ['required', 'numeric', 'between:-180,180'],
             'region_id' => $regionRule,
             'district_id' => ['nullable', 'integer', 'exists:districts,id'],
             'sub_district_id' => ['nullable', 'integer', 'exists:sub_districts,id'],
+            'city' => ['required', 'string', 'max:255'],
+            'land_area_preset' => ['nullable', 'string', Rule::in([...array_keys(TowerLandArea::PRESETS), 'custom'])],
+            'land_area_custom' => ['nullable', 'string', 'max:255'],
             'operator_id' => ['required', 'exists:operators,id'],
             'type' => ['required', Rule::in(['guyed', 'monopole', 'rooftop'])],
             'height_m' => ['required', 'numeric', 'min:1', 'max:500'],
-            'capacity' => ['nullable', 'string', 'max:255'],
-            'signal_radius_m' => ['required', 'integer', 'min:100', 'max:100000'],
+            'nearest_school_name' => ['nullable', 'string', 'max:255'],
+            'nearest_school_m' => ['nullable', 'integer', 'min:0', 'max:50000'],
+            'nearest_hospital_name' => ['nullable', 'string', 'max:255'],
+            'nearest_hospital_m' => ['nullable', 'integer', 'min:0', 'max:50000'],
+            'nearest_house_name' => ['nullable', 'string', 'max:255'],
+            'nearest_house_m' => ['nullable', 'integer', 'min:0', 'max:50000'],
+            'fence_distance_preset' => ['nullable', Rule::in([...array_map('strval', TowerFenceDistance::PRESETS), 'custom'])],
+            'fence_distance_custom' => ['nullable', 'numeric', 'min:0', 'max:500'],
+            'site_map_notes' => ['nullable', 'string', 'max:2000'],
+            'site_map' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
+            'capacity' => ['required', 'string', Rule::in(TowerCapacity::OPTIONS)],
+            'power_sources' => ['nullable', 'array'],
+            'power_sources.*' => ['string', Rule::in(TowerPowerSource::OPTIONS)],
+            'signal_radius_m' => ['nullable', 'integer', 'min:100', 'max:100000'],
             'status' => ['required', Rule::in(['active', 'under_construction', 'decommissioned'])],
             'commissioned_at' => ['nullable', 'date'],
+            'application_date' => ['nullable', 'date'],
+            'registration_inspector_notes' => ['nullable', 'string', 'max:2000'],
+            'registration_director_notes' => ['nullable', 'string', 'max:2000'],
         ];
     }
 
@@ -75,6 +97,28 @@ class StoreTowerRequest extends FormRequest
                     $validator->errors()->add('sub_district_id', __('app.geography.sub_district_region_mismatch'));
                 }
             }
+
+            if ($this->input('land_area_preset') === 'custom' && ! trim((string) $this->input('land_area_custom'))) {
+                $validator->errors()->add('land_area_custom', __('app.towers.land_area_custom_required'));
+            }
+
+            if ($this->input('fence_distance_preset') === 'custom' && ! is_numeric($this->input('fence_distance_custom'))) {
+                $validator->errors()->add('fence_distance_custom', __('app.towers.fence_distance_custom_required'));
+            }
         });
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $capacity = TowerCapacity::normalize($this->input('capacity'));
+
+        $this->merge([
+            'power_sources' => TowerPowerSource::normalize($this->input('power_sources', [])),
+            'capacity' => $capacity,
+            'application_date' => $this->input('application_date') ?: now()->toDateString(),
+            'land_area_preset' => $this->input('land_area_preset') ?: '20x20',
+            'fence_distance_preset' => $this->input('fence_distance_preset') ?: '6',
+            'signal_radius_m' => $this->integer('signal_radius_m') ?: TowerSignalRadius::defaultForCapacity($capacity),
+        ]);
     }
 }

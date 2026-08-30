@@ -48,7 +48,7 @@ class MapController extends Controller
             'districts' => $districts,
             'subDistricts' => $subDistricts,
             'operators' => $operators->get(),
-            'filters' => $request->only(['region_id', 'district_id', 'sub_district_id', 'operator_id', 'category', 'status', 'license_state', 'health_status', 'overdue']),
+            'filters' => $request->only(['region_id', 'district_id', 'sub_district_id', 'operator_id', 'category', 'status', 'license_state', 'health_status', 'overdue', 'power_source']),
         ]);
     }
 
@@ -86,6 +86,10 @@ class MapController extends Controller
 
         if ($request->filled('health_status')) {
             $query->where('health_status', $request->string('health_status'));
+        }
+
+        if ($request->filled('power_source')) {
+            $query->withPowerSource($request->string('power_source')->toString());
         }
 
         if ($request->boolean('overdue')) {
@@ -132,6 +136,8 @@ class MapController extends Controller
                 'region' => $tower->region->localizedName(),
                 'district' => $tower->district?->localizedName(),
                 'sub_district' => $tower->subDistrict?->localizedName(),
+                'power_sources' => $tower->powerSourceKeys(),
+                'power_sources_label' => $tower->powerSourceLabel(),
                 'last_inspection_at' => $tower->latestInspection?->inspected_at?->toDateString(),
                 'overdue' => $tower->isInspectionOverdue(),
                 'license' => $license ? [

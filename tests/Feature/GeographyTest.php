@@ -133,13 +133,15 @@ class GeographyTest extends TestCase
         ]);
 
         $somtel = Tower::query()->create([
-            'name' => 'Somtel Hargeisa',
+            'name' => 'SMT-HAR-001',
+            'city' => 'Hargeisa',
             'latitude' => 9.532,
             'longitude' => 44.027,
             'region_id' => $region->id,
             'operator_id' => $operator->id,
             'type' => 'monopole',
             'height_m' => 40,
+            'capacity' => '4g',
             'signal_radius_m' => 5000,
             'status' => 'active',
             'health_status' => 'good',
@@ -171,30 +173,30 @@ class GeographyTest extends TestCase
 
         $this->actingAs($inspector)
             ->post(route('towers.store'), [
-                'name' => 'Invalid tower',
                 'latitude' => 10.43,
                 'longitude' => 45.01,
                 'region_id' => $sahil->id,
                 'district_id' => $sahilDistrict->id,
+                'city' => 'Berbera',
                 'operator_id' => $operator->id,
                 'type' => 'guyed',
                 'height_m' => 40,
-                'signal_radius_m' => 5000,
+                'capacity' => '4g',
                 'status' => 'active',
             ])
             ->assertSessionHasErrors('region_id');
 
         $this->actingAs($inspector)
             ->post(route('towers.store'), [
-                'name' => 'Mismatch tower',
                 'latitude' => 9.56,
                 'longitude' => 44.07,
                 'region_id' => $maroodi->id,
                 'district_id' => $sahilDistrict->id,
+                'city' => 'Hargeisa',
                 'operator_id' => $operator->id,
                 'type' => 'guyed',
                 'height_m' => 40,
-                'signal_radius_m' => 5000,
+                'capacity' => '4g',
                 'status' => 'active',
             ])
             ->assertSessionHasErrors('district_id');
@@ -209,16 +211,16 @@ class GeographyTest extends TestCase
 
         $this->actingAs($admin)
             ->post(route('towers.store'), [
-                'name' => 'Bad geography',
                 'latitude' => 9.56,
                 'longitude' => 44.07,
                 'region_id' => $region->id,
                 'district_id' => $districtA->id,
                 'sub_district_id' => $subB->id,
+                'city' => 'Hargeisa',
                 'operator_id' => $operator->id,
                 'type' => 'guyed',
                 'height_m' => 40,
-                'signal_radius_m' => 5000,
+                'capacity' => '4g',
                 'status' => 'active',
             ])
             ->assertSessionHasErrors('sub_district_id');
@@ -375,6 +377,7 @@ class GeographyTest extends TestCase
             'operator_id' => $operator->id,
             'type' => 'guyed',
             'height_m' => 40,
+            'capacity' => '4g',
             'signal_radius_m' => 5000,
             'status' => 'active',
             'health_status' => 'good',

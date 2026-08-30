@@ -128,7 +128,7 @@ class MapTest extends TestCase
             'operator_id' => $operator->id,
             'type' => 'monopole',
             'height_m' => 40,
-            'capacity' => 'Demo',
+            'capacity' => '4g',
             'signal_radius_m' => 10000,
             'status' => $status,
             'health_status' => 'unknown',

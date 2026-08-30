@@ -74,7 +74,7 @@ Week 17 (frequency) can run after Week 18; ties into operators + reports
 |---|---|
 | Build approval letter PDF sample | Week 16 letter template |
 | Official district + sub-district list | Replace interim geography seed |
-| Tower registration paper form PDF | Week 14 field mapping |
+| Tower registration paper form PDF | ~~Week 14 field mapping~~ — received at `resources/docs/reg form.pdf` |
 | Frequency allocation field spec (MHz, band name, etc.) | Week 17 form design |
 | Confirm: retire licence types A/B/C entirely, or keep for another purpose? | Week 16 migration |
 
@@ -247,19 +247,19 @@ _Remaining items only — most decisions are locked above._
 
 ### Power source (item 3)
 
-- [ ] Replace single power field with **multi-select** on tower: `grid`, `generator`, `battery`, `solar` (extensible list)
-- [ ] Store as JSON array or pivot table (`tower_power_sources`)
-- [ ] Show on tower detail, list filters, and map side panel
-- [ ] Migrate/remove old single-value power fields if any remain on inspections only
+- [x] Replace single power field with **multi-select** on tower: `grid`, `generator`, `battery`, `solar` (extensible list)
+- [x] Store as JSON array or pivot table (`tower_power_sources`)
+- [x] Show on tower detail, list filters, and map side panel
+- [x] Migrate/remove old single-value power fields if any remain on inspections only
 
 ### Ministry registration form (item 12)
 
-- [ ] Map every field from official form → tower columns or JSON `registration_meta`
-- [ ] Update create/edit Blade form layout to match paper form sections
-- [ ] Update validation, seeders, and tests
-- [ ] Bilingual labels for new fields
+- [x] Map every field from official form → tower columns or JSON `registration_meta`
+- [x] Update create/edit Blade form layout to match paper form sections
+- [x] Update validation, seeders, and tests
+- [x] Bilingual labels for new fields
 
-**Blocked until:** ministry shares registration form PDF.
+**Source:** `resources/docs/reg form.pdf` (Faahfaahinta Goob Isgaadhsiineed).
 
 **Done when:** Demo tower can be registered with multiple power sources and all form fields from the official template.
 

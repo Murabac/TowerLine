@@ -36,6 +36,14 @@ class TowerGeographyResolver
     ];
 
     /**
+     * @return array<string, string>
+     */
+    public static function townDistrictMap(): array
+    {
+        return self::TOWN_DISTRICT_MAP;
+    }
+
+    /**
      * @return array{0: ?int, 1: ?int}
      */
     public function resolve(int $regionId, string $town, ?float $latitude = null, ?float $longitude = null): array
@@ -69,6 +77,7 @@ class TowerGeographyResolver
 
     public function townFromTowerName(string $name): ?string
     {
+        $name = preg_replace('/\s+\(\d+\)$/', '', $name) ?? $name;
         $towns = array_keys(self::TOWN_DISTRICT_MAP);
 
         usort($towns, fn (string $a, string $b) => strlen($b) <=> strlen($a));

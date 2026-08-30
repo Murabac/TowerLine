@@ -3,6 +3,9 @@
 namespace App\Models;
 
 use App\Models\User;
+use App\Support\TowerCapacity;
+use App\Support\TowerPowerSource;
+use App\Support\TowerProximity;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -18,14 +21,30 @@ class Tower extends Model
         'region_id',
         'district_id',
         'sub_district_id',
+        'city',
+        'land_area',
         'operator_id',
         'type',
         'height_m',
+        'nearest_school_m',
+        'nearest_school_name',
+        'nearest_hospital_m',
+        'nearest_hospital_name',
+        'nearest_house_m',
+        'nearest_house_name',
+        'fence_distance_m',
+        'other_towers_nearby',
+        'site_map_notes',
+        'site_map_path',
         'capacity',
+        'power_sources',
         'signal_radius_m',
         'status',
         'health_status',
         'commissioned_at',
+        'application_date',
+        'registration_inspector_notes',
+        'registration_director_notes',
     ];
 
     protected function casts(): array
@@ -34,8 +53,14 @@ class Tower extends Model
             'latitude' => 'float',
             'longitude' => 'float',
             'height_m' => 'float',
+            'nearest_school_m' => 'integer',
+            'nearest_hospital_m' => 'integer',
+            'nearest_house_m' => 'integer',
+            'fence_distance_m' => 'float',
             'signal_radius_m' => 'integer',
+            'power_sources' => 'array',
             'commissioned_at' => 'date',
+            'application_date' => 'date',
         ];
     }
 
@@ -46,14 +71,38 @@ class Tower extends Model
                 return;
             }
 
-            if (DB::connection()->getDriverName() !== 'mysql') {
-                return;
+            if (DB::connection()->getDriverName() === 'mysql') {
+                $wkt = sprintf('POINT(%F %F)', $tower->longitude, $tower->latitude);
+                DB::update('UPDATE towers SET location = ST_GeomFromText(?) WHERE id = ?', [$wkt, $tower->id]);
             }
 
-            $wkt = sprintf('POINT(%F %F)', $tower->longitude, $tower->latitude);
-
-            DB::update('UPDATE towers SET location = ST_GeomFromText(?) WHERE id = ?', [$wkt, $tower->id]);
+            TowerProximity::refreshAffectedTowers($tower);
         });
+
+        static::deleting(function (Tower $tower) {
+            $tower->nearbyNeighborIdsForDelete = TowerProximity::nearby($tower)
+                ->pluck('tower.id')
+                ->all();
+        });
+
+        static::deleted(function (Tower $tower) {
+            if (! empty($tower->nearbyNeighborIdsForDelete)) {
+                TowerProximity::refreshMany($tower->nearbyNeighborIdsForDelete);
+            }
+        });
+    }
+
+    /**
+     * @return \Illuminate\Support\Collection<int, array{tower: Tower, distance_m: int}>
+     */
+    public function nearbyTowers(int $radiusMeters = TowerProximity::NEARBY_RADIUS_METERS): \Illuminate\Support\Collection
+    {
+        return TowerProximity::nearby($this, $radiusMeters);
+    }
+
+    public function nearbyTowersSummary(int $radiusMeters = TowerProximity::NEARBY_RADIUS_METERS): ?string
+    {
+        return TowerProximity::formatSummary($this->nearbyTowers($radiusMeters), $radiusMeters);
     }
 
     public function region(): BelongsTo
@@ -144,6 +193,46 @@ class Tower extends Model
                 $inspection->where('inspected_at', '<', $cutoff);
             });
         });
+    }
+
+    public function scopeWithPowerSource(Builder $query, string $source): Builder
+    {
+        return $query->whereJsonContains('power_sources', $source);
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function powerSourceKeys(): array
+    {
+        return TowerPowerSource::normalize($this->power_sources);
+    }
+
+    public function powerSourceLabel(): string
+    {
+        return TowerPowerSource::labelList($this->powerSourceKeys());
+    }
+
+    public function capacityLabel(): string
+    {
+        return TowerCapacity::label($this->capacity);
+    }
+
+    public function proximityLabel(?string $name, ?int $meters): string
+    {
+        if ($name && $meters !== null) {
+            return $name.' — '.number_format($meters).' m';
+        }
+
+        if ($meters !== null) {
+            return number_format($meters).' m';
+        }
+
+        if ($name) {
+            return $name;
+        }
+
+        return '—';
     }
 
     public function statusColor(): string

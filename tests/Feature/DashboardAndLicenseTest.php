@@ -190,7 +190,7 @@ class DashboardAndLicenseTest extends TestCase
             'operator_id' => $operator->id,
             'type' => 'monopole',
             'height_m' => 40,
-            'capacity' => '4G',
+            'capacity' => '4g',
             'signal_radius_m' => 12000,
             'status' => 'active',
             'health_status' => 'unknown',
