@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\District;
 use App\Models\Operator;
 use App\Models\Region;
+use App\Models\SubDistrict;
 use App\Models\Tower;
+use App\Support\GeographyReference;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 class MapController extends Controller
@@ -28,10 +32,23 @@ class MapController extends Controller
             $operators->whereKey($user->operator_id);
         }
 
+        $regionId = $request->integer('region_id') ?: null;
+        $districtId = $request->integer('district_id') ?: null;
+
+        $districts = $regionId
+            ? District::query()->where('region_id', $regionId)->orderBy('name')->get()
+            : collect();
+
+        $subDistricts = $districtId
+            ? District::query()->find($districtId)?->subDistricts()->orderBy('name')->get() ?? collect()
+            : collect();
+
         return view('map.index', [
             'regions' => $regions->get(),
+            'districts' => $districts,
+            'subDistricts' => $subDistricts,
             'operators' => $operators->get(),
-            'filters' => $request->only(['region_id', 'operator_id', 'category', 'status', 'license_state', 'health_status', 'overdue']),
+            'filters' => $request->only(['region_id', 'district_id', 'sub_district_id', 'operator_id', 'category', 'status', 'license_state', 'health_status', 'overdue']),
         ]);
     }
 
@@ -41,10 +58,18 @@ class MapController extends Controller
 
         $query = Tower::query()
             ->visibleTo($request->user())
-            ->with(['operator', 'region', 'latestInspection', 'currentLicense']);
+            ->with(['operator', 'region', 'district', 'subDistrict', 'latestInspection', 'currentLicense']);
 
         if ($request->filled('region_id')) {
             $query->where('region_id', $request->integer('region_id'));
+        }
+
+        if ($request->filled('district_id')) {
+            $query->where('district_id', $request->integer('district_id'));
+        }
+
+        if ($request->filled('sub_district_id')) {
+            $query->where('sub_district_id', $request->integer('sub_district_id'));
         }
 
         if ($request->filled('operator_id')) {
@@ -105,6 +130,8 @@ class MapController extends Controller
                     'category' => $tower->operator->category,
                 ],
                 'region' => $tower->region->localizedName(),
+                'district' => $tower->district?->localizedName(),
+                'sub_district' => $tower->subDistrict?->localizedName(),
                 'last_inspection_at' => $tower->latestInspection?->inspected_at?->toDateString(),
                 'overdue' => $tower->isInspectionOverdue(),
                 'license' => $license ? [
@@ -117,6 +144,98 @@ class MapController extends Controller
             ];
         });
 
-        return response()->json(['towers' => $towers]);
+        $bounds = $this->boundsFromTowers($towers)
+            ?? $this->geographyBounds($request);
+
+        return response()->json([
+            'towers' => $towers,
+            'bounds' => $bounds,
+        ]);
+    }
+
+    /**
+     * @param  Collection<int, array{lat: float, lng: float}>  $towers
+     * @return array{south: float, west: float, north: float, east: float}|null
+     */
+    private function boundsFromTowers(Collection $towers): ?array
+    {
+        if ($towers->isEmpty()) {
+            return null;
+        }
+
+        return [
+            'south' => (float) $towers->min('lat'),
+            'west' => (float) $towers->min('lng'),
+            'north' => (float) $towers->max('lat'),
+            'east' => (float) $towers->max('lng'),
+        ];
+    }
+
+    /**
+     * @return array{south: float, west: float, north: float, east: float}|null
+     */
+    private function geographyBounds(Request $request): ?array
+    {
+        if (! $request->filled('region_id') && ! $request->filled('district_id') && ! $request->filled('sub_district_id')) {
+            return null;
+        }
+
+        $query = Tower::query()
+            ->visibleTo($request->user())
+            ->whereNotNull('latitude')
+            ->whereNotNull('longitude');
+
+        if ($request->filled('sub_district_id')) {
+            $query->where('sub_district_id', $request->integer('sub_district_id'));
+        } elseif ($request->filled('district_id')) {
+            $query->where('district_id', $request->integer('district_id'));
+        } else {
+            $query->where('region_id', $request->integer('region_id'));
+        }
+
+        $coordinates = $query->get(['latitude', 'longitude']);
+
+        if ($coordinates->isEmpty() && $request->filled('sub_district_id')) {
+            $subDistrict = SubDistrict::query()->find($request->integer('sub_district_id'));
+
+            if ($subDistrict) {
+                $centroidBounds = GeographyReference::boundsForSubDistrict($subDistrict);
+
+                if ($centroidBounds) {
+                    return $centroidBounds;
+                }
+
+                $coordinates = Tower::query()
+                    ->visibleTo($request->user())
+                    ->where('district_id', $subDistrict->district_id)
+                    ->whereNotNull('latitude')
+                    ->whereNotNull('longitude')
+                    ->get(['latitude', 'longitude']);
+            }
+        }
+
+        if ($coordinates->isEmpty() && $request->filled('district_id')) {
+            $district = District::query()->find($request->integer('district_id'));
+
+            if ($district) {
+                $coordinates = Tower::query()
+                    ->visibleTo($request->user())
+                    ->where('region_id', $district->region_id)
+                    ->whereNotNull('latitude')
+                    ->whereNotNull('longitude')
+                    ->get(['latitude', 'longitude']);
+            }
+        }
+
+        if ($coordinates->isEmpty()) {
+            return null;
+        }
+
+        return [
+            'south' => (float) $coordinates->min('latitude'),
+            'west' => (float) $coordinates->min('longitude'),
+            'north' => (float) $coordinates->max('latitude'),
+            'east' => (float) $coordinates->max('longitude'),
+        ];
     }
 }

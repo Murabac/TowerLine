@@ -22,6 +22,14 @@
                         </span>
                         <span class="text-gray-300">·</span>
                         <span>{{ $tower->region->localizedName() }}</span>
+                        @if ($tower->district)
+                            <span class="text-gray-300">·</span>
+                            <span>{{ $tower->district->localizedName() }}</span>
+                        @endif
+                        @if ($tower->subDistrict)
+                            <span class="text-gray-300">·</span>
+                            <span>{{ $tower->subDistrict->localizedName() }}</span>
+                        @endif
                     </div>
                 </div>
                 <div class="flex items-center gap-2 shrink-0">

@@ -1,7 +1,7 @@
 # TowerLine — Phase 2 plan (MoCIT meeting)
 
 **Source:** Ministry officials meeting (Aug 2026)  
-**Status:** Planning — decisions locked (Aug 2026 meeting follow-up)  
+**Status:** Planning — **Week 13 done** (Aug 2026)  
 **Builds on:** Week 12 demo (`CONTEXT.md`)  
 **How we work:** Same as Phase 1 — finish **one week’s deliverable** per session, then stop for review.
 
@@ -94,9 +94,12 @@ Week 17 (frequency) can run after Week 18; ties into operators + reports
 | Sool | 21 |
 | Sahil | 8 |
 
-**Sub-districts (interim):** One placeholder per district (`{District} — Central / Dhexe`) until MoCIT supplies real names. Towers can leave sub-district blank if unknown.
+**Sub-districts (interim):**
+- **Researched:** Hargeisa (9 municipal wards) and Burao (4 wards) in `database/data/somaliland-sub-districts-interim.json` — sources: Hargeisa Municipality website, Wikipedia / Interpeace Burao report.
+- **Placeholder:** All other districts use one entry (`{District} — Central / Dhexe`) until MoCIT supplies the official list.
+- **MoCIT request:** One-page data request drafted in `MOCIT-GEOGRAPHY-DATA-REQUEST.md` (send to ministry focal point).
 
-**Replace workflow:** Import ministry spreadsheet → update seeder or admin bulk-import → re-link existing towers.
+**Replace workflow:** Import ministry spreadsheet → update seed JSON or admin bulk-import → re-link existing towers (`TowerGeographyBackfillSeeder` or manual).
 
 ---
 
@@ -213,26 +216,26 @@ _Remaining items only — most decisions are locked above._
 
 ### Data model
 
-- [ ] `districts` — `id`, `region_id`, `name_en`, `name_so`, timestamps
-- [ ] `sub_districts` — `id`, `district_id`, `name_en`, `name_so`, timestamps
-- [ ] `towers.district_id`, `towers.sub_district_id` (nullable FKs; validate sub-district belongs to district)
-- [ ] Seed from `database/data/somaliland-geography-interim.json` (102 districts); placeholder sub-districts until MoCIT list arrives
+- [x] `districts` — `id`, `region_id`, `name_en`, `name_so`, timestamps
+- [x] `sub_districts` — `id`, `district_id`, `name_en`, `name_so`, timestamps
+- [x] `towers.district_id`, `towers.sub_district_id` (nullable FKs; validate sub-district belongs to district)
+- [x] Seed from `database/data/somaliland-geography-interim.json` (102 districts); placeholder sub-districts until MoCIT list arrives
 
 ### App behaviour
 
-- [ ] Map filters: region → district → sub-district (cascading selects)
-- [ ] Tower list filters match map
-- [ ] Tower create/edit: cascading district/sub-district
-- [ ] Inspector scope: still by **region** (districts within assigned regions only)
-- [ ] Map JSON + policies include district fields
-- [ ] Bilingual labels (`lang/en`, `lang/so`)
-- [ ] Admin CRUD for districts/sub-districts (or seed-only if ministry maintains list centrally)
+- [x] Map filters: region → district → sub-district (cascading selects)
+- [x] Tower list filters match map
+- [x] Tower create/edit: cascading district/sub-district
+- [x] Inspector scope: still by **region** (districts within assigned regions only)
+- [x] Map JSON + policies include district fields
+- [x] Bilingual labels (`lang/en`, `lang/so`)
+- [x] Admin CRUD for districts/sub-districts (or seed-only if ministry maintains list centrally)
 
 ### Tests
 
-- [ ] Filter by district/sub-district
-- [ ] Inspector cannot pick district outside assigned region
-- [ ] Validation when sub-district does not match district
+- [x] Filter by district/sub-district
+- [x] Inspector cannot pick district outside assigned region
+- [x] Validation when sub-district does not match district
 
 **Done when:** Map and tower CRUD filter and save district/sub-district correctly.
 
@@ -514,4 +517,4 @@ _Remaining items only — most decisions are locked above._
 ## Next step
 
 1. Ministry sends **letter PDF**, **registration form PDF**, and **official district/sub-district list** when ready.
-2. Say **“Start Week 13”** (or another week) to begin implementation.
+2. Say **“Start Week 14”** (or another week) to begin implementation.

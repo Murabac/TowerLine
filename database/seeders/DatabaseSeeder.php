@@ -25,6 +25,8 @@ class DatabaseSeeder extends Seeder
             Region::query()->firstOrCreate(['name_en' => $region['name_en']], $region);
         }
 
+        $this->call(GeographySeeder::class);
+
         $operators = [
             ['name' => 'Telesom', 'category' => 'telecom', 'color' => '#0F766E', 'contact_info' => 'Hargeisa'],
             ['name' => 'Somtel', 'category' => 'telecom', 'color' => '#1D4ED8', 'contact_info' => 'Hargeisa'],

@@ -3,7 +3,11 @@
         class="h-full min-h-0 flex"
         x-data="towerMap(@js([
             'endpoint' => route('map.towers'),
+            'districtsUrl' => route('geography.districts'),
+            'subDistrictsUrl' => route('geography.sub-districts'),
             'filters' => $filters,
+            'districts' => $districts->map(fn ($d) => ['id' => $d->id, 'name' => $d->localizedName()])->values(),
+            'subDistricts' => $subDistricts->map(fn ($s) => ['id' => $s->id, 'name' => $s->localizedName()])->values(),
             'labels' => [
                 'none' => __('app.none'),
                 'view_details' => __('app.map.view_details'),
@@ -44,11 +48,25 @@
             <form class="p-4 space-y-3" @submit.prevent="applyFilters()" @change="applyFilters()">
                 <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400">{{ __('app.map.filters') }}</p>
 
-                <select name="region_id" x-model="filters.region_id" class="field">
+                <select name="region_id" x-model="filters.region_id" class="field" @change="onRegionFilterChange()">
                     <option value="">{{ __('app.towers.region') }}</option>
                     @foreach ($regions as $region)
                         <option value="{{ $region->id }}">{{ $region->localizedName() }}</option>
                     @endforeach
+                </select>
+
+                <select name="district_id" x-model="filters.district_id" class="field" @change="onDistrictFilterChange()">
+                    <option value="">{{ __('app.geography.select_district') }}</option>
+                    <template x-for="district in districtOptions" :key="district.id">
+                        <option :value="district.id" x-text="district.name"></option>
+                    </template>
+                </select>
+
+                <select name="sub_district_id" x-model="filters.sub_district_id" class="field">
+                    <option value="">{{ __('app.geography.select_sub_district') }}</option>
+                    <template x-for="subDistrict in subDistrictOptions" :key="subDistrict.id">
+                        <option :value="subDistrict.id" x-text="subDistrict.name"></option>
+                    </template>
                 </select>
 
                 <select name="operator_id" x-model="filters.operator_id" class="field">
@@ -174,7 +192,12 @@
                         <div class="flex items-start justify-between gap-3 px-4 py-3 border-b border-gray-100">
                             <div class="min-w-0">
                                 <p class="font-semibold text-brand truncate" x-text="selected.name"></p>
-                                <p class="text-xs text-gray-500 mt-0.5" x-text="selected.operator.name + ' · ' + selected.region"></p>
+                                <p class="text-xs text-gray-500 mt-0.5">
+                                    <span x-text="selected.operator.name + ' · ' + selected.region"></span>
+                                    <template x-if="selected.district">
+                                        <span x-text="' · ' + selected.district"></span>
+                                    </template>
+                                </p>
                             </div>
                             <button type="button" class="text-gray-400 hover:text-gray-700" @click="selected = null">{{ __('app.map.close') }}</button>
                         </div>
@@ -237,9 +260,13 @@
             function towerMap(config) {
                 return {
                     endpoint: config.endpoint,
+                    districtsUrl: config.districtsUrl,
+                    subDistrictsUrl: config.subDistrictsUrl,
                     labels: config.labels,
                     filters: {
                         region_id: config.filters.region_id || '',
+                        district_id: config.filters.district_id || '',
+                        sub_district_id: config.filters.sub_district_id || '',
                         operator_id: config.filters.operator_id || '',
                         category: config.filters.category || '',
                         status: config.filters.status || '',
@@ -247,6 +274,8 @@
                         license_state: config.filters.license_state || '',
                         overdue: config.filters.overdue ? '1' : '',
                     },
+                    districtOptions: config.districts || [],
+                    subDistrictOptions: config.subDistricts || [],
                     showCoverage: true,
                     onlyFlagged: false,
                     onlyLicenseAlert: false,
@@ -254,6 +283,7 @@
                     selected: null,
                     count: 0,
                     allTowers: [],
+                    mapBounds: null,
                     map: null,
                     markers: null,
                     circles: null,
@@ -319,9 +349,45 @@
                     },
                     resetFilters() {
                         Object.keys(this.filters).forEach((key) => { this.filters[key] = ''; });
+                        this.districtOptions = [];
+                        this.subDistrictOptions = [];
                         this.onlyFlagged = false;
                         this.onlyLicenseAlert = false;
                         this.applyFilters();
+                    },
+                    async onRegionFilterChange() {
+                        this.filters.district_id = '';
+                        this.filters.sub_district_id = '';
+                        this.subDistrictOptions = [];
+                        await this.loadDistrictOptions();
+                        this.applyFilters();
+                    },
+                    async onDistrictFilterChange() {
+                        this.filters.sub_district_id = '';
+                        await this.loadSubDistrictOptions();
+                        this.applyFilters();
+                    },
+                    async loadDistrictOptions() {
+                        if (! this.filters.region_id) {
+                            this.districtOptions = [];
+                            return;
+                        }
+                        const response = await fetch(`${this.districtsUrl}?region_id=${this.filters.region_id}`, {
+                            headers: { Accept: 'application/json' },
+                        });
+                        const data = await response.json();
+                        this.districtOptions = data.districts || [];
+                    },
+                    async loadSubDistrictOptions() {
+                        if (! this.filters.district_id) {
+                            this.subDistrictOptions = [];
+                            return;
+                        }
+                        const response = await fetch(`${this.subDistrictsUrl}?district_id=${this.filters.district_id}`, {
+                            headers: { Accept: 'application/json' },
+                        });
+                        const data = await response.json();
+                        this.subDistrictOptions = data.sub_districts || [];
                     },
                     async loadTowers() {
                         const qs = this.queryString();
@@ -330,6 +396,7 @@
                         });
                         const data = await response.json();
                         this.allTowers = data.towers || [];
+                        this.mapBounds = data.bounds || null;
                         this.draw(true);
                     },
                     visibleTowers() {
@@ -379,6 +446,13 @@
 
                         this.map.invalidateSize();
                         if (! fit) {
+                            return;
+                        }
+                        if (this.mapBounds) {
+                            this.map.fitBounds(
+                                [[this.mapBounds.south, this.mapBounds.west], [this.mapBounds.north, this.mapBounds.east]],
+                                { padding: [40, 40], maxZoom: 12, animate: false },
+                            );
                             return;
                         }
                         if (bounds.length) {

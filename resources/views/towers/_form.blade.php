@@ -17,15 +17,12 @@
         </select>
         <x-input-error :messages="$errors->get('operator_id')" class="mt-1" />
     </div>
-    <div>
-        <x-input-label for="region_id" :value="__('app.towers.region')" />
-        <select id="region_id" name="region_id" class="mt-1 block w-full rounded-md border-gray-300 focus:border-brand focus:ring-brand" required>
-            @foreach ($regions as $region)
-                <option value="{{ $region->id }}" @selected(old('region_id', $tower?->region_id ?? auth()->user()->regionIds()[0] ?? null) == $region->id)>{{ $region->localizedName() }}</option>
-            @endforeach
-        </select>
-        <x-input-error :messages="$errors->get('region_id')" class="mt-1" />
-    </div>
+    <x-geography-fields
+        :regions="$regions"
+        :initial-districts="$initialDistricts ?? []"
+        :initial-sub-districts="$initialSubDistricts ?? []"
+        :tower="$tower"
+    />
     <div>
         <x-input-label for="type" :value="__('app.towers.type')" />
         <select id="type" name="type" class="mt-1 block w-full rounded-md border-gray-300 focus:border-brand focus:ring-brand" required>

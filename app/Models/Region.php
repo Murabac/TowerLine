@@ -23,6 +23,11 @@ class Region extends Model
         return $this->hasMany(Tower::class);
     }
 
+    public function districts(): HasMany
+    {
+        return $this->hasMany(District::class)->orderBy('name');
+    }
+
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class)->withTimestamps();

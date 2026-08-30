@@ -4,9 +4,9 @@
 **Official product name:** Wasaaradda Isgaarsiinta iyo Technology — Tower Management & Monitoring System  
 **Client:** Ministry of Communication and Information Technology (MoCIT), Somaliland  
 **Languages:** English (default) + Somali toggle  
-**Status:** 12-week plan complete for the demo / pilot app.  
-**Current week:** **Week 12 complete — Test, pilot guide, handover**  
-**Last completed:** **Week 12**  
+**Status:** 12-week plan complete for the demo / pilot app. **Phase 2 Week 13 complete.**  
+**Current week:** **Week 13 complete — Districts & sub-districts**  
+**Last completed:** **Week 13**  
 **Source of truth:** this file. Update it when a product decision changes.
 
 ---

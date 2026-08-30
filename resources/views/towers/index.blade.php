@@ -22,12 +22,11 @@
                     </svg>
                     <input type="search" name="q" value="{{ request('q') }}" placeholder="{{ __('app.search') }}…" class="field pl-10">
                 </div>
-                <select name="region_id" class="field lg:w-44">
-                    <option value="">{{ __('app.towers.region') }}</option>
-                    @foreach ($regions as $region)
-                        <option value="{{ $region->id }}" @selected(request('region_id') == $region->id)>{{ $region->localizedName() }}</option>
-                    @endforeach
-                </select>
+                <x-geography-filters
+                    :regions="$regions"
+                    :initial-districts="$initialDistricts ?? []"
+                    :initial-sub-districts="$initialSubDistricts ?? []"
+                />
                 <select name="operator_id" class="field lg:w-44">
                     <option value="">{{ __('app.towers.operator') }}</option>
                     @foreach ($operators as $operator)
@@ -42,7 +41,7 @@
                 </select>
                 <div class="flex items-center gap-2">
                     <button class="inline-flex items-center px-4 py-2 bg-brand text-white text-sm font-semibold rounded-lg hover:bg-brand-dark">{{ __('app.filter') }}</button>
-                    @if (request()->hasAny(['q', 'region_id', 'operator_id', 'status']))
+                    @if (request()->hasAny(['q', 'region_id', 'district_id', 'sub_district_id', 'operator_id', 'status']))
                         <a href="{{ route('towers.index') }}" class="text-sm text-gray-500 hover:text-brand">{{ __('app.reset') }}</a>
                     @endif
                 </div>
@@ -54,6 +53,7 @@
                         <tr>
                             <th>{{ __('app.towers.name') }}</th>
                             <th>{{ __('app.towers.region') }}</th>
+                            <th>{{ __('app.towers.district') }}</th>
                             <th>{{ __('app.towers.operator') }}</th>
                             <th>{{ __('app.towers.type') }}</th>
                             <th>{{ __('app.towers.height') }}</th>
@@ -69,6 +69,12 @@
                                     <p class="mt-0.5 text-xs text-gray-400 font-mono">{{ number_format($tower->latitude, 4) }}, {{ number_format($tower->longitude, 4) }}</p>
                                 </td>
                                 <td class="text-gray-600">{{ $tower->region->localizedName() }}</td>
+                                <td class="text-gray-600">
+                                    {{ $tower->district?->localizedName() ?? '—' }}
+                                    @if ($tower->subDistrict)
+                                        <p class="text-[11px] text-gray-400">{{ $tower->subDistrict->localizedName() }}</p>
+                                    @endif
+                                </td>
                                 <td>
                                     <div class="flex items-center gap-2">
                                         <span class="h-2.5 w-2.5 rounded-full shrink-0" style="background: {{ $tower->operator->color }}"></span>
@@ -96,7 +102,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="!py-16 text-center">
+                                <td colspan="8" class="!py-16 text-center">
                                     <p class="text-sm font-medium text-gray-700">{{ __('app.none') }}</p>
                                     <p class="mt-1 text-sm text-gray-400">{{ __('app.towers.title') }}</p>
                                 </td>

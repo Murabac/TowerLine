@@ -1,0 +1,117 @@
+{
+    "_meta": {
+        "status": "interim",
+        "default_zoom_pad": 0.012,
+        "note": "Researched sub-districts for major urban districts only. latitude\/longitude are approximate ward centroids for demo map zoom and tower assignment — replace with MoCIT GIS when available.",
+        "researched_districts": [
+            "Hargeisa",
+            "Burao"
+        ],
+        "sources": [
+            {
+                "district": "Hargeisa",
+                "title": "Hargeisa Municipality — Districts info",
+                "url": "https:\/\/hargeisamunicipality.com\/districts-info\/",
+                "accessed": "2026-08-30"
+            },
+            {
+                "district": "Hargeisa",
+                "title": "26 June District — Wikipedia coordinates",
+                "url": "https:\/\/en.wikipedia.org\/wiki\/26_June_District",
+                "accessed": "2026-08-30"
+            },
+            {
+                "district": "Burao",
+                "title": "Wikipedia — Burao (administrative wards)",
+                "url": "https:\/\/en.wikipedia.org\/wiki\/Burao",
+                "accessed": "2026-08-30"
+            }
+        ],
+        "terminology": "In urban areas these are municipal wards (degmooyin gudaha magaalada). Law No. 23\/2019 defines district (degmo) and village (tuulo) levels nationally; MoCIT should confirm the official Somali term and full list for TowerLine."
+    },
+    "sub_districts": {
+        "Hargeisa": [
+            {
+                "type": "municipal_ward",
+                "latitude": 9.565,
+                "longitude": 44.065,
+                "name": "Ahmed Dhagah"
+            },
+            {
+                "type": "municipal_ward",
+                "latitude": 9.573,
+                "longitude": 44.05,
+                "name": "26 June"
+            },
+            {
+                "type": "municipal_ward",
+                "latitude": 9.558,
+                "longitude": 44.038,
+                "name": "31 May"
+            },
+            {
+                "type": "municipal_ward",
+                "latitude": 9.552,
+                "longitude": 44.072,
+                "name": "Mohamed Mooge"
+            },
+            {
+                "type": "municipal_ward",
+                "latitude": 9.548,
+                "longitude": 44.088,
+                "name": "Maxamuud Haybe"
+            },
+            {
+                "type": "municipal_ward",
+                "latitude": 9.532,
+                "longitude": 44.028,
+                "name": "Gacan Libaax"
+            },
+            {
+                "type": "municipal_ward",
+                "latitude": 9.568,
+                "longitude": 44.095,
+                "name": "Ibrahim Koodbuur"
+            },
+            {
+                "type": "municipal_ward",
+                "latitude": 9.542,
+                "longitude": 44.058,
+                "name": "Mohamoud Haibe"
+            },
+            {
+                "type": "municipal_ward",
+                "latitude": 9.575,
+                "longitude": 44.078,
+                "name": "Macalin Haroon"
+            }
+        ],
+        "Burao": [
+            {
+                "type": "municipal_ward",
+                "latitude": 9.53,
+                "longitude": 45.528,
+                "name": "Mohamed Ali"
+            },
+            {
+                "type": "municipal_ward",
+                "latitude": 9.525,
+                "longitude": 45.538,
+                "name": "Farah Omar"
+            },
+            {
+                "type": "municipal_ward",
+                "latitude": 9.52,
+                "longitude": 45.532,
+                "note": "Also spelled Lixliye in local reports",
+                "name": "Lihle"
+            },
+            {
+                "type": "municipal_ward",
+                "latitude": 9.535,
+                "longitude": 45.545,
+                "name": "Sheikh Bashir"
+            }
+        ]
+    }
+}

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreTowerRequest;
+use App\Models\District;
 use App\Models\Operator;
 use App\Models\Region;
 use App\Models\Tower;
@@ -19,7 +20,7 @@ class TowerController extends Controller
 
         $query = Tower::query()
             ->visibleTo($request->user())
-            ->with(['region', 'operator', 'latestInspection'])
+            ->with(['region', 'district', 'subDistrict', 'operator', 'latestInspection'])
             ->orderBy('name');
 
         if ($request->filled('q')) {
@@ -28,6 +29,14 @@ class TowerController extends Controller
 
         if ($request->filled('region_id')) {
             $query->where('region_id', $request->integer('region_id'));
+        }
+
+        if ($request->filled('district_id')) {
+            $query->where('district_id', $request->integer('district_id'));
+        }
+
+        if ($request->filled('sub_district_id')) {
+            $query->where('sub_district_id', $request->integer('sub_district_id'));
         }
 
         if ($request->filled('operator_id')) {
@@ -40,8 +49,10 @@ class TowerController extends Controller
 
         return view('towers.index', [
             'towers' => $query->paginate(15)->withQueryString(),
-            'regions' => Region::query()->orderBy('name_en')->get(),
+            'regions' => $this->scopedRegions(),
             'operators' => Operator::query()->orderBy('name')->get(),
+            'initialDistricts' => $this->districtOptionsForRegion($request->integer('region_id') ?: null),
+            'initialSubDistricts' => $this->subDistrictOptionsForDistrict($request->integer('district_id') ?: null),
         ]);
     }
 
@@ -55,7 +66,7 @@ class TowerController extends Controller
     public function store(StoreTowerRequest $request): RedirectResponse
     {
         $tower = Tower::query()->create($request->validated());
-        Audits::log('created', $tower, $tower->only(['name', 'region_id', 'operator_id', 'status']));
+        Audits::log('created', $tower, $tower->only(['name', 'region_id', 'district_id', 'sub_district_id', 'operator_id', 'status']));
 
         return redirect()->route('towers.show', $tower)->with('status', __('app.towers.created'));
     }
@@ -66,6 +77,8 @@ class TowerController extends Controller
 
         $tower->load([
             'region',
+            'district',
+            'subDistrict',
             'operator',
             'inspections.inspector',
             'licenses.operator',
@@ -85,7 +98,7 @@ class TowerController extends Controller
     {
         $this->authorize('update', $tower);
 
-        $before = $tower->only(['name', 'status', 'latitude', 'longitude']);
+        $before = $tower->only(['name', 'status', 'latitude', 'longitude', 'district_id', 'sub_district_id']);
         $tower->update($request->validated());
         Audits::log('updated', $tower, ['before' => $before, 'after' => $tower->only(array_keys($before))]);
 
@@ -106,14 +119,65 @@ class TowerController extends Controller
     {
         $user = request()->user();
 
+        return [
+            'regions' => $this->scopedRegions(),
+            'operators' => Operator::query()->orderBy('name')->get(),
+            'initialDistricts' => $this->districtOptionsForRegion(
+                old('region_id', request()->route('tower')?->region_id ?? $user->regionIds()[0] ?? null)
+            ),
+            'initialSubDistricts' => $this->subDistrictOptionsForDistrict(
+                old('district_id', request()->route('tower')?->district_id)
+            ),
+        ];
+    }
+
+    /**
+     * @return \Illuminate\Support\Collection<int, Region>
+     */
+    private function scopedRegions()
+    {
+        $user = request()->user();
         $regions = Region::query()->orderBy('name_en')->get();
+
         if ($user->isInspector()) {
-            $regions = $regions->whereIn('id', $user->regionIds() ?: [0])->values();
+            return $regions->whereIn('id', $user->regionIds() ?: [0])->values();
         }
 
-        return [
-            'regions' => $regions,
-            'operators' => Operator::query()->orderBy('name')->get(),
-        ];
+        return $regions;
+    }
+
+    /**
+     * @return list<array{id: int, name: string}>
+     */
+    private function districtOptionsForRegion(mixed $regionId): array
+    {
+        if (! $regionId) {
+            return [];
+        }
+
+        return District::query()
+            ->where('region_id', $regionId)
+            ->orderBy('name')
+            ->get()
+            ->map(fn (District $district) => ['id' => $district->id, 'name' => $district->name])
+            ->all();
+    }
+
+    /**
+     * @return list<array{id: int, name: string}>
+     */
+    private function subDistrictOptionsForDistrict(mixed $districtId): array
+    {
+        if (! $districtId) {
+            return [];
+        }
+
+        return District::query()
+            ->find($districtId)
+            ?->subDistricts()
+            ->orderBy('name')
+            ->get()
+            ->map(fn ($subDistrict) => ['id' => $subDistrict->id, 'name' => $subDistrict->name])
+            ->all() ?? [];
     }
 }

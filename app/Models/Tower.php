@@ -16,6 +16,8 @@ class Tower extends Model
         'latitude',
         'longitude',
         'region_id',
+        'district_id',
+        'sub_district_id',
         'operator_id',
         'type',
         'height_m',
@@ -57,6 +59,16 @@ class Tower extends Model
     public function region(): BelongsTo
     {
         return $this->belongsTo(Region::class);
+    }
+
+    public function district(): BelongsTo
+    {
+        return $this->belongsTo(District::class);
+    }
+
+    public function subDistrict(): BelongsTo
+    {
+        return $this->belongsTo(SubDistrict::class);
     }
 
     public function operator(): BelongsTo
