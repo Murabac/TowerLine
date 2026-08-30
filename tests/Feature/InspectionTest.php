@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Inspection;
 use App\Models\Operator;
 use App\Models\Region;
 use App\Models\Tower;
@@ -40,6 +41,67 @@ class InspectionTest extends TestCase
         ]);
 
         $this->assertSame('critical', $tower->fresh()->health_status);
+    }
+
+    public function test_inspector_can_submit_comment_only_inspection(): void
+    {
+        [$region, $operator] = $this->seedBasics();
+        $tower = $this->makeTower($region, $operator);
+        $inspector = User::factory()->create([
+            'role' => 'inspector',
+            'region_id' => $region->id,
+        ]);
+
+        $this->actingAs($inspector)
+            ->post(route('towers.inspections.store', $tower), [
+                'notes' => 'Gate locked. Site viewed from the access road only.',
+            ])
+            ->assertRedirect(route('towers.show', $tower));
+
+        $inspection = $tower->inspections()->first();
+
+        $this->assertSame('Gate locked. Site viewed from the access road only.', $inspection->notes);
+        $this->assertNull($inspection->power_status);
+        $this->assertNull($inspection->generator_condition);
+        $this->assertNull($inspection->physical_condition);
+        $this->assertSame('unknown', $inspection->derivedHealth());
+        $this->assertSame('unknown', $tower->fresh()->health_status);
+    }
+
+    public function test_inspector_can_submit_minimal_empty_visit(): void
+    {
+        [$region, $operator] = $this->seedBasics();
+        $tower = $this->makeTower($region, $operator);
+        $inspector = User::factory()->create([
+            'role' => 'inspector',
+            'region_id' => $region->id,
+        ]);
+
+        $this->actingAs($inspector)
+            ->post(route('towers.inspections.store', $tower), [])
+            ->assertRedirect(route('towers.show', $tower));
+
+        $this->assertDatabaseCount('inspections', 1);
+        $this->assertSame('unknown', $tower->fresh()->health_status);
+    }
+
+    public function test_partial_inspection_does_not_mark_tower_critical(): void
+    {
+        [$region, $operator] = $this->seedBasics();
+        $tower = $this->makeTower($region, $operator);
+        $inspector = User::factory()->create([
+            'role' => 'inspector',
+            'region_id' => $region->id,
+        ]);
+
+        $this->actingAs($inspector)
+            ->post(route('towers.inspections.store', $tower), [
+                'physical_condition' => 'fair',
+                'notes' => 'Only structure visible from outside fence.',
+            ])
+            ->assertRedirect(route('towers.show', $tower));
+
+        $this->assertSame('needs_attention', $tower->fresh()->health_status);
     }
 
     public function test_inspector_can_upload_multiple_photos_per_type(): void
@@ -91,6 +153,33 @@ class InspectionTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_stale_inspection_threshold_is_one_hundred_eighty_days(): void
+    {
+        $this->assertSame(180, Tower::INSPECTION_STALE_DAYS);
+
+        [$region, $operator] = $this->seedBasics();
+        $tower = $this->makeTower($region, $operator);
+
+        Inspection::query()->create([
+            'tower_id' => $tower->id,
+            'inspector_id' => User::factory()->create(['role' => 'admin'])->id,
+            'notes' => 'Older visit',
+            'inspected_at' => now()->subDays(181),
+        ]);
+
+        $this->assertTrue($tower->fresh()->isInspectionOverdue());
+
+        $tower->inspections()->delete();
+        Inspection::query()->create([
+            'tower_id' => $tower->id,
+            'inspector_id' => User::factory()->create(['role' => 'admin'])->id,
+            'notes' => 'Recent visit',
+            'inspected_at' => now()->subDays(30),
+        ]);
+
+        $this->assertFalse($tower->fresh()->isInspectionOverdue());
+    }
+
     /**
      * @return array{0: Region, 1: Operator}
      */
@@ -109,7 +198,7 @@ class InspectionTest extends TestCase
     private function makeTower(Region $region, Operator $operator): Tower
     {
         return Tower::query()->create([
-            'name' => 'Berbera site',
+            'name' => 'BER-SAH-001',
             'latitude' => 10.43,
             'longitude' => 45.01,
             'region_id' => $region->id,

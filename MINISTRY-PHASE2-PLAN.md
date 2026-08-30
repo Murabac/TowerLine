@@ -1,7 +1,7 @@
 # TowerLine — Phase 2 plan (MoCIT meeting)
 
 **Source:** Ministry officials meeting (Aug 2026)  
-**Status:** Planning — **Week 13 done** (Aug 2026)  
+**Status:** Planning — **Week 14 done** (Aug 2026)  
 **Builds on:** Week 12 demo (`CONTEXT.md`)  
 **How we work:** Same as Phase 1 — finish **one week’s deliverable** per session, then stop for review.
 
@@ -271,22 +271,22 @@ _Remaining items only — most decisions are locked above._
 
 ### Form changes (item 4)
 
-- [ ] Make `power_status`, `generator_condition`, `physical_condition`, photos **optional**
-- [ ] Add prominent **inspector comment** field (optional but encouraged)
-- [ ] Allow “partial” or “not inspected” states without blocking submit
-- [ ] Update inspection create UI copy (EN/SO) to explain optional fields
+- [x] Make `power_status`, `generator_condition`, `physical_condition`, photos **optional**
+- [x] Add prominent **inspector comment** field (optional but encouraged)
+- [x] Allow “partial” or “not inspected” states without blocking submit
+- [x] Update inspection create UI copy (EN/SO) to explain optional fields
 
 ### Health & dashboard rules
 
-- [ ] Relax health rollup: missing inspection data → `unknown` / `needs_attention`, not hard `critical`
-- [ ] Revisit **90-day overdue** rule — consider longer window or warning-only (confirm with ministry)
-- [ ] Dashboard cards reflect new lenient semantics
+- [x] Relax health rollup: missing inspection data → `unknown` / `needs_attention`, not hard `critical`
+- [x] Revisit **90-day overdue** rule — extended to **180 days** (warning-style stale flag)
+- [x] Dashboard cards reflect new lenient semantics
 
 ### Tests
 
-- [ ] Submit inspection with only a comment
-- [ ] Submit with all fields empty (if allowed) or minimal set
-- [ ] Health status does not over-penalize incomplete visits
+- [x] Submit inspection with only a comment
+- [x] Submit with all fields empty (if allowed) or minimal set
+- [x] Health status does not over-penalize incomplete visits
 
 **Done when:** Inspector can file a visit with mostly blanks + comment; dashboard still usable.
 

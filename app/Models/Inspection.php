@@ -43,8 +43,24 @@ class Inspection extends Model
         return $this->belongsTo(User::class, 'inspector_id');
     }
 
+    public function hasStructuredChecks(): bool
+    {
+        return $this->power_status !== null
+            || $this->generator_condition !== null
+            || $this->physical_condition !== null;
+    }
+
+    public function isPartial(): bool
+    {
+        return ! $this->hasStructuredChecks() || $this->notes || $this->photoUrls() !== [];
+    }
+
     public function derivedHealth(): string
     {
+        if (! $this->hasStructuredChecks()) {
+            return 'unknown';
+        }
+
         if ($this->power_status === 'down' || $this->physical_condition === 'poor') {
             return 'critical';
         }
@@ -54,6 +70,35 @@ class Inspection extends Model
         }
 
         return 'good';
+    }
+
+    public function powerStatusLabel(): string
+    {
+        if ($this->power_status === null) {
+            return __('app.inspections.not_recorded');
+        }
+
+        return $this->power_status === 'generator'
+            ? __('app.inspections.generator_power')
+            : __('app.inspections.'.$this->power_status);
+    }
+
+    public function generatorConditionLabel(): string
+    {
+        if ($this->generator_condition === null) {
+            return __('app.inspections.not_recorded');
+        }
+
+        return __('app.inspections.'.$this->generator_condition);
+    }
+
+    public function physicalConditionLabel(): string
+    {
+        if ($this->physical_condition === null) {
+            return __('app.inspections.not_recorded');
+        }
+
+        return __('app.inspections.'.$this->physical_condition);
     }
 
     public function photoUrls(): array

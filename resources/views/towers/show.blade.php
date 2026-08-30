@@ -173,7 +173,7 @@
             <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
                 <h2 class="text-sm font-semibold text-brand">{{ __('app.towers.history_inspections') }}</h2>
                 @if ($tower->isInspectionOverdue())
-                    <span class="text-xs font-medium text-amber-700">{{ __('app.inspections.overdue') }}</span>
+                    <span class="text-xs font-medium text-amber-700">{{ __('app.inspections.stale', ['days' => \App\Models\Tower::INSPECTION_STALE_DAYS]) }}</span>
                 @endif
             </div>
             <div class="overflow-x-auto">
@@ -192,8 +192,8 @@
                             <tr>
                                 <td class="whitespace-nowrap">{{ $inspection->inspected_at->format('d M Y') }}</td>
                                 <td>{{ $inspection->inspector?->name ?: '—' }}</td>
-                                <td>{{ $inspection->power_status === 'generator' ? __('app.inspections.generator_power') : __('app.inspections.'.$inspection->power_status) }}</td>
-                                <td>{{ __('app.inspections.'.$inspection->physical_condition) }}</td>
+                                <td>{{ $inspection->powerStatusLabel() }}</td>
+                                <td>{{ $inspection->physicalConditionLabel() }}</td>
                                 <td class="max-w-xs">
                                     <p class="truncate text-gray-500">{{ $inspection->notes ?: '—' }}</p>
                                     @if ($inspection->photoUrls())

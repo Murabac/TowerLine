@@ -17,19 +17,21 @@ class InspectionSeeder extends Seeder
         $inspectors = User::query()->where('role', 'inspector')->with('regions')->get();
 
         $profiles = [
-            ['on_grid', 'good', 'good', 20],
-            ['on_grid', 'fair', 'fair', 40],
-            ['generator', 'poor', 'fair', 15],
-            ['battery', 'n_a', 'good', 70],
-            ['down', 'poor', 'poor', 110],
-            ['on_grid', 'good', 'good', 5],
+            ['on_grid', 'good', 'good', 20, 'Full structured inspection.'],
+            ['on_grid', 'fair', 'fair', 40, 'Minor rust on base bolts noted.'],
+            ['generator', 'poor', 'fair', 15, 'Generator running rough; spare parts requested.'],
+            ['battery', 'n_a', 'good', 70, 'Battery bank healthy.'],
+            ['down', 'poor', 'poor', 110, 'Site without power; structure damage visible.'],
+            [null, null, null, 8, 'Gate locked — viewed from road. Could not access compound today.'],
+            ['on_grid', null, null, 25, 'Power on grid confirmed. Generator shed not opened.'],
         ];
 
         $i = 0;
 
         foreach (Tower::query()->where('status', 'active')->orderBy('id')->get() as $tower) {
-            if ($i % 5 === 4) {
+            if ($i % 6 === 5) {
                 $i++;
+
                 continue;
             }
 
@@ -46,7 +48,7 @@ class InspectionSeeder extends Seeder
                 'power_status' => $profile[0],
                 'generator_condition' => $profile[1],
                 'physical_condition' => $profile[2],
-                'notes' => 'Sample field inspection for demo.',
+                'notes' => $profile[4],
                 'photos' => [],
                 'inspected_at' => now()->subDays($profile[3]),
             ]);

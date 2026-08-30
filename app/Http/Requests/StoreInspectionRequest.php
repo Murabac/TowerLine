@@ -15,9 +15,9 @@ class StoreInspectionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'power_status' => ['required', Rule::in(['on_grid', 'generator', 'battery', 'down'])],
-            'generator_condition' => ['required', Rule::in(['good', 'fair', 'poor', 'n_a'])],
-            'physical_condition' => ['required', Rule::in(['good', 'fair', 'poor'])],
+            'power_status' => ['nullable', Rule::in(['on_grid', 'generator', 'battery', 'down'])],
+            'generator_condition' => ['nullable', Rule::in(['good', 'fair', 'poor', 'n_a'])],
+            'physical_condition' => ['nullable', Rule::in(['good', 'fair', 'poor'])],
             'notes' => ['nullable', 'string', 'max:5000'],
             'photos' => ['nullable', 'array'],
             'photos.wide' => ['nullable', 'array', 'max:8'],

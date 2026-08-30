@@ -17,7 +17,7 @@
                 'power_source' => __('app.towers.power_source'),
                 'no_license' => __('app.map.no_license'),
                 'shown' => __('app.map.shown'),
-                'overdue' => __('app.inspections.overdue'),
+                'overdue' => __('app.inspections.stale', ['days' => \App\Models\Tower::INSPECTION_STALE_DAYS]),
             ],
         ]))"
         x-init="init()"
@@ -133,7 +133,7 @@
                            class="rounded border-gray-300 text-brand focus:ring-brand/30"
                            :checked="filters.overdue === '1'"
                            @change="filters.overdue = $event.target.checked ? '1' : ''; applyFilters()">
-                    {{ __('app.inspections.overdue') }}
+                    {{ __('app.inspections.stale', ['days' => \App\Models\Tower::INSPECTION_STALE_DAYS]) }}
                 </label>
                 <p class="text-[11px] text-gray-400">{{ __('app.map.cluster_hint') }}</p>
             </div>

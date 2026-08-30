@@ -14,6 +14,9 @@ use Illuminate\Support\Facades\DB;
 
 class Tower extends Model
 {
+    /** Days without a visit before a tower is flagged as needing a fresh inspection. */
+    public const INSPECTION_STALE_DAYS = 180;
+
     protected $fillable = [
         'name',
         'latitude',
@@ -179,12 +182,12 @@ class Tower extends Model
             return $this->status === 'active';
         }
 
-        return $latest->inspected_at->lt(now()->subDays(90));
+        return $latest->inspected_at->lt(now()->subDays(self::INSPECTION_STALE_DAYS));
     }
 
     public function scopeInspectionOverdue(Builder $query): Builder
     {
-        $cutoff = now()->subDays(90);
+        $cutoff = now()->subDays(self::INSPECTION_STALE_DAYS);
 
         return $query->where(function (Builder $q) use ($cutoff) {
             $q->where(function (Builder $neverInspected) {
