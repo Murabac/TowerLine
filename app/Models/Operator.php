@@ -29,4 +29,9 @@ class Operator extends Model
     {
         return $this->hasMany(License::class);
     }
+
+    public function frequencyAllocations(): HasMany
+    {
+        return $this->hasMany(FrequencyAllocation::class);
+    }
 }

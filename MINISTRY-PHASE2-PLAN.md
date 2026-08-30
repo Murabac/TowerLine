@@ -1,7 +1,7 @@
 # TowerLine — Phase 2 plan (MoCIT meeting)
 
 **Source:** Ministry officials meeting (Aug 2026)  
-**Status:** Planning — **Week 16 done** (Aug 2026)  
+**Status:** Planning — **Week 17 done** (Aug 2026)  
 **Builds on:** Week 12 demo (`CONTEXT.md`)  
 **How we work:** Same as Phase 1 — finish **one week’s deliverable** per session, then stop for review.
 
@@ -328,19 +328,20 @@ _Remaining items only — most decisions are locked above._
 
 ### Data model
 
-- [ ] `frequency_allocations` — operator, band/range label, channel details (TBD), `issued_at`, `expires_at` (+1 year default), status, notes, document optional
-- [ ] Link to operator (and optionally region if allocations are regional)
+- [x] `frequency_allocations` — operator, band/range label, channel details, `issued_at`, `expires_at` (+1 year default), notes, documents optional
+- [x] Link to operator and optional region
 
 ### UI
 
-- [ ] List with filters: operator, active/expired, expiring within 30/60 days
-- [ ] Create/edit/renew (renew = new row or extend — pick one pattern)
-- [ ] Dashboard banner: frequencies expiring soon (similar to old licence banner)
-- [ ] Audit log on changes
+- [x] List with filters: operator, active/expired, expiring within 30/60 days
+- [x] Create/edit/renew (renew = new row linked to previous)
+- [x] Dashboard banner: frequencies expiring soon
+- [x] Audit log on changes
+- [x] Printable frequency allocation letter (MoCIT/FRQ ref)
 
 ### Permissions
 
-- [ ] Admin + ops manager can manage (exact split in Week 18)
+- [x] Admin + inspectors can manage (ops manager split in Week 18)
 
 **Open:** exact fields the ministry records today (MHz range, band name, letter reference, etc.).
 

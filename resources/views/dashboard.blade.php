@@ -5,6 +5,12 @@
             <h1 class="mt-1 text-2xl font-semibold tracking-tight text-brand">{{ __('app.dashboard.title') }}</h1>
         </div>
 
+        @if ($frequencyExpiringCount)
+            <a href="{{ route('frequencies.dashboard') }}" class="block rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                {{ __('app.dashboard.frequency_renewal_banner', ['count' => $frequencyExpiringCount]) }}
+            </a>
+        @endif
+
         @if ($expiringCount)
             <a href="{{ route('licenses.index', ['state' => 'expiring_soon']) }}" class="block rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
                 {{ __('app.dashboard.renewal_banner', ['count' => $expiringCount]) }}

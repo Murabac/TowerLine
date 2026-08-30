@@ -1,0 +1,319 @@
+/* Frequency renewal payment receipt — distinct from approval letters. */
+
+.frq-receipt {
+    --rcpt-green: #1b4d3e;
+    --rcpt-green-soft: #e8f0ec;
+    --rcpt-border: #9ca3af;
+    --rcpt-dash: #6b7280;
+    --rcpt-text: #111827;
+    --rcpt-muted: #6b7280;
+
+    max-width: 118mm;
+    margin: 0 auto;
+    padding: 10mm 9mm 12mm;
+    background: #fff;
+    color: var(--rcpt-text);
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    font-size: 10pt;
+    line-height: 1.45;
+    border: 2px dashed var(--rcpt-dash);
+    box-shadow: inset 0 0 0 1px #e5e7eb;
+}
+
+.frq-receipt * {
+    box-sizing: border-box;
+}
+
+.frq-receipt__header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--rcpt-border);
+}
+
+.frq-receipt__logo {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #f5c518;
+    border: 1px solid var(--rcpt-green);
+    flex-shrink: 0;
+}
+
+.frq-receipt__issuer {
+    min-width: 0;
+}
+
+.frq-receipt__issuer-line {
+    margin: 0;
+    font-size: 8.5pt;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--rcpt-green);
+    line-height: 1.25;
+}
+
+.frq-receipt__issuer-line--main {
+    font-size: 9pt;
+}
+
+.frq-receipt__badge {
+    margin: 10px 0 12px;
+    padding: 8px 10px;
+    text-align: center;
+    background: var(--rcpt-text);
+    color: #fff;
+    font-size: 11pt;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.frq-receipt__badge-sub {
+    display: block;
+    margin-top: 2px;
+    font-size: 8pt;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: #d1d5db;
+}
+
+.frq-receipt__meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 12px;
+    margin-bottom: 12px;
+    font-size: 9pt;
+}
+
+.frq-receipt__meta-item {
+    margin: 0;
+}
+
+.frq-receipt__meta-label {
+    display: block;
+    font-size: 7.5pt;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--rcpt-muted);
+}
+
+.frq-receipt__meta-value {
+    display: block;
+    margin-top: 2px;
+    font-weight: 700;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 9.5pt;
+}
+
+.frq-receipt__party {
+    margin-bottom: 12px;
+    padding: 8px 10px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+}
+
+.frq-receipt__party-label {
+    margin: 0 0 2px;
+    font-size: 7.5pt;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--rcpt-muted);
+}
+
+.frq-receipt__party-name {
+    margin: 0;
+    font-size: 11pt;
+    font-weight: 800;
+    color: var(--rcpt-green);
+}
+
+.frq-receipt__lines {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 0;
+    font-size: 9pt;
+}
+
+.frq-receipt__lines th,
+.frq-receipt__lines td {
+    border-bottom: 1px dotted var(--rcpt-border);
+    padding: 7px 4px;
+    vertical-align: top;
+}
+
+.frq-receipt__lines th {
+    font-size: 7.5pt;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--rcpt-muted);
+    text-align: left;
+}
+
+.frq-receipt__lines th:last-child,
+.frq-receipt__lines td:last-child {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.frq-receipt__lines tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.frq-receipt__amount {
+    font-family: Consolas, "Courier New", monospace;
+    font-weight: 700;
+}
+
+.frq-receipt__total {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 10px 0 12px;
+    padding: 12px 12px;
+    background: var(--rcpt-green-soft);
+    border: 2px solid var(--rcpt-green);
+}
+
+.frq-receipt__total-label {
+    margin: 0;
+    font-size: 9pt;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--rcpt-green);
+}
+
+.frq-receipt__total-amount {
+    margin: 0;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 16pt;
+    font-weight: 800;
+    color: var(--rcpt-text);
+    letter-spacing: 0.02em;
+}
+
+.frq-receipt__paid-stamp {
+    margin: 0 0 12px;
+    text-align: center;
+}
+
+.frq-receipt__paid-stamp span {
+    display: inline-block;
+    padding: 4px 18px;
+    border: 3px double #15803d;
+    color: #15803d;
+    font-size: 13pt;
+    font-weight: 900;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    transform: rotate(-4deg);
+}
+
+.frq-receipt__details {
+    margin-bottom: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--rcpt-border);
+}
+
+.frq-receipt__details-title {
+    margin: 0 0 6px;
+    font-size: 7.5pt;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--rcpt-muted);
+}
+
+.frq-receipt__details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 10px;
+    font-size: 8.5pt;
+}
+
+.frq-receipt__detail dt {
+    margin: 0;
+    color: var(--rcpt-muted);
+    font-size: 7.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.frq-receipt__detail dd {
+    margin: 1px 0 0;
+    font-weight: 700;
+}
+
+.frq-receipt__signatures {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 14px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--rcpt-border);
+}
+
+.frq-receipt__sign-box {
+    min-height: 58px;
+}
+
+.frq-receipt__sign-label {
+    margin: 0 0 28px;
+    font-size: 7.5pt;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--rcpt-muted);
+    border-bottom: 1px solid var(--rcpt-text);
+    padding-bottom: 2px;
+}
+
+.frq-receipt__sign-name {
+    margin: 0;
+    font-size: 8.5pt;
+    font-weight: 700;
+}
+
+.frq-receipt__footer {
+    margin-top: 12px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--rcpt-border);
+    text-align: center;
+    font-size: 7.5pt;
+    color: var(--rcpt-muted);
+    letter-spacing: 0.03em;
+}
+
+@media print {
+    body.frq-receipt-print-body {
+        margin: 0;
+        background: #fff;
+    }
+
+    .frq-receipt-print-toolbar {
+        display: none !important;
+    }
+
+    .frq-receipt {
+        max-width: none;
+        margin: 0 auto;
+        box-shadow: none;
+        border: 2px dashed #6b7280;
+    }
+
+    .frq-receipt__badge,
+    .frq-receipt__total,
+    .frq-receipt__paid-stamp span {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}

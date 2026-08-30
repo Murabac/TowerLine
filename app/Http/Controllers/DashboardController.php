@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\FrequencyAllocation;
 use App\Models\License;
 use App\Models\Tower;
 use Illuminate\Http\Request;
@@ -14,6 +15,7 @@ class DashboardController extends Controller
         $user = $request->user();
         $towers = Tower::query()->visibleTo($user);
         $licenses = License::query()->visibleTo($user);
+        $frequencies = FrequencyAllocation::query()->visibleTo($user);
 
         $preview = Tower::query()
             ->visibleTo($user)
@@ -28,6 +30,8 @@ class DashboardController extends Controller
             'overdueCount' => (clone $towers)->inspectionOverdue()->count(),
             'expiringCount' => (clone $licenses)->expiringSoon()->count(),
             'expiredCount' => (clone $licenses)->expired()->count(),
+            'frequencyExpiringCount' => (clone $frequencies)->expiringSoon()->count(),
+            'frequencyExpiredCount' => (clone $frequencies)->expired()->count(),
             'alerts' => Tower::query()
                 ->visibleTo($user)
                 ->with(['region', 'operator'])
