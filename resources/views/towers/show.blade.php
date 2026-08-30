@@ -38,6 +38,9 @@
                             {{ __('app.towers.new_inspection') }}
                         </a>
                     @endcan
+                    <a href="{{ route('towers.approval-letter.show', $tower) }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 text-sm font-semibold rounded-xl hover:border-brand hover:text-brand">
+                        {{ __('app.approval_letters.title') }}
+                    </a>
                     @can('update', $tower)
                         <a href="{{ route('towers.edit', $tower) }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-brand text-white text-sm font-semibold rounded-xl hover:bg-brand-dark">
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L8.193 18.46a4.5 4.5 0 0 1-1.897 1.13L4.5 20.25l.66-1.796a4.5 4.5 0 0 1 1.13-1.897Z"/></svg>
@@ -78,6 +81,17 @@
                 <div class="stat-tile">
                     <p class="stat-label">{{ __('app.towers.commissioned') }}</p>
                     <p class="stat-value">{{ $tower->commissioned_at?->format('d M Y') ?: '—' }}</p>
+                </div>
+                <div class="stat-tile">
+                    <p class="stat-label">{{ __('app.approval_letters.title') }}</p>
+                    <p class="stat-value text-sm leading-snug">
+                        @if ($tower->currentApprovalLetter)
+                            <span class="font-semibold text-brand">{{ $tower->currentApprovalLetter->reference_number }}</span>
+                            <span class="block text-xs font-normal text-gray-500 mt-0.5">{{ $tower->currentApprovalLetter->issued_at->format('d M Y') }}</span>
+                        @else
+                            <span class="text-sm font-medium text-gray-400">{{ __('app.approval_letters.none_short') }}</span>
+                        @endif
+                    </p>
                 </div>
                 <div class="stat-tile">
                     <p class="stat-label">{{ __('app.licenses.state') }}</p>
@@ -224,6 +238,7 @@
                     <a href="{{ route('licenses.create', ['tower_id' => $tower->id]) }}" class="text-sm font-medium text-brand hover:underline">{{ __('app.licenses.create') }}</a>
                 @endcan
             </div>
+            <p class="px-5 pt-3 text-xs text-gray-500">{{ __('app.approval_letters.legacy_license_note') }}</p>
             <div class="overflow-x-auto">
                 <table class="data-table min-w-0">
                     <thead>

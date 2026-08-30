@@ -1,7 +1,7 @@
 # TowerLine — Phase 2 plan (MoCIT meeting)
 
 **Source:** Ministry officials meeting (Aug 2026)  
-**Status:** Planning — **Week 14 done** (Aug 2026)  
+**Status:** Planning — **Week 16 done** (Aug 2026)  
 **Builds on:** Week 12 demo (`CONTEXT.md`)  
 **How we work:** Same as Phase 1 — finish **one week’s deliverable** per session, then stop for review.
 
@@ -72,7 +72,7 @@ Week 17 (frequency) can run after Week 18; ties into operators + reports
 
 | Item | Needed for |
 |---|---|
-| Build approval letter PDF sample | Week 16 letter template |
+| Build approval letter PDF sample | ~~Week 16 letter template~~ — received at `resources/docs/tower_registration_approval.pdf` |
 | Official district + sub-district list | Replace interim geography seed |
 | Tower registration paper form PDF | ~~Week 14 field mapping~~ — received at `resources/docs/reg form.pdf` |
 | Frequency allocation field spec (MHz, band name, etc.) | Week 17 form design |
@@ -298,25 +298,25 @@ _Remaining items only — most decisions are locked above._
 
 ### Concept change (item 5)
 
-- [ ] New model e.g. `build_approval_letters` (or rename `licenses` with migration path)
-- [ ] Fields: tower, operator, letter number, issued_at, issued_by, template version, PDF path optional
-- [ ] **No `expires_at`** on build approval
-- [ ] Retire or hide licence expiry UI on dashboard for build approvals
-- [ ] Keep audit log on generate/update/download
+- [x] New model `build_approval_letters`
+- [x] Fields: tower, operator, letter number, issued_at, issued_by, template version
+- [x] **No `expires_at`** on build approval
+- [x] Tower detail prioritises approval letter; legacy licences kept with note
+- [x] Keep audit log on generate
 
 ### Letter generation
 
-- [ ] Blade/HTML template matching ministry design (after sample received)
-- [ ] “Generate letter” action on tower detail → preview → print/PDF
-- [ ] Bilingual letter support if required on same template
-- [ ] Store generated snapshot metadata (who, when)
+- [x] Blade/HTML template matching ministry design (`resources/docs/tower_registration_approval.pdf`)
+- [x] “Generate letter” action on tower detail → preview → print/PDF
+- [x] Bilingual letter on same template (signatures left blank for paper)
+- [x] Store generated snapshot metadata (who, when, ref number)
 
 ### Legacy licences
 
-- [ ] Decision: migrate existing demo `licenses` rows or mark module deprecated
+- [x] Keep existing demo `licenses` rows during transition
 - [ ] Update Help text and presentations
 
-**Blocked until:** ministry shares build approval letter PDF.
+**Blocked until:** ~~ministry shares build approval letter PDF.~~ Template at `resources/docs/tower_registration_approval.pdf`.
 
 **Done when:** Admin can generate a printable approval letter for a tower with no expiry date.
 

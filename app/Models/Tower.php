@@ -138,6 +138,31 @@ class Tower extends Model
         return $this->hasMany(License::class)->latest('expires_at');
     }
 
+    public function approvalLetters(): HasMany
+    {
+        return $this->hasMany(BuildApprovalLetter::class)->latest('issued_at');
+    }
+
+    public function currentApprovalLetter(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(BuildApprovalLetter::class)->latestOfMany('issued_at');
+    }
+
+    public function letterLocationLine(): string
+    {
+        return collect([
+            $this->region?->localizedName(),
+            $this->district?->localizedName(),
+            $this->city,
+            $this->subDistrict?->localizedName(),
+        ])->filter()->unique()->implode(' / ');
+    }
+
+    public function letterTowerIdentity(): string
+    {
+        return __('app.status.'.$this->type).' / '.$this->name;
+    }
+
     public function latestInspection(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(Inspection::class)->latestOfMany('inspected_at');

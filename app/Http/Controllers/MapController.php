@@ -58,7 +58,7 @@ class MapController extends Controller
 
         $query = Tower::query()
             ->visibleTo($request->user())
-            ->with(['operator', 'region', 'district', 'subDistrict', 'latestInspection', 'currentLicense']);
+            ->with(['operator', 'region', 'district', 'subDistrict', 'latestInspection', 'currentLicense', 'currentApprovalLetter']);
 
         if ($request->filled('region_id')) {
             $query->where('region_id', $request->integer('region_id'));
@@ -117,6 +117,7 @@ class MapController extends Controller
 
         $towers = $query->get()->map(function (Tower $tower) {
             $license = $tower->currentLicense;
+            $approvalLetter = $tower->currentApprovalLetter;
 
             return [
                 'id' => $tower->id,
@@ -145,6 +146,12 @@ class MapController extends Controller
                     'expires_at' => $license->expires_at->toDateString(),
                     'status' => $license->display_status,
                     'status_label' => __('app.status.'.$license->display_status),
+                ] : null,
+                'approval_letter' => $approvalLetter ? [
+                    'reference_number' => $approvalLetter->reference_number,
+                    'issued_at' => $approvalLetter->issued_at->toDateString(),
+                    'status' => $approvalLetter->status,
+                    'url' => route('towers.approval-letter.show', $tower),
                 ] : null,
                 'url' => route('towers.show', $tower),
             ];

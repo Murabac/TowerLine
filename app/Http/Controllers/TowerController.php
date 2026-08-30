@@ -134,6 +134,7 @@ class TowerController extends Controller
             'operator',
             'inspections.inspector',
             'licenses.operator',
+            'currentApprovalLetter.issuer',
         ]);
 
         return view('towers.show', compact('tower'));

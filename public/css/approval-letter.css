@@ -1,0 +1,352 @@
+/* Ministry tower registration approval letter — self-contained (no Tailwind). */
+
+.approval-letter {
+    --letter-green: #1b4d3e;
+    --letter-green-dark: #14382c;
+    --letter-green-soft: #e8f0ec;
+    --letter-gold: #f5c518;
+    --letter-border: #1b4d3e;
+    --letter-text: #1a1a1a;
+    --letter-muted: #4b5563;
+
+    max-width: 210mm;
+    margin: 0 auto;
+    padding: 12mm 14mm 16mm;
+    background: #fff;
+    color: var(--letter-text);
+    font-family: "Book Antiqua", Palatino, "Times New Roman", Times, serif;
+    font-size: 11.5pt;
+    line-height: 1.5;
+}
+
+.approval-letter * {
+    box-sizing: border-box;
+}
+
+/* Header */
+.approval-letter__header {
+    text-align: center;
+    padding-bottom: 10px;
+    margin-bottom: 14px;
+    border-bottom: 3px double var(--letter-green);
+}
+
+.approval-letter__logo {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 10px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--letter-gold);
+    border: 2px solid var(--letter-green);
+    padding: 2px;
+}
+
+.approval-letter__header-line {
+    margin: 0;
+    font-size: 10.5pt;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--letter-green-dark);
+    text-transform: uppercase;
+}
+
+.approval-letter__header-line--so {
+    font-size: 11pt;
+}
+
+.approval-letter__header-line--ministry {
+    margin-top: 8px;
+    font-size: 12pt;
+}
+
+.approval-letter__header-line--dept {
+    margin-top: 6px;
+    font-size: 10.5pt;
+    font-weight: 600;
+    color: var(--letter-muted);
+}
+
+/* Ref & date */
+.approval-letter__meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+    font-size: 11pt;
+}
+
+.approval-letter__meta-item {
+    margin: 0;
+}
+
+.approval-letter__meta-label {
+    font-weight: 700;
+    color: var(--letter-green-dark);
+}
+
+.approval-letter__meta-value {
+    font-weight: 700;
+    border-bottom: 1px solid #9ca3af;
+    padding: 0 4px 1px;
+    min-width: 120px;
+    display: inline-block;
+}
+
+/* Title */
+.approval-letter__title-block {
+    text-align: center;
+    margin-bottom: 18px;
+    padding: 10px 12px;
+    background: var(--letter-green-soft);
+    border: 1px solid var(--letter-green);
+}
+
+.approval-letter__title {
+    margin: 0;
+    font-size: 15pt;
+    font-weight: 700;
+    color: var(--letter-green-dark);
+    letter-spacing: 0.03em;
+}
+
+.approval-letter__subtitle {
+    margin: 4px 0 0;
+    font-size: 12pt;
+    font-weight: 700;
+    color: var(--letter-green);
+}
+
+/* Addressee */
+.approval-letter__addressee {
+    margin-bottom: 14px;
+    font-size: 11pt;
+}
+
+.approval-letter__addressee p {
+    margin: 0 0 6px;
+}
+
+.approval-letter__fill {
+    font-weight: 700;
+    border-bottom: 1px solid #6b7280;
+    padding: 0 2px 1px;
+}
+
+/* Body */
+.approval-letter__body {
+    margin: 0 0 16px;
+    text-align: justify;
+    font-size: 11pt;
+}
+
+/* Section headings */
+.approval-letter__section-title {
+    margin: 0 0 8px;
+    padding: 6px 10px;
+    font-size: 11pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: #fff;
+    background: var(--letter-green);
+}
+
+/* Table */
+.approval-letter__table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 18px;
+    font-size: 10.5pt;
+}
+
+.approval-letter__table th,
+.approval-letter__table td {
+    border: 1px solid var(--letter-border);
+    padding: 7px 9px;
+    vertical-align: top;
+    text-align: left;
+}
+
+.approval-letter__table thead th {
+    background: var(--letter-green);
+    color: #fff;
+    font-weight: 700;
+    font-size: 10pt;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.approval-letter__table tbody tr:nth-child(even) {
+    background: #f8faf9;
+}
+
+.approval-letter__table .approval-letter__data {
+    font-weight: 700;
+    color: var(--letter-green-dark);
+}
+
+.approval-letter__table .approval-letter__mono {
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 9.5pt;
+}
+
+/* Approval status */
+.approval-letter__status-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    margin-bottom: 14px;
+    border: 1px solid var(--letter-border);
+}
+
+.approval-letter__status-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    font-weight: 700;
+    font-size: 10.5pt;
+    border-right: 1px solid var(--letter-border);
+}
+
+.approval-letter__status-option:last-child {
+    border-right: none;
+}
+
+.approval-letter__checkbox {
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--letter-green-dark);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.approval-letter__checkbox--checked {
+    background: var(--letter-green-soft);
+}
+
+.approval-letter__note {
+    margin: 0 0 16px;
+    font-size: 10.5pt;
+    font-style: italic;
+    color: var(--letter-muted);
+}
+
+/* Conditions */
+.approval-letter__conditions {
+    margin: 0 0 16px;
+    padding-left: 22px;
+    font-size: 10.5pt;
+}
+
+.approval-letter__conditions li {
+    margin-bottom: 5px;
+}
+
+.approval-letter__closing {
+    margin: 0 0 22px;
+    font-size: 11pt;
+    font-weight: 600;
+}
+
+/* Signatures */
+.approval-letter__signatures-title {
+    margin: 0 0 12px;
+    text-align: center;
+    font-size: 11pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--letter-green-dark);
+    letter-spacing: 0.03em;
+}
+
+.approval-letter__signature-box {
+    max-width: 320px;
+    margin: 0 auto;
+    min-height: 110px;
+    padding: 12px 14px;
+    border: 1px solid var(--letter-border);
+    background: #fafafa;
+}
+
+.approval-letter__signature-name {
+    margin: 0 0 6px;
+    font-size: 12pt;
+    font-weight: 700;
+    color: var(--letter-green-dark);
+}
+
+.approval-letter__signature-title {
+    margin: 0 0 2px;
+    font-size: 10.5pt;
+    font-weight: 700;
+}
+
+.approval-letter__signature-box p {
+    margin: 0 0 4px;
+    font-size: 10.5pt;
+}
+
+.approval-letter__signature-box .approval-letter__signature-role {
+    color: var(--letter-muted);
+    font-size: 10pt;
+}
+
+.approval-letter__signature-space {
+    margin-top: 36px;
+    min-height: 28px;
+    border-bottom: 1px dashed #9ca3af;
+    color: #9ca3af;
+    font-size: 9pt;
+    text-align: center;
+    padding-top: 4px;
+}
+
+/* Footer */
+.approval-letter__footer {
+    margin-top: 22px;
+    padding: 8px 12px;
+    text-align: center;
+    font-size: 9pt;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #fff;
+    background: var(--letter-green);
+}
+
+@media print {
+    body.approval-letter-print-body {
+        margin: 0;
+        background: #fff;
+    }
+
+    .approval-letter-print-toolbar {
+        display: none !important;
+    }
+
+    .approval-letter {
+        max-width: none;
+        margin: 0;
+        padding: 10mm 12mm;
+        box-shadow: none !important;
+    }
+
+    .approval-letter__table thead th {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .approval-letter__section-title,
+    .approval-letter__footer,
+    .approval-letter__title-block {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}

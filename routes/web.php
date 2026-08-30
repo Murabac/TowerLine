@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BuildApprovalLetterController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DistrictController;
@@ -9,6 +10,7 @@ use App\Http\Controllers\InspectionController;
 use App\Http\Controllers\LicenseController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\MapController;
+use App\Http\Controllers\MinistrySettingsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TowerController;
 use App\Http\Controllers\UserController;
@@ -41,9 +43,14 @@ Route::middleware('auth')->group(function () {
     Route::resource('towers', TowerController::class);
     Route::get('towers/{tower}/inspections/create', [InspectionController::class, 'create'])->name('towers.inspections.create');
     Route::post('towers/{tower}/inspections', [InspectionController::class, 'store'])->name('towers.inspections.store');
+    Route::get('towers/{tower}/approval-letter', [BuildApprovalLetterController::class, 'show'])->name('towers.approval-letter.show');
+    Route::post('towers/{tower}/approval-letter', [BuildApprovalLetterController::class, 'store'])->name('towers.approval-letter.store');
+    Route::get('towers/{tower}/approval-letter/print', [BuildApprovalLetterController::class, 'print'])->name('towers.approval-letter.print');
     Route::resource('licenses', LicenseController::class)->except(['show']);
     Route::resource('users', UserController::class)->except(['show']);
     Route::get('audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
+    Route::get('settings/ministry', [MinistrySettingsController::class, 'edit'])->name('settings.ministry.edit');
+    Route::put('settings/ministry/{ministry_setting}', [MinistrySettingsController::class, 'update'])->name('settings.ministry.update');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
