@@ -26,7 +26,7 @@ class StoreUserRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($managed?->id)],
             'password' => [$creating ? 'required' : 'nullable', 'string', 'min:8'],
-            'role' => ['required', Rule::in(['admin', 'inspector'])],
+            'role' => ['required', Rule::in(['admin', 'operations_manager', 'inspector'])],
             'region_ids' => ['nullable', 'array', 'required_if:role,inspector'],
             'region_ids.*' => ['integer', 'exists:regions,id'],
         ];

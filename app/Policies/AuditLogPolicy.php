@@ -9,11 +9,11 @@ class AuditLogPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->isAdmin();
+        return $user->canTask('audit.view');
     }
 
     public function view(User $user, AuditLog $auditLog): bool
     {
-        return $user->isAdmin();
+        return $user->canTask('audit.view');
     }
 }

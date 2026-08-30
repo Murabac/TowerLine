@@ -33,6 +33,6 @@ class InspectionPolicy
 
     public function delete(User $user, Inspection $inspection): bool
     {
-        return $user->isAdmin();
+        return $user->canTask('inspections.delete');
     }
 }

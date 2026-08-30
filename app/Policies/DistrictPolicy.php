@@ -9,12 +9,12 @@ class DistrictPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->isAdmin() || $user->isInspector();
+        return $user->canTask('geography.view');
     }
 
     public function view(User $user, District $district): bool
     {
-        if ($user->isAdmin()) {
+        if ($user->hasFullRegionAccess()) {
             return true;
         }
 
@@ -27,11 +27,11 @@ class DistrictPolicy
 
     public function update(User $user, District $district): bool
     {
-        return $user->isAdmin();
+        return $user->canTask('geography.manage');
     }
 
     public function delete(User $user, District $district): bool
     {
-        return $user->isAdmin();
+        return $user->canTask('geography.manage');
     }
 }

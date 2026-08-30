@@ -14,6 +14,7 @@ return [
         'quick_login' => 'Quick demo login',
         'quick_login_hint' => 'One tap. Password is filled for you.',
         'admin' => 'Ministry admin',
+        'operations_manager' => 'Operations manager',
         'inspector_maroodi' => 'Inspector · Maroodi Jeex',
         'inspector_sahil' => 'Inspector · Sahil',
         'inspector_west' => 'Inspector · West (3 regions)',
@@ -58,6 +59,7 @@ return [
 
     'roles' => [
         'admin' => 'Ministry admin',
+        'operations_manager' => 'Operations manager',
         'inspector' => 'Regional inspector',
         'operator_viewer' => 'Operator viewer',
     ],
@@ -512,7 +514,7 @@ return [
         'empty' => 'No users yet.',
         'confirm_delete' => 'Delete this user?',
         'edit' => 'Edit user',
-        'role_help' => 'Inspectors can cover one or more regions. Operator viewer access is switched off for now.',
+        'role_help' => 'Inspectors can cover one or more regions. Operations managers have ministry-wide access without user admin, audit log, or settings. Operator viewer access is switched off for now.',
         'regions' => 'Regions',
         'regions_help' => 'Tick every region this inspector is allowed to work in.',
     ],
@@ -589,6 +591,7 @@ return [
         'roles' => [
             'title' => 'Who can do what',
             'admin' => 'Full registry, licenses, users, and the audit log. Create staff accounts — people cannot register themselves.',
+            'operations_manager' => 'Same ministry-wide access as admin except user admin, audit log, and settings. Can manage towers, inspections, letters, frequencies, districts, and reports.',
             'inspector' => 'Towers in the regions assigned to you. You can update those towers and submit inspections. You may cover more than one region. No user admin.',
             'operator_viewer' => 'Read-only view of your operator’s towers, inspections, and licenses.',
         ],
@@ -596,6 +599,13 @@ return [
             'title' => 'Map briefings',
             'body' => 'Filter by region, operator, status, health, or license state. Coverage circles use each operator’s colour. Marker clustering turns on when you zoom out.',
         ],
+    ],
+
+    'operators' => [
+        'region_filter_hint' => 'Only operators licensed for the selected region are listed. National operators appear in every region.',
+        'region_mismatch' => 'This operator is not licensed for the selected region.',
+        'national' => 'National',
+        'regional' => 'Regional',
     ],
 
     'geography' => [

@@ -34,6 +34,7 @@
                 <div class="mt-3 grid gap-2">
                     @foreach ([
                         ['email' => 'admin@mocit.local', 'label' => __('app.demo.admin'), 'class' => 'border-emerald-200 bg-emerald-50 text-emerald-900 hover:bg-emerald-100'],
+                        ['email' => 'ops@mocit.local', 'label' => __('app.demo.operations_manager'), 'class' => 'border-amber-200 bg-amber-50 text-amber-900 hover:bg-amber-100'],
                         ['email' => 'inspector.maroodi@mocit.local', 'label' => __('app.demo.inspector_maroodi'), 'class' => 'border-sky-200 bg-sky-50 text-sky-900 hover:bg-sky-100'],
                         ['email' => 'inspector.sahil@mocit.local', 'label' => __('app.demo.inspector_sahil'), 'class' => 'border-sky-200 bg-sky-50 text-sky-900 hover:bg-sky-100'],
                         ['email' => 'inspector.west@mocit.local', 'label' => __('app.demo.inspector_west'), 'class' => 'border-sky-200 bg-sky-50 text-sky-900 hover:bg-sky-100'],

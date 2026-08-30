@@ -5,6 +5,7 @@
             'endpoint' => route('map.towers'),
             'districtsUrl' => route('geography.districts'),
             'subDistrictsUrl' => route('geography.sub-districts'),
+            'operators' => $operatorOptions,
             'filters' => $filters,
             'districts' => $districts->map(fn ($d) => ['id' => $d->id, 'name' => $d->localizedName()])->values(),
             'subDistricts' => $subDistricts->map(fn ($s) => ['id' => $s->id, 'name' => $s->localizedName()])->values(),
@@ -72,9 +73,9 @@
 
                 <select name="operator_id" x-model="filters.operator_id" class="field">
                     <option value="">{{ __('app.towers.operator') }}</option>
-                    @foreach ($operators as $operator)
-                        <option value="{{ $operator->id }}">{{ $operator->name }}</option>
-                    @endforeach
+                    <template x-for="operator in visibleOperators" :key="operator.id">
+                        <option :value="operator.id" x-text="operator.display_name"></option>
+                    </template>
                 </select>
 
                 <select name="category" x-model="filters.category" class="field">
@@ -156,7 +157,7 @@
                         @foreach ($operators as $operator)
                             <li class="flex items-center gap-2">
                                 <span class="h-2.5 w-2.5 rounded-full shrink-0" style="background: {{ $operator->color }}"></span>
-                                {{ $operator->name }}
+                                {{ $operator->displayName() }}
                             </li>
                         @endforeach
                     </ul>
@@ -289,6 +290,8 @@
                     },
                     districtOptions: config.districts || [],
                     subDistrictOptions: config.subDistricts || [],
+                    operatorOptions: config.operators || [],
+                    visibleOperators: config.operators || [],
                     showCoverage: true,
                     onlyFlagged: false,
                     onlyLicenseAlert: false,
@@ -342,6 +345,7 @@
                         this.$watch('onlyFlagged', () => this.draw(false));
                         this.$watch('onlyLicenseAlert', () => this.draw(false));
                         this.loadTowers();
+                        this.refreshOperatorOptions();
                         this.$nextTick(() => this.map.invalidateSize());
                         window.addEventListener('resize', () => this.map.invalidateSize());
                     },
@@ -372,8 +376,23 @@
                         this.filters.district_id = '';
                         this.filters.sub_district_id = '';
                         this.subDistrictOptions = [];
+                        this.refreshOperatorOptions();
                         await this.loadDistrictOptions();
                         this.applyFilters();
+                    },
+                    refreshOperatorOptions() {
+                        const regionId = this.filters.region_id || '';
+                        this.visibleOperators = this.operatorOptions.filter((operator) => {
+                            if (! regionId || operator.national) {
+                                return true;
+                            }
+
+                            return (operator.region_ids || []).map(String).includes(String(regionId));
+                        });
+
+                        if (this.filters.operator_id && ! this.visibleOperators.some((operator) => String(operator.id) === String(this.filters.operator_id))) {
+                            this.filters.operator_id = '';
+                        }
                     },
                     async onDistrictFilterChange() {
                         this.filters.sub_district_id = '';

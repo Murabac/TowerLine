@@ -32,7 +32,7 @@ class FrequencyAllocationPolicy
 
     public function delete(User $user, FrequencyAllocation $allocation): bool
     {
-        return $user->isAdmin() && $this->view($user, $allocation);
+        return $user->canTask('frequencies.delete') && $this->view($user, $allocation);
     }
 
     public function renew(User $user, FrequencyAllocation $allocation): bool

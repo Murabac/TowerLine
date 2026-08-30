@@ -55,6 +55,33 @@ class UserAdminAndAuditTest extends TestCase
             ->assertSee(__('app.audit.details'), false);
     }
 
+    public function test_admin_can_create_operations_manager(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $this->actingAs($admin)
+            ->post(route('users.store'), [
+                'name' => 'Ops Lead',
+                'email' => 'ops.lead.test@mocit.local',
+                'password' => 'password',
+                'role' => 'operations_manager',
+            ])
+            ->assertRedirect(route('users.index'));
+
+        $created = User::query()->where('email', 'ops.lead.test@mocit.local')->first();
+
+        $this->assertNotNull($created);
+        $this->assertSame('operations_manager', $created->role);
+        $this->assertTrue($created->canTask('approvals.review'));
+        $this->assertFalse($created->canTask('audit.view'));
+
+        $this->actingAs($admin)
+            ->get(route('users.index'))
+            ->assertOk()
+            ->assertSee('Ops Lead', false)
+            ->assertSee(__('app.roles.operations_manager'), false);
+    }
+
     public function test_inspector_cannot_open_user_admin_or_audit_log(): void
     {
         $region = Region::query()->create(['name_en' => 'Sahil', 'name_so' => 'Saaxil']);

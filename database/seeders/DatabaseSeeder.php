@@ -44,11 +44,36 @@ class DatabaseSeeder extends Seeder
         $sahil = Region::query()->where('name_en', 'Sahil')->first();
         $awdal = Region::query()->where('name_en', 'Awdal')->first();
 
+        $nationalOperators = ['Telesom', 'Somtel', 'Sogasho'];
+        $regionalOperators = [
+            'Truecable' => [$sahil?->id],
+            'Astaan' => [$maroodi?->id],
+            'Horncable' => [$awdal?->id],
+        ];
+
+        foreach ($nationalOperators as $name) {
+            Operator::query()->where('name', $name)->first()?->regions()->sync([]);
+        }
+
+        foreach ($regionalOperators as $name => $regionIds) {
+            $operator = Operator::query()->where('name', $name)->first();
+
+            if ($operator) {
+                $operator->regions()->sync(array_filter($regionIds));
+            }
+        }
+
         $users = [
             [
                 'email' => 'admin@mocit.local',
                 'name' => 'MoCIT Admin',
                 'role' => 'admin',
+                'region_ids' => [],
+            ],
+            [
+                'email' => 'ops@mocit.local',
+                'name' => 'Operations Manager',
+                'role' => 'operations_manager',
                 'region_ids' => [],
             ],
             [
@@ -89,6 +114,7 @@ class DatabaseSeeder extends Seeder
             $record->syncInspectorRegions($user['region_ids']);
         }
 
+        $this->call(PermissionSeeder::class);
         $this->call(TowerSeeder::class);
         $this->call(InspectionSeeder::class);
         $this->call(MinistrySettingSeeder::class);

@@ -77,7 +77,7 @@ class License extends Model
 
     public function scopeVisibleTo(Builder $query, User $user): Builder
     {
-        if ($user->isAdmin()) {
+        if ($user->hasFullRegionAccess()) {
             return $query;
         }
 

@@ -14,6 +14,7 @@ return [
         'quick_login' => 'Gal degdeg ah (demo)',
         'quick_login_hint' => 'Hal taabasho. Furaha waa la buuxiyay.',
         'admin' => 'Maamulaha wasaaradda',
+        'operations_manager' => 'Maamulaha hawlgalka',
         'inspector_maroodi' => 'Kormeere · Maroodi Jeex',
         'inspector_sahil' => 'Kormeere · Sahil',
         'inspector_west' => 'Kormeere · Galbeed (3 gobol)',
@@ -58,6 +59,7 @@ return [
 
     'roles' => [
         'admin' => 'Maamulaha wasaaradda',
+        'operations_manager' => 'Maamulaha hawlgalka',
         'inspector' => 'Kormeeraha gobolka',
         'operator_viewer' => 'Daawade shirkadeed',
     ],
@@ -512,7 +514,7 @@ return [
         'empty' => 'Weli isticmaale ma jiro.',
         'confirm_delete' => 'Tirtir isticmaalahan?',
         'edit' => 'Wax ka beddel isticmaalaha',
-        'role_help' => 'Kormeeruhu wuxuu dabooli karaa hal gobol ama in ka badan. Daawadaha shirkadda waa la damiyay hadda.',
+        'role_help' => 'Kormeeruhu wuxuu dabooli karaa hal gobol ama in ka badan. Maamulaha hawlgalku wuxuu helaa dhammaan wasaaradda marka laga reebo isticmaalayaasha, diiwaanka falalka, iyo dejinta. Daawadaha shirkadda waa la damiyay hadda.',
         'regions' => 'Gobollada',
         'regions_help' => 'Calaamadee gobol kasta oo kormeerahan loo oggol yahay.',
     ],
@@ -589,6 +591,7 @@ return [
         'roles' => [
             'title' => 'Cidda wax qaban karta',
             'admin' => 'Diiwaanka oo dhan, ruqsadaha, isticmaalayaasha, iyo diiwaanka falalka. Samee akoonada shaqaalaha — qofna isma diiwaangelin karo.',
+            'operations_manager' => 'Helitaan wasaaradeed oo la mid ah maamulaha marka laga reebo isticmaalayaasha, diiwaanka falalka, iyo dejinta. Maamul towers, kormeer, waraaqo, frequenci, degmooyin, iyo warbixinno.',
             'inspector' => 'Tawarrada gobollada laguu qoondeeyay. Waad cusboonaysiin kartaa kuwaas oo soo gudbin kartaa kormeer. Waxaad dabooli kartaa in ka badan hal gobol. Maamul isticmaale ma jiro.',
             'operator_viewer' => 'Akhris keliya: tawarrada, kormeerada, iyo ruqsadaha shirkaddaada.',
         ],
@@ -596,6 +599,13 @@ return [
             'title' => 'Warbixinada khariidadda',
             'body' => 'Ku shaandhee gobol, shirkad, xaalad, caafimaad, ama ruqsad. Wareegyada caymisku waxay qaataan midabka shirkadda. Kooxaynta calaamadaha ayaa shaqeysa marka aad ka fogaato.',
         ],
+    ],
+
+    'operators' => [
+        'region_filter_hint' => 'Kaliya shirkadaha ruqsadda u leh gobolka la doortay ayaa la tusi doonaa. Shirkadaha qaranku waxay ka muuqdaan gobol kasta.',
+        'region_mismatch' => 'Shirkaddan ruqsad uma lahan gobolka la doortay.',
+        'national' => 'Qaran',
+        'regional' => 'Gobol',
     ],
 
     'geography' => [

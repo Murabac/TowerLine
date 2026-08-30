@@ -35,6 +35,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/geography/districts', [GeographyController::class, 'districts'])->name('geography.districts');
     Route::get('/geography/sub-districts', [GeographyController::class, 'subDistricts'])->name('geography.sub-districts');
     Route::get('/geography/cities', [GeographyController::class, 'cities'])->name('geography.cities');
+    Route::get('/geography/operators', [GeographyController::class, 'operators'])->name('geography.operators');
     Route::get('districts', [DistrictController::class, 'index'])->name('districts.index');
     Route::get('districts/{district}/edit', [DistrictController::class, 'edit'])->name('districts.edit');
     Route::put('districts/{district}', [DistrictController::class, 'update'])->name('districts.update');

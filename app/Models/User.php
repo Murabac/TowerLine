@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\Permissions;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -62,6 +63,11 @@ class User extends Authenticatable
         return $this->role === 'admin';
     }
 
+    public function isOperationsManager(): bool
+    {
+        return $this->role === 'operations_manager';
+    }
+
     public function isInspector(): bool
     {
         return $this->role === 'inspector';
@@ -70,6 +76,16 @@ class User extends Authenticatable
     public function isOperatorViewer(): bool
     {
         return $this->role === 'operator_viewer';
+    }
+
+    public function hasFullRegionAccess(): bool
+    {
+        return $this->isAdmin() || $this->isOperationsManager();
+    }
+
+    public function canTask(string $task): bool
+    {
+        return Permissions::roleCan($this->role, $task);
     }
 
     /**
@@ -82,7 +98,7 @@ class User extends Authenticatable
 
     public function coversRegion(?int $regionId): bool
     {
-        if ($this->isAdmin()) {
+        if ($this->hasFullRegionAccess()) {
             return true;
         }
 
@@ -104,12 +120,19 @@ class User extends Authenticatable
 
     public function canWrite(): bool
     {
-        return $this->isAdmin() || $this->isInspector();
+        return $this->canTask('towers.create')
+            || $this->canTask('towers.update')
+            || $this->canTask('inspections.create')
+            || $this->canTask('licenses.create')
+            || $this->canTask('licenses.update')
+            || $this->canTask('frequencies.create')
+            || $this->canTask('frequencies.update')
+            || $this->canTask('frequencies.renew');
     }
 
     public function homeRouteName(): string
     {
-        return $this->isAdmin() ? 'dashboard' : 'map';
+        return $this->hasFullRegionAccess() ? 'dashboard' : 'map';
     }
 
     public function roleLabel(): string

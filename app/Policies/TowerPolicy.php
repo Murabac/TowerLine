@@ -29,12 +29,12 @@ class TowerPolicy
 
     public function delete(User $user, Tower $tower): bool
     {
-        return $user->isAdmin();
+        return $user->canTask('towers.delete') && $this->inScope($user, $tower);
     }
 
     private function inScope(User $user, Tower $tower): bool
     {
-        if ($user->isAdmin()) {
+        if ($user->hasFullRegionAccess()) {
             return true;
         }
 

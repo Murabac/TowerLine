@@ -11,13 +11,17 @@
         <h2 class="text-sm font-semibold text-brand">{{ __('app.towers.sections.company_location') }}</h2>
         <p class="mt-1 text-xs text-gray-500">{{ __('app.towers.sections.company_location_hint') }}</p>
         <div class="mt-4 grid lg:grid-cols-2 gap-4">
-            <div>
+            <div x-data="operatorRegionFilter({
+                options: @js(($operatorOptions ?? $operators->map->toFormOption())->values()),
+                selected: @js((string) old('operator_id', $tower?->operator_id ?? '')),
+            })" x-init="init()" @change.window="onRegionChange($event)">
                 <x-input-label for="operator_id" :value="__('app.towers.form_fields.company')" />
-                <select id="operator_id" name="operator_id" class="mt-1 block w-full rounded-md border-gray-300 focus:border-brand focus:ring-brand" required>
-                    @foreach ($operators as $operator)
-                        <option value="{{ $operator->id }}" @selected(old('operator_id', $tower?->operator_id) == $operator->id)>{{ $operator->name }}</option>
-                    @endforeach
+                <select id="operator_id" name="operator_id" class="mt-1 block w-full rounded-md border-gray-300 focus:border-brand focus:ring-brand" required x-model="selected">
+                    <template x-for="operator in visibleOperators" :key="operator.id">
+                        <option :value="operator.id" :data-name="operator.name" x-text="operator.display_name"></option>
+                    </template>
                 </select>
+                <p class="mt-1 text-xs text-gray-500">{{ __('app.operators.region_filter_hint') }}</p>
                 <x-input-error :messages="$errors->get('operator_id')" class="mt-1" />
             </div>
             <div>
@@ -270,6 +274,38 @@
 @once
     @push('scripts')
         <script>
+            function operatorRegionFilter(config) {
+                return {
+                    options: config.options || [],
+                    selected: config.selected || '',
+                    visibleOperators: [],
+                    init() {
+                        this.refresh();
+                    },
+                    onRegionChange(event) {
+                        if (! event?.target || event.target.name !== 'region_id') {
+                            return;
+                        }
+
+                        this.refresh();
+                    },
+                    refresh() {
+                        const regionId = document.getElementById('region_id')?.value || '';
+                        this.visibleOperators = this.options.filter((operator) => {
+                            if (! regionId || operator.national) {
+                                return true;
+                            }
+
+                            return (operator.region_ids || []).map(String).includes(String(regionId));
+                        });
+
+                        if (this.selected && ! this.visibleOperators.some((operator) => String(operator.id) === String(this.selected))) {
+                            this.selected = this.visibleOperators[0]?.id ? String(this.visibleOperators[0].id) : '';
+                        }
+                    },
+                };
+            }
+
             function towerNamePreview(config) {
                 return {
                     operators: config.operators || [],
@@ -296,7 +332,9 @@
                         const districtSelect = document.getElementById('district_id');
                         const subDistrictSelect = document.getElementById('sub_district_id');
 
-                        const operatorName = operatorSelect?.selectedOptions?.[0]?.text?.trim() || '';
+                        const operatorName = operatorSelect?.selectedOptions?.[0]?.dataset?.name
+                            || operatorSelect?.selectedOptions?.[0]?.text?.trim()
+                            || '';
                         const city = citySelect?.value?.trim() || '';
                         const districtName = districtSelect?.selectedOptions?.[0]?.text?.trim() || '';
                         const subDistrictName = subDistrictSelect?.selectedOptions?.[0]?.text?.trim() || '';

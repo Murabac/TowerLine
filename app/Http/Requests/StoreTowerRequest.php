@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\District;
+use App\Models\Operator;
 use App\Models\SubDistrict;
 use App\Models\Tower;
 use App\Support\TowerCapacity;
@@ -104,6 +105,12 @@ class StoreTowerRequest extends FormRequest
 
             if ($this->input('fence_distance_preset') === 'custom' && ! is_numeric($this->input('fence_distance_custom'))) {
                 $validator->errors()->add('fence_distance_custom', __('app.towers.fence_distance_custom_required'));
+            }
+
+            $operator = Operator::query()->with('regions')->find($this->integer('operator_id'));
+
+            if ($operator && ! $operator->servesRegion($regionId ?: null)) {
+                $validator->errors()->add('operator_id', __('app.operators.region_mismatch'));
             }
         });
     }

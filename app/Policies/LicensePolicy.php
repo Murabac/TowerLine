@@ -29,6 +29,6 @@ class LicensePolicy
 
     public function delete(User $user, License $license): bool
     {
-        return $user->isAdmin();
+        return $user->canTask('licenses.delete');
     }
 }

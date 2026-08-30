@@ -17,7 +17,7 @@
             <form method="GET" class="data-toolbar">
                 <select name="role" class="field lg:w-56">
                     <option value="">{{ __('app.users.role') }}</option>
-                    @foreach (['admin', 'inspector'] as $role)
+                    @foreach (['admin', 'operations_manager', 'inspector'] as $role)
                         <option value="{{ $role }}" @selected(request('role') === $role)>{{ __('app.roles.'.$role) }}</option>
                     @endforeach
                 </select>

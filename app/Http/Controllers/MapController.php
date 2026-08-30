@@ -22,7 +22,7 @@ class MapController extends Controller
         $user = $request->user();
 
         $regions = Region::query()->orderBy('name_en');
-        $operators = Operator::query()->orderBy('name');
+        $operators = Operator::query()->with('regions')->orderBy('name');
 
         if ($user->isInspector()) {
             $regions->whereIn('id', $user->regionIds() ?: [0]);
@@ -43,11 +43,20 @@ class MapController extends Controller
             ? District::query()->find($districtId)?->subDistricts()->orderBy('name')->get() ?? collect()
             : collect();
 
+        $operatorCollection = $operators->get();
+
+        if ($regionId) {
+            $operatorCollection = $operatorCollection
+                ->filter(fn (Operator $operator) => $operator->servesRegion($regionId))
+                ->values();
+        }
+
         return view('map.index', [
             'regions' => $regions->get(),
             'districts' => $districts,
             'subDistricts' => $subDistricts,
-            'operators' => $operators->get(),
+            'operators' => $operatorCollection,
+            'operatorOptions' => Operator::query()->with('regions')->orderBy('name')->get()->map->toFormOption()->values(),
             'filters' => $request->only(['region_id', 'district_id', 'sub_district_id', 'operator_id', 'category', 'status', 'license_state', 'health_status', 'overdue', 'power_source']),
         ]);
     }

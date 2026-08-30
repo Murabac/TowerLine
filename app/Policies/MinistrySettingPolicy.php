@@ -9,11 +9,11 @@ class MinistrySettingPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->isAdmin();
+        return $user->canTask('settings.manage');
     }
 
     public function update(User $user, MinistrySetting $ministrySetting): bool
     {
-        return $user->isAdmin();
+        return $user->canTask('settings.manage');
     }
 }

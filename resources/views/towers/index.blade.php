@@ -30,7 +30,7 @@
                 <select name="operator_id" class="field lg:w-44">
                     <option value="">{{ __('app.towers.operator') }}</option>
                     @foreach ($operators as $operator)
-                        <option value="{{ $operator->id }}" @selected(request('operator_id') == $operator->id)>{{ $operator->name }}</option>
+                        <option value="{{ $operator->id }}" @selected(request('operator_id') == $operator->id)>{{ $operator->displayName() }}</option>
                     @endforeach
                 </select>
                 <select name="status" class="field lg:w-44">

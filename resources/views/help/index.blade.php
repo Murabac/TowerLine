@@ -28,6 +28,7 @@
             <div class="mt-3 grid gap-3 md:grid-cols-2">
                 @foreach ([
                     'admin' => ['bg' => 'bg-emerald-50', 'ring' => 'ring-emerald-200', 'badge' => 'bg-emerald-100 text-emerald-800'],
+                    'operations_manager' => ['bg' => 'bg-amber-50', 'ring' => 'ring-amber-200', 'badge' => 'bg-amber-100 text-amber-800'],
                     'inspector' => ['bg' => 'bg-sky-50', 'ring' => 'ring-sky-200', 'badge' => 'bg-sky-100 text-sky-800'],
                 ] as $role => $tone)
                     <article class="rounded-2xl border border-gray-200/80 {{ $tone['bg'] }} p-5 {{ Auth::user()->role === $role ? 'ring-2 '.$tone['ring'] : '' }}">

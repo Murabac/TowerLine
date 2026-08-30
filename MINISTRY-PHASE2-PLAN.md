@@ -1,7 +1,7 @@
 # TowerLine — Phase 2 plan (MoCIT meeting)
 
 **Source:** Ministry officials meeting (Aug 2026)  
-**Status:** Planning — **Week 17 done** (Aug 2026)  
+**Status:** Planning — **Week 18 done** (Aug 2026)  
 **Builds on:** Week 12 demo (`CONTEXT.md`)  
 **How we work:** Same as Phase 1 — finish **one week’s deliverable** per session, then stop for review.
 
@@ -355,25 +355,25 @@ _Remaining items only — most decisions are locked above._
 
 ### Operational manager (item 7)
 
-- [ ] Add role `operations_manager` (or `ops_manager`)
-- [ ] Default permission set — **same as admin except:**
+- [x] Add role `operations_manager` (or `ops_manager`)
+- [x] Default permission set — **same as admin except:**
   - **No audit log** access (locked decision)
   - **No** custom role management (Week 20 — admin only)
   - **No** user admin (admin only unless ministry changes this later)
-- [ ] Can: approve inspector submissions, manage towers/inspections/letters/frequencies, **all reports**, district data if needed
-- [ ] Login/home route, nav visibility, policies
+- [x] Can: approve inspector submissions, manage towers/inspections/letters/frequencies, **all reports**, district data if needed
+- [x] Login/home route, nav visibility, policies
 
 ### Regional operators (item 10)
 
-- [ ] `operator_region` pivot (operator ↔ region many-to-many)
-- [ ] Tower form: when region selected, filter operator dropdown to operators serving that region (national operators = all regions)
-- [ ] Map/registry operator filter respects regional scope in labels
-- [ ] Seed: mark which operators are regional vs national
+- [x] `operator_region` pivot (operator ↔ region many-to-many)
+- [x] Tower form: when region selected, filter operator dropdown to operators serving that region (national operators = all regions)
+- [x] Map/registry operator filter respects regional scope in labels
+- [x] Seed: mark which operators are regional vs national
 
 ### Permission foundation for Week 19
 
-- [ ] Introduce `permissions` + `role_permission` tables (or JSON on roles) with **fixed task list** in code first
-- [ ] Middleware/policy helper: `user->canTask('towers.approve')`
+- [x] Introduce `permissions` + `role_permission` tables (or JSON on roles) with **fixed task list** in code first
+- [x] Middleware/policy helper: `user->canTask('towers.approve')`
 
 **Done when:** Ops manager account works; operators can be regional; task checks exist in code.
 
