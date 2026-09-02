@@ -9,6 +9,10 @@ class StoreInspectionRequest extends FormRequest
 {
     public function authorize(): bool
     {
+        if ($approval = $this->route('approval')) {
+            return $this->user()->can('update', $approval);
+        }
+
         return $this->user()->can('create', [\App\Models\Inspection::class, $this->route('tower')]);
     }
 

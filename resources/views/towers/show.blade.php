@@ -7,6 +7,24 @@
             </a>
         </div>
 
+        @if ($tower->pendingApprovalRequests->isNotEmpty())
+            <div class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                <p class="font-semibold">{{ __('app.approvals.tower_pending_title') }}</p>
+                <ul class="mt-1 space-y-1">
+                    @foreach ($tower->pendingApprovalRequests as $pending)
+                        <li>
+                            {{ $pending->typeLabel() }} · {{ $pending->submitter?->name }}
+                            @can('update', $pending)
+                                · <a href="{{ route('approvals.edit', $pending) }}" class="font-semibold underline">{{ __('app.approvals.correct') }}</a>
+                            @elsecan('view', $pending)
+                                · <a href="{{ route('approvals.show', $pending) }}" class="font-semibold underline">{{ __('app.approvals.review') }}</a>
+                            @endcan
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <div class="data-card">
             <div class="flex flex-wrap items-start justify-between gap-4 px-5 py-5 border-b border-gray-100">
                 <div class="min-w-0">

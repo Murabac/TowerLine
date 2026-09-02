@@ -133,6 +133,16 @@ class Tower extends Model
         return $this->hasMany(Inspection::class)->latest('inspected_at');
     }
 
+    public function approvalRequests(): HasMany
+    {
+        return $this->hasMany(ApprovalRequest::class)->latest();
+    }
+
+    public function pendingApprovalRequests(): HasMany
+    {
+        return $this->approvalRequests()->pending();
+    }
+
     public function licenses(): HasMany
     {
         return $this->hasMany(License::class)->latest('expires_at');

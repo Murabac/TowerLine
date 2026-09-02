@@ -130,6 +130,11 @@ class User extends Authenticatable
             || $this->canTask('frequencies.renew');
     }
 
+    public function publishesDirectly(): bool
+    {
+        return $this->canTask('approvals.review');
+    }
+
     public function homeRouteName(): string
     {
         return $this->hasFullRegionAccess() ? 'dashboard' : 'map';

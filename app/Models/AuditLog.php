@@ -196,6 +196,7 @@ class AuditLog extends Model
             'Tower' => route('towers.show', $this->model_id),
             'License' => route('licenses.edit', $this->model_id),
             'User' => route('users.edit', $this->model_id),
+            'ApprovalRequest' => route('approvals.show', $this->model_id),
             'Inspection' => isset($this->changeSet()['tower_id'])
                 ? route('towers.show', $this->changeSet()['tower_id'])
                 : null,

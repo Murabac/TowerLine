@@ -184,6 +184,7 @@ class RoleScopeAndHandoverTest extends TestCase
         $inspector = User::query()->where('email', 'inspector.maroodi@mocit.local')->first();
 
         $this->actingAs($admin)->get(route('dashboard'))->assertOk();
+        $this->actingAs($admin)->get(route('approvals.index'))->assertOk();
         $this->actingAs($admin)->get(route('map'))->assertOk();
         $this->actingAs($admin)->get(route('towers.index'))->assertOk();
         $this->actingAs($admin)->get(route('licenses.index'))->assertOk();
@@ -192,6 +193,7 @@ class RoleScopeAndHandoverTest extends TestCase
         $this->actingAs($admin)->get(route('help'))->assertOk();
 
         $this->actingAs($inspector)->get(route('map'))->assertOk();
+        $this->actingAs($inspector)->get(route('approvals.index'))->assertOk();
         $this->actingAs($inspector)->get(route('users.index'))->assertForbidden();
     }
 

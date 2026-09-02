@@ -6,6 +6,7 @@ use App\Http\Requests\StoreInspectionRequest;
 use App\Models\Inspection;
 use App\Models\Tower;
 use App\Support\Audits;
+use App\Support\InspectorApprovals;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -33,7 +34,7 @@ class InspectionController extends Controller
             $stored = [];
             foreach ($files as $file) {
                 if ($file) {
-                    $stored[] = $file->store('inspections/'.$tower->id, 'public');
+                    $stored[] = $file;
                 }
             }
 
@@ -42,10 +43,30 @@ class InspectionController extends Controller
             }
         }
 
+        if (! $request->user()->publishesDirectly()) {
+            InspectorApprovals::submitInspection(
+                $request->user(),
+                $tower,
+                $request->safe()->except('photos'),
+                $paths,
+            );
+
+            return redirect()->route('towers.show', $tower)->with('status', __('app.approvals.submitted_inspection'));
+        }
+
+        $storedPaths = [];
+        foreach ($paths as $slot => $files) {
+            $stored = [];
+            foreach ($files as $file) {
+                $stored[] = $file->store('inspections/'.$tower->id, 'public');
+            }
+            $storedPaths[$slot] = $stored;
+        }
+
         $inspection = $tower->inspections()->create([
             ...$request->safe()->except('photos'),
             'inspector_id' => $request->user()->id,
-            'photos' => $paths,
+            'photos' => $storedPaths,
             'inspected_at' => now(),
         ]);
 

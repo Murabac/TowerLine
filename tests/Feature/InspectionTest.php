@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\ApprovalRequest;
 use App\Models\Inspection;
 use App\Models\Operator;
 use App\Models\Region;
@@ -34,6 +35,11 @@ class InspectionTest extends TestCase
             ])
             ->assertRedirect(route('towers.show', $tower));
 
+        $this->assertDatabaseCount('inspections', 0);
+        $this->assertSame('unknown', $tower->fresh()->health_status);
+
+        $this->approveLatestPending();
+
         $this->assertDatabaseHas('inspections', [
             'tower_id' => $tower->id,
             'inspector_id' => $inspector->id,
@@ -58,6 +64,9 @@ class InspectionTest extends TestCase
             ])
             ->assertRedirect(route('towers.show', $tower));
 
+        $this->assertDatabaseCount('inspections', 0);
+        $this->approveLatestPending();
+
         $inspection = $tower->inspections()->first();
 
         $this->assertSame('Gate locked. Site viewed from the access road only.', $inspection->notes);
@@ -81,6 +90,9 @@ class InspectionTest extends TestCase
             ->post(route('towers.inspections.store', $tower), [])
             ->assertRedirect(route('towers.show', $tower));
 
+        $this->assertDatabaseCount('inspections', 0);
+        $this->approveLatestPending();
+
         $this->assertDatabaseCount('inspections', 1);
         $this->assertSame('unknown', $tower->fresh()->health_status);
     }
@@ -100,6 +112,9 @@ class InspectionTest extends TestCase
                 'notes' => 'Only structure visible from outside fence.',
             ])
             ->assertRedirect(route('towers.show', $tower));
+
+        $this->assertSame('unknown', $tower->fresh()->health_status);
+        $this->approveLatestPending();
 
         $this->assertSame('needs_attention', $tower->fresh()->health_status);
     }
@@ -131,6 +146,9 @@ class InspectionTest extends TestCase
                 ],
             ])
             ->assertRedirect(route('towers.show', $tower));
+
+        $this->assertDatabaseCount('inspections', 0);
+        $this->approveLatestPending();
 
         $inspection = $tower->inspections()->first();
         $this->assertCount(2, $inspection->photos['wide']);
@@ -178,6 +196,16 @@ class InspectionTest extends TestCase
         ]);
 
         $this->assertFalse($tower->fresh()->isInspectionOverdue());
+    }
+
+    private function approveLatestPending(): void
+    {
+        $pending = ApprovalRequest::query()->pending()->latest('id')->firstOrFail();
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $this->actingAs($admin)
+            ->post(route('approvals.approve', $pending))
+            ->assertRedirect();
     }
 
     /**

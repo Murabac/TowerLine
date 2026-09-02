@@ -121,6 +121,7 @@ class DatabaseSeeder extends Seeder
         $this->call(BuildApprovalLetterSeeder::class);
         $this->call(FrequencyAllocationSeeder::class);
         $this->call(LicenseSeeder::class);
+        $this->call(ApprovalRequestSeeder::class);
         $this->call(AuditLogSeeder::class);
     }
 }

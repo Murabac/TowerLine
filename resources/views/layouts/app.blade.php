@@ -102,8 +102,16 @@
                         ['towers.index', 'app.nav.towers', 'towers.*', 'M12 21V10.5M8.25 21V14.25m7.5 6.75V12M4.5 21h15M12 3.75 6.75 8.25h10.5L12 3.75Z'],
                         ['licenses.index', 'app.nav.licenses', 'licenses.*', 'M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z'],
                         ['frequencies.dashboard', 'app.nav.frequencies', 'frequencies.*', 'M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 0 0 2.25-2.25V6.75a2.25 2.25 0 0 0-2.25-2.25H6.75A2.25 2.25 0 0 0 4.5 6.75v10.5a2.25 2.25 0 0 0 2.25 2.25Zm.75-12h9v9h-9v-9Z'],
-                        ['help', 'app.nav.help', 'help', 'M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z'],
                     ];
+                    if (Auth::user()->canTask('approvals.review') || Auth::user()->isInspector()) {
+                        $links[] = [
+                            'approvals.index',
+                            Auth::user()->canTask('approvals.review') ? 'app.nav.approvals' : 'app.nav.my_submissions',
+                            'approvals.*',
+                            'M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z',
+                        ];
+                    }
+                    $links[] = ['help', 'app.nav.help', 'help', 'M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z'];
                     if (Auth::user()->canTask('geography.view')) {
                         $links[] = ['districts.index', 'app.nav.geography', 'districts.*', 'M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25h9m-4.5-8.25L12 3m0 0 4.5 3.75M12 3 7.5 6.75'];
                     }
@@ -139,6 +147,9 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="{{ $icon }}"/>
                             </svg>
                             <span class="truncate" :class="collapsed ? 'lg:hidden' : ''">{{ __($label) }}</span>
+                            @if ($route === 'approvals.index' && ($pendingNavCount = \App\Models\ApprovalRequest::query()->visibleTo(Auth::user())->pending()->count()))
+                                <span class="ml-auto rounded-full bg-amber-400/90 px-1.5 py-0.5 text-[10px] font-bold text-brand-dark" :class="collapsed ? 'lg:hidden' : ''">{{ $pendingNavCount }}</span>
+                            @endif
                         </a>
                     @endforeach
                 </nav>

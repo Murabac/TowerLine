@@ -8,6 +8,7 @@ use App\Models\Operator;
 use App\Models\Region;
 use App\Models\Tower;
 use App\Support\Audits;
+use App\Support\InspectorApprovals;
 use App\Support\TowerAmenityProximity;
 use App\Support\TowerFenceDistance;
 use App\Support\TowerLandArea;
@@ -116,7 +117,15 @@ class TowerController extends Controller
 
     public function store(StoreTowerRequest $request): RedirectResponse
     {
-        $tower = Tower::query()->create($this->towerAttributes($request));
+        $attributes = $this->towerAttributes($request);
+
+        if (! $request->user()->publishesDirectly()) {
+            InspectorApprovals::submitTowerCreate($request->user(), $attributes, $request->file('site_map'));
+
+            return redirect()->route('towers.index')->with('status', __('app.approvals.submitted_tower_create'));
+        }
+
+        $tower = Tower::query()->create($attributes);
         $this->storeSiteMapFile($request, $tower);
         Audits::log('created', $tower, $tower->only(['name', 'region_id', 'district_id', 'sub_district_id', 'operator_id', 'status']));
 
@@ -135,6 +144,7 @@ class TowerController extends Controller
             'inspections.inspector',
             'licenses.operator',
             'currentApprovalLetter.issuer',
+            'pendingApprovalRequests.submitter',
         ]);
 
         return view('towers.show', compact('tower'));
@@ -151,8 +161,16 @@ class TowerController extends Controller
     {
         $this->authorize('update', $tower);
 
+        $attributes = $this->towerAttributes($request, $tower);
+
+        if (! $request->user()->publishesDirectly()) {
+            InspectorApprovals::submitTowerUpdate($request->user(), $tower, $attributes, $request->file('site_map'));
+
+            return redirect()->route('towers.show', $tower)->with('status', __('app.approvals.submitted_tower_update'));
+        }
+
         $before = $tower->only(['name', 'status', 'latitude', 'longitude', 'district_id', 'sub_district_id']);
-        $tower->update($this->towerAttributes($request, $tower));
+        $tower->update($attributes);
         $this->storeSiteMapFile($request, $tower);
         Audits::log('updated', $tower, ['before' => $before, 'after' => $tower->only(array_keys($before))]);
 
@@ -173,7 +191,7 @@ class TowerController extends Controller
         return redirect()->route('towers.index')->with('status', __('app.towers.deleted'));
     }
 
-    private function formData(?Tower $tower = null): array
+    public function formData(?Tower $tower = null): array
     {
         $user = request()->user();
         $districtId = old('district_id', $tower?->district_id);
@@ -246,7 +264,7 @@ class TowerController extends Controller
     /**
      * @return array<string, mixed>
      */
-    private function towerAttributes(StoreTowerRequest $request, ?Tower $tower = null): array
+    public function towerAttributes(StoreTowerRequest $request, ?Tower $tower = null): array
     {
         $validated = $request->validated();
         $latitude = (float) $validated['latitude'];

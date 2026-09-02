@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ApprovalRequestController;
 use App\Http\Controllers\BuildApprovalLetterController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\DashboardController;
@@ -60,6 +61,12 @@ Route::middleware('auth')->group(function () {
     Route::get('frequencies/{frequency}/letter/print', [FrequencyAllocationLetterController::class, 'print'])->name('frequencies.letter.print');
     Route::get('frequencies/{frequency}/receipt', [FrequencyRenewalReceiptController::class, 'show'])->name('frequencies.receipt.show');
     Route::get('frequencies/{frequency}/receipt/print', [FrequencyRenewalReceiptController::class, 'print'])->name('frequencies.receipt.print');
+    Route::get('approvals', [ApprovalRequestController::class, 'index'])->name('approvals.index');
+    Route::get('approvals/{approval}/edit', [ApprovalRequestController::class, 'edit'])->name('approvals.edit');
+    Route::put('approvals/{approval}', [ApprovalRequestController::class, 'update'])->name('approvals.update');
+    Route::get('approvals/{approval}', [ApprovalRequestController::class, 'show'])->name('approvals.show');
+    Route::post('approvals/{approval}/approve', [ApprovalRequestController::class, 'approve'])->name('approvals.approve');
+    Route::post('approvals/{approval}/reject', [ApprovalRequestController::class, 'reject'])->name('approvals.reject');
     Route::resource('users', UserController::class)->except(['show']);
     Route::get('audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
     Route::get('settings/ministry', [MinistrySettingsController::class, 'edit'])->name('settings.ministry.edit');

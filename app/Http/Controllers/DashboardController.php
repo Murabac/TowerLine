@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ApprovalRequest;
 use App\Models\FrequencyAllocation;
 use App\Models\License;
 use App\Models\Tower;
@@ -32,6 +33,10 @@ class DashboardController extends Controller
             'expiredCount' => (clone $licenses)->expired()->count(),
             'frequencyExpiringCount' => (clone $frequencies)->expiringSoon()->count(),
             'frequencyExpiredCount' => (clone $frequencies)->expired()->count(),
+            'pendingApprovalCount' => ($user->canTask('approvals.review') || $user->isInspector())
+                ? ApprovalRequest::query()->visibleTo($user)->pending()->count()
+                : 0,
+            'pendingApprovalIsOwn' => $user->isInspector() && ! $user->canTask('approvals.review'),
             'alerts' => Tower::query()
                 ->visibleTo($user)
                 ->with(['region', 'operator'])

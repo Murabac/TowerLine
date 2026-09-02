@@ -1,7 +1,7 @@
 # TowerLine — Phase 2 plan (MoCIT meeting)
 
 **Source:** Ministry officials meeting (Aug 2026)  
-**Status:** Planning — **Week 18 done** (Aug 2026)  
+**Status:** Planning — **Week 19 done** (Sep 2026)  
 **Builds on:** Week 12 demo (`CONTEXT.md`)  
 **How we work:** Same as Phase 1 — finish **one week’s deliverable** per session, then stop for review.
 
@@ -385,23 +385,23 @@ _Remaining items only — most decisions are locked above._
 
 ### Workflow
 
-- [ ] New `approval_requests` table: type (`tower_create`, `tower_update`, `inspection`), payload JSON, submitted_by, status, reviewed_by, reviewed_at, reviewer_comment
-- [ ] Inspector actions on **all three types** create **pending** records instead of live writes
-- [ ] Review queue UI: list, diff/preview, approve, reject with comment
-- [ ] Dashboard pending count + link (locked decision)
-- [ ] Audit log links pending → approved record (admin-visible only)
+- [x] New `approval_requests` table: type (`tower_create`, `tower_update`, `inspection`), payload JSON, submitted_by, status, reviewed_by, reviewed_at, reviewer_comment
+- [x] Inspector actions on **all three types** create **pending** records instead of live writes
+- [x] Review queue UI: list, diff/preview, approve, reject with comment
+- [x] Dashboard pending count + link (locked decision)
+- [x] Audit log links pending → approved record (admin-visible only)
 
 ### Policy matrix
 
-- [ ] Inspector: submit only (scoped to assigned regions)
-- [ ] **Ops manager + admin:** approve and reject
-- [ ] Approved record applies to live tower/inspection tables in transaction
+- [x] Inspector: submit only (scoped to assigned regions); own pending queue; can correct a pending item before review
+- [x] **Ops manager + admin:** approve and reject
+- [x] Approved record applies to live tower/inspection tables in transaction
 
 ### Tests
 
-- [ ] Inspector edit does not change live tower until approved
-- [ ] Rejection keeps live data unchanged
-- [ ] Approval writes audit entry
+- [x] Inspector edit does not change live tower until approved
+- [x] Rejection keeps live data unchanged
+- [x] Inspector can open own submissions and correct pending tower/inspection payloads without changing live data
 
 **Done when:** End-to-end submit → approve → visible on map/registry.
 

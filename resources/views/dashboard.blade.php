@@ -5,6 +5,12 @@
             <h1 class="mt-1 text-2xl font-semibold tracking-tight text-brand">{{ __('app.dashboard.title') }}</h1>
         </div>
 
+        @if (! empty($pendingApprovalCount))
+            <a href="{{ route('approvals.index') }}" class="block rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                {{ __($pendingApprovalIsOwn ? 'app.dashboard.pending_own_submissions_banner' : 'app.dashboard.pending_approvals_banner', ['count' => $pendingApprovalCount]) }}
+            </a>
+        @endif
+
         @if ($frequencyExpiringCount)
             <a href="{{ route('frequencies.dashboard') }}" class="block rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
                 {{ __('app.dashboard.frequency_renewal_banner', ['count' => $frequencyExpiringCount]) }}

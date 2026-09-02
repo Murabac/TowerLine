@@ -19,6 +19,10 @@ class StoreTowerRequest extends FormRequest
 {
     public function authorize(): bool
     {
+        if ($approval = $this->route('approval')) {
+            return $this->user()->can('update', $approval);
+        }
+
         $tower = $this->route('tower');
 
         return $tower

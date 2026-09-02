@@ -8,6 +8,13 @@
             'down' => 'down',
         ];
         $staleDays = \App\Models\Tower::INSPECTION_STALE_DAYS;
+        $defaults = $defaults ?? [];
+        $existingPhotos = $existingPhotos ?? [];
+        $formAction = $formAction ?? route('towers.inspections.store', $tower);
+        $formMethod = $formMethod ?? 'POST';
+        $submitLabel = $submitLabel ?? __('app.inspections.create');
+        $cancelUrl = $cancelUrl ?? route('towers.show', $tower);
+        $isCorrection = $formMethod === 'PUT';
     @endphp
 
     <div
@@ -35,14 +42,14 @@
             },
         }"
     >
-        <a href="{{ route('towers.show', $tower) }}" class="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-brand">
+        <a href="{{ $cancelUrl }}" class="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-brand">
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"/></svg>
             {{ $tower->name }}
         </a>
 
         <div class="mt-4 rounded-2xl bg-brand text-white px-5 py-5 sm:px-6">
             <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-light">{{ __('app.inspections.title') }}</p>
-            <h1 class="mt-1 text-2xl font-semibold tracking-tight">{{ __('app.inspections.create') }}</h1>
+            <h1 class="mt-1 text-2xl font-semibold tracking-tight">{{ $isCorrection ? __('app.approvals.correct_this') : __('app.inspections.create') }}</h1>
             <p class="mt-2 text-sm text-white/75 max-w-xl">{{ __('app.inspections.subtitle') }}</p>
             <p class="mt-3 text-sm text-white/90 max-w-xl">{{ __('app.inspections.lenient_intro') }}</p>
             <div class="mt-4 flex flex-wrap items-center gap-2 text-xs">
@@ -54,8 +61,14 @@
             </div>
         </div>
 
-        <form method="POST" action="{{ route('towers.inspections.store', $tower) }}" enctype="multipart/form-data" class="mt-5 space-y-5">
+        <form method="POST" action="{{ $formAction }}" enctype="multipart/form-data" class="mt-5 space-y-5">
             @csrf
+            @if ($formMethod === 'PUT')
+                @method('PUT')
+            @endif
+            @if ($isCorrection)
+                <p class="text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">{{ __('app.approvals.correct_hint') }}</p>
+            @endif
 
             <section class="data-card p-5 sm:p-6 space-y-4 border-l-4 border-brand">
                 <div>
@@ -64,7 +77,7 @@
                     <p class="mt-1 text-sm text-gray-500">{{ __('app.inspections.comment_help') }}</p>
                 </div>
                 <div>
-                    <textarea id="notes" name="notes" rows="5" class="field min-h-[8rem]" placeholder="{{ __('app.inspections.comment_placeholder') }}">{{ old('notes') }}</textarea>
+                    <textarea id="notes" name="notes" rows="5" class="field min-h-[8rem]" placeholder="{{ __('app.inspections.comment_placeholder') }}">{{ old('notes', $defaults['notes'] ?? '') }}</textarea>
                     @error('notes') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                 </div>
             </section>
@@ -85,7 +98,7 @@
                     <div class="mt-3 grid sm:grid-cols-2 gap-2.5">
                         @foreach ($powerChoices as $value => $label)
                             <label class="group relative flex cursor-pointer gap-3 rounded-2xl border border-gray-200 bg-white p-4 transition has-[:checked]:border-brand has-[:checked]:bg-[#F4F8F6] has-[:checked]:shadow-[inset_0_0_0_1px_#1B4D3E]">
-                                <input type="radio" name="power_status" value="{{ $value }}" class="mt-1 text-brand focus:ring-brand/30" @checked(old('power_status') === $value)>
+                                <input type="radio" name="power_status" value="{{ $value }}" class="mt-1 text-brand focus:ring-brand/30" @checked(old('power_status', $defaults['power_status'] ?? null) === $value)>
                                 <span>
                                     <span class="block text-sm font-semibold text-gray-900">{{ __('app.inspections.'.$label) }}</span>
                                     <span class="mt-0.5 block text-xs text-gray-500">{{ __('app.inspections.choice.'.$value) }}</span>
@@ -105,7 +118,7 @@
                     <div class="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2">
                         @foreach (['good', 'fair', 'poor', 'n_a'] as $value)
                             <label class="cursor-pointer rounded-2xl border border-gray-200 bg-white px-3 py-3 text-center text-sm font-semibold text-gray-800 transition has-[:checked]:border-brand has-[:checked]:bg-brand has-[:checked]:text-white">
-                                <input type="radio" name="generator_condition" value="{{ $value }}" class="sr-only" @checked(old('generator_condition') === $value)>
+                                <input type="radio" name="generator_condition" value="{{ $value }}" class="sr-only" @checked(old('generator_condition', $defaults['generator_condition'] ?? null) === $value)>
                                 {{ __('app.inspections.'.$value) }}
                             </label>
                         @endforeach
@@ -122,7 +135,7 @@
                     <div class="mt-3 grid grid-cols-3 gap-2">
                         @foreach (['good', 'fair', 'poor'] as $value)
                             <label class="cursor-pointer rounded-2xl border border-gray-200 bg-white px-3 py-3 text-center text-sm font-semibold text-gray-800 transition has-[:checked]:border-brand has-[:checked]:bg-brand has-[:checked]:text-white">
-                                <input type="radio" name="physical_condition" value="{{ $value }}" class="sr-only" @checked(old('physical_condition') === $value)>
+                                <input type="radio" name="physical_condition" value="{{ $value }}" class="sr-only" @checked(old('physical_condition', $defaults['physical_condition'] ?? null) === $value)>
                                 {{ __('app.inspections.'.$value) }}
                             </label>
                         @endforeach
@@ -163,6 +176,17 @@
                                     </div>
                                 </div>
                             </div>
+
+                            @if (! empty($existingPhotos[$slot]))
+                                <div class="mt-2 grid grid-cols-4 gap-1.5">
+                                    @foreach ($existingPhotos[$slot] as $path)
+                                        <a href="{{ asset('storage/'.$path) }}" target="_blank" class="block h-16 overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
+                                            <img src="{{ asset('storage/'.$path) }}" alt="" class="h-full w-full object-cover">
+                                        </a>
+                                    @endforeach
+                                </div>
+                                <p class="mt-1 text-xs text-gray-500">{{ __('app.approvals.photos_replace_hint') }}</p>
+                            @endif
 
                             <div class="mt-2 grid grid-cols-4 gap-1.5" x-show="files.{{ $slot }}.length" x-cloak>
                                 <template x-for="(item, index) in files.{{ $slot }}" :key="item.url">
@@ -216,8 +240,8 @@
             <p class="text-xs text-gray-500">{{ __('app.inspections.stale_hint', ['days' => $staleDays]) }}</p>
 
             <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
-                <a href="{{ route('towers.show', $tower) }}" class="inline-flex items-center justify-center px-4 py-3 text-sm font-semibold text-gray-600">{{ __('app.cancel') }}</a>
-                <button class="inline-flex items-center justify-center px-5 py-3 bg-brand text-white text-sm font-semibold rounded-2xl hover:bg-brand-dark shadow-sm">{{ __('app.inspections.create') }}</button>
+                <a href="{{ $cancelUrl }}" class="inline-flex items-center justify-center px-4 py-3 text-sm font-semibold text-gray-600">{{ __('app.cancel') }}</a>
+                <button class="inline-flex items-center justify-center px-5 py-3 bg-brand text-white text-sm font-semibold rounded-2xl hover:bg-brand-dark shadow-sm">{{ $submitLabel }}</button>
             </div>
         </form>
     </div>
