@@ -17,13 +17,7 @@
             </a>
         @endif
 
-        @if ($expiringCount)
-            <a href="{{ route('licenses.index', ['state' => 'expiring_soon']) }}" class="block rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-                {{ __('app.dashboard.renewal_banner', ['count' => $expiringCount]) }}
-            </a>
-        @endif
-
-        <div class="grid sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div class="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
             <a href="{{ route('towers.index') }}" class="data-card p-5 hover:border-brand">
                 <p class="stat-label">{{ __('app.dashboard.total_towers') }}</p>
                 <p class="stat-value text-2xl">{{ number_format($towerCount) }}</p>
@@ -35,10 +29,6 @@
             <a href="{{ route('map', ['overdue' => 1]) }}" class="data-card p-5 hover:border-health-attention">
                 <p class="stat-label">{{ __('app.dashboard.needing_inspection') }}</p>
                 <p class="stat-value text-2xl text-health-attention">{{ number_format($overdueCount) }}</p>
-            </a>
-            <a href="{{ route('licenses.index', ['state' => 'expired']) }}" class="data-card p-5 hover:border-health-critical">
-                <p class="stat-label">{{ __('app.dashboard.expired_licenses') }}</p>
-                <p class="stat-value text-2xl">{{ number_format($expiredCount) }}</p>
             </a>
         </div>
 

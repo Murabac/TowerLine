@@ -16,6 +16,7 @@ use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\MapController;
 use App\Http\Controllers\MinistrySettingsController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\TowerController;
 use App\Http\Controllers\UserController;
@@ -68,6 +69,9 @@ Route::middleware('auth')->group(function () {
     Route::get('approvals/{approval}', [ApprovalRequestController::class, 'show'])->name('approvals.show');
     Route::post('approvals/{approval}/approve', [ApprovalRequestController::class, 'approve'])->name('approvals.approve');
     Route::post('approvals/{approval}/reject', [ApprovalRequestController::class, 'reject'])->name('approvals.reject');
+    Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('reports/{report}/excel', [ReportController::class, 'excel'])->name('reports.excel')->where('report', '[a-z0-9_.]+');
+    Route::get('reports/{report}', [ReportController::class, 'show'])->name('reports.show')->where('report', '[a-z0-9_.]+');
     Route::resource('users', UserController::class)->except(['show']);
     Route::resource('roles', RoleController::class)->except(['show']);
     Route::get('audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');

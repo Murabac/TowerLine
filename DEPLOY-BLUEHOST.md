@@ -140,6 +140,8 @@ Not `/home/USERNAME/towerline` — that will break Laravel.
 
 cPanel → **MultiPHP Manager** → select that domain → **PHP 8.3** (TowerLine uses Laravel 12; PHP 8.3 is required and sufficient).
 
+**Week 23 (Sep 2026):** hosting stack reviewed — still **PHP 8.3** and **Laravel 12**. No change for the Phase 2 pilot.
+
 ---
 
 ## D. Bluehost — create `.env`
@@ -245,7 +247,7 @@ Also ensure folders are writable: `storage` and `bootstrap/cache` (permissions *
 1. Visit `https://towers.yourdomain.com` (enable AutoSSL / Force HTTPS in cPanel).
 2. Login (demo accounts from local seed, if you imported that data).
 3. **Change all passwords** immediately.
-4. Check: Dashboard, Map, Towers, one inspection upload, Licenses.
+4. Check: Dashboard, Map, Towers, Reports, Frequencies, one inspection upload.
 
 Quick demo login buttons stay **hidden** when `APP_ENV=production`.
 
@@ -271,6 +273,7 @@ Quick demo login buttons stay **hidden** when `APP_ENV=production`.
 |---|---|
 | Site shows Bluehost default page | Document root must be `.../towerline/public` |
 | White screen / 500 | PHP 8.3+; check `storage/logs/laravel.log`; fix `.env` |
+| “Please provide a valid cache path” | Create writable folders: `storage/framework/views`, `storage/framework/cache/data`, `storage/framework/sessions`. The current deploy zip already includes them. |
 | “No application encryption key” | Set `APP_KEY` in `.env` |
 | CSS looks broken | Zip was missing `public/build` — rebuild and re-upload that folder |
 | DB connection error | Use full cPanel names (`username_towerline`), host `localhost` |

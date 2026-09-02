@@ -4,10 +4,10 @@
 **Official product name:** Wasaaradda Isgaarsiinta iyo Technology — Tower Management & Monitoring System  
 **Client:** Ministry of Communication and Information Technology (MoCIT), Somaliland  
 **Languages:** English (default) + Somali toggle  
-**Status:** 12-week plan complete for the demo / pilot app. **Phase 2 Week 13 complete.**  
-**Current week:** **Week 13 complete — Districts & sub-districts**  
-**Last completed:** **Week 13**  
-**Source of truth:** this file. Update it when a product decision changes.
+**Status:** Phase 2 complete through **Week 23** (Sep 2026). Demo / pilot v2.  
+**Current week:** **Week 23 complete — Integration, tests, docs, pilot update**  
+**Last completed:** **Week 23**  
+**Source of truth:** this file. Update it when a product decision changes. Phase 2 week-by-week work is recorded in `MINISTRY-PHASE2-PLAN.md`.
 
 ---
 
@@ -69,6 +69,27 @@ Build from the design reference + this file. No separate Figma phase — the app
 
 ---
 
+## 3b. Phase 2 locked decisions (MoCIT, Aug–Sep 2026)
+
+Full catalogue and week notes: `MINISTRY-PHASE2-PLAN.md`.
+
+| Topic | Decision |
+|---|---|
+| Geography | Region → district → sub-district. Interim 102 districts from Law 23/2019 until MoCIT official list arrives |
+| Power source | Towers store **multiple** sources (grid, generator, battery, solar, …) |
+| Inspections | Most fields **optional**; comment always available; incomplete visits do not over-penalize health |
+| Build approval letter | Per tower, ministry template, **no expiry**. Legacy A/B/C licences kept for reference |
+| Frequency | Band/range per operator, annual renewal, letters and receipts, expiry on dashboard |
+| Operations manager | Ministry-wide access **except** user admin, audit log, and settings. Can approve inspector work |
+| Inspector writes | New towers, tower edits, and inspections **wait for approval** before they go live |
+| Custom roles | Admins tick tasks. Demo includes **Regional analyst** (map + reports, Maroodi Jeex) |
+| Regional operators | Operator can be national or limited to one or more regions |
+| Map operator colors | Fixed color-blind-safe palette; pins can colour by operator or by status |
+| Reports | Print/PDF + Excel. Admin and ops see the full centre. Inspectors see a region-scoped subset. Audit report **admin only** |
+| Help in sidebar | Hidden for now; `/help` still works |
+
+---
+
 ## 4. Goals (demo / v1)
 
 1. Full-screen Leaflet map: color-coded, filterable, clustered, coverage circles, print/snapshot
@@ -98,8 +119,10 @@ Inspectors are **ministry employees**, not contractors.
 | Role | Key | Access |
 |---|---|---|
 | Ministry admin | `admin` | Everything |
-| Regional inspector | `inspector` | View/edit towers and submit inspections **in one or more assigned regions** (`region_user`). Map scoped. No user admin. |
-| Operator viewer | `operator_viewer` | **Disabled for now** (login blocked). Policies remain for a later phase. |
+| Operations manager | `operations_manager` | Ministry-wide registry, letters, frequencies, reports, and approvals. **No** users, audit log, or settings |
+| Regional inspector | `inspector` | View/edit towers and submit inspections **in one or more assigned regions**. Changes wait for approval. Map scoped. No user admin |
+| Regional analyst | `regional_analyst` (custom) | Seeded example: map + reports for assigned region(s) |
+| Operator viewer | `operator_viewer` | **Disabled for now** (login blocked). Policies remain for a later phase |
 
 ---
 
@@ -154,12 +177,12 @@ Logo file lives at `public/images/mocit-logo.jpg` (copy of `wasaarada logo.jpg`)
 
 | Operator | Color |
 |---|---|
-| Telesom | `#0F766E` |
-| Somtel | `#1D4ED8` |
-| Sogasho | `#7C3AED` |
-| Truecable | `#C2410C` |
-| Astaan | `#BE185D` |
-| Horncable | `#B45309` |
+| Telesom | `#009E73` |
+| Somtel | `#0072B2` |
+| Sogasho | `#CC79A7` |
+| Truecable | `#D55E00` |
+| Astaan | `#56B4E9` |
+| Horncable | `#E69F00` |
 
 ### Layout
 
@@ -254,7 +277,7 @@ Overdue: no inspection in **90 days**.
 - documents: JSON list of scanned files (PDF / photo / Word), stored on the public disk
 - Display status **computed from dates** (not stored): expired / expiring_soon (≤30 days) / active
 
-### `users` — Breeze + role (`admin`/`inspector`/`operator_viewer`) + region_id + operator_id
+### `users` — Breeze + role (`admin` / `operations_manager` / `inspector` / `operator_viewer` or a custom `role_id`) + assigned regions + operator_id
 
 ### `audit_logs` — user_id, action, model_type, model_id, changes json, created_at
 
@@ -263,12 +286,16 @@ Overdue: no inspection in **90 days**.
 ## 10. Screens
 
 1. **Auth** — branded login, no register. Forgot password hidden unless mail is configured.
-2. **Dashboard** — cards (total towers, alerts, needing inspection, licenses ≤30 days) + mini map + expiry banner
-3. **Map (priority)** — filters (region, operator, category, status, license, health), clusters, coverage toggle, side panel on pin click, print/snapshot, role-scoped JSON
-4. **Registry** — paginated table, CRUD, map-click lat/lng picker, detail with history + mini map
-5. **Inspections** — mobile-first POST form + photo upload + history
-6. **Licenses** — list sortable by expiry, A/B/C badges, dashboard banner only
-7. **Admin** — users, operators, regions, audit log
+2. **Dashboard** — cards + mini map + pending-approval and frequency-renewal banners
+3. **Map (priority)** — filters including district; colour pins by operator or status; print/snapshot
+4. **Registry** — paginated table, official registration fields, power sources, geography
+5. **Inspections** — optional fields + comment; wait for approval when filed by inspector
+6. **Approvals** — queue for inspector submissions
+7. **Build approval letters** — generate/print from tower (no expiry)
+8. **Frequencies** — dashboard, registry, letters, receipts, renewals
+9. **Reports** — hub, print/PDF, Excel
+10. **Admin** — users, custom roles, districts, audit log, ministry settings
+11. **Help** — `/help` (sidebar hidden)
 
 ---
 
@@ -277,10 +304,15 @@ Overdue: no inspection in **90 days**.
 - `GET /` dashboard
 - `GET /map` + `GET /map/towers` JSON
 - `resource towers` + nested inspections store
-- `resource licenses`
-- `resource users` (admin)
-- `resource operators` / `resource regions` (admin)
+- `GET /approvals` (queue / my submissions)
+- `resource licenses` (legacy A/B/C, not in sidebar)
+- build-approval letters from tower detail
+- frequencies dashboard + allocations, letters, receipts
+- `GET /reports` + show / excel / print
+- `resource users` (admin); custom roles
+- `resource operators` / `resource regions` / districts (admin, ops)
 - `GET /audit-logs` (admin)
+- `GET /help` (sidebar hidden)
 - `POST /locale`
 
 Policies on every write. Map JSON never includes out-of-scope towers.
@@ -293,10 +325,12 @@ Password for all: `password`
 
 | Email | Role | Scope |
 |---|---|---|
-| admin@mocit.local | admin | all |
-| inspector.maroodi@mocit.local | inspector | Maroodi Jeex |
-| inspector.sahil@mocit.local | inspector | Sahil |
-| inspector.west@mocit.local | inspector | Awdal, Maroodi Jeex, Sahil |
+| `admin@mocit.local` | admin | all |
+| `ops@mocit.local` | operations_manager | all except users, audit, settings |
+| `inspector.maroodi@mocit.local` | inspector | Maroodi Jeex |
+| `inspector.sahil@mocit.local` | inspector | Sahil |
+| `inspector.west@mocit.local` | inspector | Awdal, Maroodi Jeex, Sahil |
+| `analyst.maroodi@mocit.local` | regional_analyst | Maroodi Jeex (map + reports) |
 
 ---
 
@@ -318,6 +352,17 @@ Do **not** build the whole product in one pass. Each session finishes **one week
 | 10 | Licenses (A/B/C), dashboard banner, documents | **Done** |
 | 11 | Roles polish & audit log UI | **Done** |
 | 12 | Test, pilot, handover | **Done** — automated tests + Help screen + `HANDOVER.md`. Live government-server cutover and in-person MoCIT training wait on hosting. |
+| 13 | Districts & sub-districts | **Done** |
+| 14 | Power sources + registration form | **Done** |
+| 15 | Lenient inspections | **Done** |
+| 16 | Build approval letters | **Done** |
+| 17 | Frequency allocations | **Done** |
+| 18 | Operations manager + regional operators | **Done** |
+| 19 | Inspector approval queue | **Done** |
+| 20 | Custom roles & tasks | **Done** |
+| 21 | Operator colors on map | **Done** |
+| 22 | Report centre | **Done** |
+| 23 | Integration, tests, docs, pilot v2 | **Done** |
 
 Auth (Breeze) is installed. User-admin, audit-log, and Help screens are live for ministry staff.
 

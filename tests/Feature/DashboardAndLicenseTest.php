@@ -23,7 +23,10 @@ class DashboardAndLicenseTest extends TestCase
         $this->actingAs($admin)
             ->get(route('dashboard'))
             ->assertOk()
-            ->assertSee(__('app.dashboard.total_towers'), false);
+            ->assertSee(__('app.dashboard.total_towers'), false)
+            ->assertDontSee(__('app.nav.licenses'), false)
+            ->assertDontSee(__('app.nav.help'), false)
+            ->assertDontSee(__('app.dashboard.expired_licenses'), false);
     }
 
     public function test_admin_can_create_a_license(): void

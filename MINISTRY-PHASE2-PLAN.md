@@ -1,7 +1,7 @@
 # TowerLine — Phase 2 plan (MoCIT meeting)
 
 **Source:** Ministry officials meeting (Aug 2026)  
-**Status:** Planning — **Week 20 done** (Sep 2026)  
+**Status:** Phase 2 complete — **Week 23 done** (Sep 2026)  
 **Builds on:** Week 12 demo (`CONTEXT.md`)  
 **How we work:** Same as Phase 1 — finish **one week’s deliverable** per session, then stop for review.
 
@@ -433,12 +433,12 @@ _Remaining items only — most decisions are locked above._
 
 **Note:** Can be pulled forward to Week 13 if quick win is wanted before geography work.
 
-- [ ] Ensure every operator has unique `color` in DB (fix clashes in seeder)
-- [ ] Map markers use operator color (not only health/status)
-- [ ] Legend: operator name + color swatch
-- [ ] Coverage circles keep operator color; optional toggle marker vs circle coloring
-- [ ] Print/snapshot includes legend
-- [ ] Color-blind-safe palette review (distinct hues)
+- [x] Ensure every operator has unique `color` in DB (fix clashes in seeder)
+- [x] Map markers use operator color (not only health/status)
+- [x] Legend: operator name + color swatch
+- [x] Coverage circles keep operator color; optional toggle marker vs circle coloring
+- [x] Print/snapshot includes legend
+- [x] Color-blind-safe palette review (distinct hues)
 
 **Done when:** Any two operators on the same map are distinguishable by color without opening the side panel.
 
@@ -450,12 +450,12 @@ _Remaining items only — most decisions are locked above._
 
 ### Infrastructure
 
-- [ ] `GET /reports` hub — grouped cards: Towers, Operators, Geography, Inspections, Letters, Frequencies, Governance, Executive
-- [ ] Shared filter bar: date from/to, region, district, sub-district, operator, status, health (per report)
-- [ ] Server-side sortable columns on all tabular reports
-- [ ] **Print / PDF:** `@media print` layout + ministry header/footer + logo
-- [ ] **Excel export:** `.xlsx` download via Laravel Excel (or equivalent) — **no CSV**
-- [ ] Role scoping: inspectors auto-filtered to assigned regions; audit log report **admin only**
+- [x] `GET /reports` hub — grouped cards: Towers, Operators, Geography, Inspections, Letters, Frequencies, Governance, Executive
+- [x] Shared filter bar: date from/to, region, district, sub-district, operator, status, health (per report)
+- [x] Server-side sortable columns on all tabular reports
+- [x] **Print / PDF:** `@media print` layout + ministry header/footer + logo
+- [x] **Excel export:** `.xlsx` download via Laravel Excel (or equivalent) — **no CSV**
+- [x] Role scoping: inspectors auto-filtered to assigned regions; audit log report **admin only**
 
 ### Implementation order
 
@@ -468,8 +468,8 @@ _Remaining items only — most decisions are locked above._
 
 ### Permissions
 
-- [ ] `reports.view`, `reports.export_excel`, `reports.print`
-- [ ] `reports.audit` — **admin only**
+- [x] `reports.view`, `reports.export_excel`, `reports.print`
+- [x] `reports.audit` — **admin only**
 
 **Done when:** All catalogue reports work with date sort, print/PDF, Excel, and correct role scoping.
 
@@ -479,12 +479,12 @@ _Remaining items only — most decisions are locked above._
 
 **Goal:** Phase 2 shippable as demo/pilot v2.
 
-- [ ] Full test suite green (feature tests per week)
-- [ ] Update `CONTEXT.md` locked decisions
-- [ ] Update `HANDOVER.md` and Help screen
-- [ ] Update `ministry-presentation-en.md` / `ministry-presentation-so.md`
-- [ ] Seed data covers districts, regional operators, sample letters, frequencies, pending approvals
-- [ ] Deploy package notes if Bluehost constraints unchanged (PHP 8.3, Laravel 12)
+- [x] Full test suite green (feature tests per week)
+- [x] Update `CONTEXT.md` locked decisions
+- [x] Update `HANDOVER.md` and Help screen
+- [x] Update `ministry-presentation-en.md` / `ministry-presentation-so.md`
+- [x] Seed data covers districts, regional operators, sample letters, frequencies, pending approvals
+- [x] Deploy package notes if Bluehost constraints unchanged (PHP 8.3, Laravel 12)
 
 **Done when:** MoCIT can pilot Phase 2 on staging with updated training doc.
 
@@ -517,5 +517,6 @@ _Remaining items only — most decisions are locked above._
 
 ## Next step
 
-1. Ministry sends **letter PDF**, **registration form PDF**, and **official district/sub-district list** when ready.
-2. Say **“Start Week 21”** for operator colors on the map.
+1. Ministry sends the **official district/sub-district list** (and any remaining paper templates) when ready.
+2. Deploy the Phase 2 demo on staging / Bluehost using `DEPLOY-BLUEHOST.md` (PHP 8.3, Laravel 12).
+3. Run the one-region pilot in `HANDOVER.md`.

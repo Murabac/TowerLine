@@ -97,6 +97,64 @@ class MapTest extends TestCase
             ->assertSee(__('app.map.title'), false);
     }
 
+    public function test_map_pins_use_operator_color_and_keep_status_color_separately(): void
+    {
+        [$awdal, $sahil, $telesom, $somtel] = $this->seedMapFixtures();
+
+        $good = $this->makeTower('Awdal site', $awdal, $telesom, 9.93, 43.18);
+        $good->update(['health_status' => 'good']);
+        $this->makeTower('Sahil site', $sahil, $somtel, 10.43, 45.01);
+
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $towers = collect($this->actingAs($admin)
+            ->getJson(route('map.towers'))
+            ->assertOk()
+            ->json('towers'))
+            ->keyBy('name');
+
+        $this->assertSame($telesom->color, $towers['Awdal site']['color']);
+        $this->assertSame($telesom->color, $towers['Awdal site']['operator']['color']);
+        $this->assertSame($good->fresh()->statusColor(), $towers['Awdal site']['status_color']);
+        $this->assertSame($somtel->color, $towers['Sahil site']['color']);
+        $this->assertNotSame($telesom->color, $somtel->color);
+        $this->assertNotSame($telesom->color, $good->fresh()->statusColor());
+    }
+
+    public function test_map_page_toggles_operator_and_status_legends(): void
+    {
+        [$awdal, $sahil, $telesom, $somtel] = $this->seedMapFixtures();
+        $this->makeTower('Awdal site', $awdal, $telesom, 9.93, 43.18);
+        $this->makeTower('Sahil site', $sahil, $somtel, 10.43, 45.01);
+
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $this->actingAs($admin)
+            ->get(route('map'))
+            ->assertOk()
+            ->assertSee('pinColorMode === \'operator\'', false)
+            ->assertSee('pinColorMode === \'status\'', false)
+            ->assertSee(__('app.map.operator_legend'), false)
+            ->assertSee(__('app.map.status_legend'), false)
+            ->assertSee(__('app.map.color_pins_by'), false)
+            ->assertSee('Telesom', false)
+            ->assertSee('Somtel', false)
+            ->assertSee($telesom->color, false)
+            ->assertSee($somtel->color, false)
+            ->assertSee('map-print-legend', false);
+    }
+
+    public function test_seeded_operators_have_unique_map_colors(): void
+    {
+        $this->seed(\Database\Seeders\DatabaseSeeder::class);
+
+        $colors = Operator::query()->pluck('color')->map(fn (string $color) => strtoupper($color));
+
+        $this->assertSame($colors->count(), $colors->unique()->count());
+        $this->assertSame('#009E73', Operator::query()->where('name', 'Telesom')->value('color'));
+        $this->assertSame('#E69F00', Operator::query()->where('name', 'Horncable')->value('color'));
+    }
+
     /**
      * @return array{0: Region, 1: Region, 2: Operator, 3: Operator}
      */

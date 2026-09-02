@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Operator;
 use App\Models\Region;
 use App\Models\User;
+use App\Support\OperatorPalette;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -28,16 +29,21 @@ class DatabaseSeeder extends Seeder
         $this->call(GeographySeeder::class);
 
         $operators = [
-            ['name' => 'Telesom', 'category' => 'telecom', 'color' => '#0F766E', 'contact_info' => 'Hargeisa'],
-            ['name' => 'Somtel', 'category' => 'telecom', 'color' => '#1D4ED8', 'contact_info' => 'Hargeisa'],
-            ['name' => 'Sogasho', 'category' => 'telecom', 'color' => '#7C3AED', 'contact_info' => 'Hargeisa'],
-            ['name' => 'Truecable', 'category' => 'broadcast', 'color' => '#C2410C', 'contact_info' => 'Hargeisa'],
-            ['name' => 'Astaan', 'category' => 'broadcast', 'color' => '#BE185D', 'contact_info' => 'Hargeisa'],
-            ['name' => 'Horncable', 'category' => 'broadcast', 'color' => '#B45309', 'contact_info' => 'Hargeisa'],
+            ['name' => 'Telesom', 'category' => 'telecom', 'contact_info' => 'Hargeisa'],
+            ['name' => 'Somtel', 'category' => 'telecom', 'contact_info' => 'Hargeisa'],
+            ['name' => 'Sogasho', 'category' => 'telecom', 'contact_info' => 'Hargeisa'],
+            ['name' => 'Truecable', 'category' => 'broadcast', 'contact_info' => 'Hargeisa'],
+            ['name' => 'Astaan', 'category' => 'broadcast', 'contact_info' => 'Hargeisa'],
+            ['name' => 'Horncable', 'category' => 'broadcast', 'contact_info' => 'Hargeisa'],
         ];
 
         foreach ($operators as $operator) {
-            Operator::query()->firstOrCreate(['name' => $operator['name']], $operator);
+            $operator['color'] = OperatorPalette::forName($operator['name']);
+            $row = Operator::query()->firstOrCreate(['name' => $operator['name']], $operator);
+
+            if ($row->color !== $operator['color']) {
+                $row->update(['color' => $operator['color']]);
+            }
         }
 
         $maroodi = Region::query()->where('name_en', 'Maroodi Jeex')->first();

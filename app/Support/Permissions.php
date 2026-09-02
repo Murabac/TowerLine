@@ -40,6 +40,9 @@ class Permissions
         'frequencies.renew' => 'Renew frequency allocations',
         'approvals.review' => 'Review pending inspector submissions',
         'reports.view' => 'View reports',
+        'reports.print' => 'Print reports',
+        'reports.export_excel' => 'Export reports to Excel',
+        'reports.audit' => 'Export the audit log report',
     ];
 
     /**
@@ -53,7 +56,7 @@ class Permissions
         'letters' => ['letters.create'],
         'licenses' => ['licenses.create', 'licenses.update', 'licenses.delete'],
         'frequencies' => ['frequencies.create', 'frequencies.update', 'frequencies.delete', 'frequencies.renew'],
-        'reports' => ['reports.view'],
+        'reports' => ['reports.view', 'reports.print', 'reports.export_excel', 'reports.audit'],
         'users' => ['users.manage', 'roles.manage'],
         'geography' => ['geography.view', 'geography.manage'],
         'audit' => ['audit.view'],
@@ -100,6 +103,9 @@ class Permissions
             'frequencies.renew',
             'approvals.review',
             'reports.view',
+            'reports.print',
+            'reports.export_excel',
+            'reports.audit',
         ],
         'operations_manager' => [
             'geography.view',
@@ -119,6 +125,8 @@ class Permissions
             'frequencies.renew',
             'approvals.review',
             'reports.view',
+            'reports.print',
+            'reports.export_excel',
         ],
         'inspector' => [
             'geography.view',
@@ -134,11 +142,13 @@ class Permissions
             'frequencies.update',
             'frequencies.renew',
             'reports.view',
+            'reports.print',
         ],
         'operator_viewer' => [
             'map.view',
             'towers.view',
             'reports.view',
+            'reports.print',
         ],
     ];
 
@@ -161,6 +171,12 @@ class Permissions
 
             if ($fromDatabase !== []) {
                 return array_values($fromDatabase);
+            }
+
+            // After permissions have been seeded, an empty pivot means this role
+            // was saved with no tasks — do not fall back to the code defaults.
+            if (DB::table('role_permission')->exists()) {
+                return [];
             }
 
             return self::ROLE_TASKS[$role] ?? [];

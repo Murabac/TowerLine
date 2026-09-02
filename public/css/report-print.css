@@ -1,0 +1,282 @@
+/* Report letterhead — loaded from /css so it does not depend on Vite. */
+
+.report-letterhead {
+    --letter-green: #1b4d3e;
+    --letter-green-dark: #14382c;
+    --letter-green-soft: #e8f0ec;
+    --letter-gold: #f5c518;
+    --letter-muted: #4b5563;
+
+    background: #fff;
+    color: #1a1a1a;
+    font-family: "Book Antiqua", Palatino, "Times New Roman", Times, serif;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 20px 24px 16px;
+    margin-bottom: 20px;
+}
+
+.report-letterhead .ministry-letterhead {
+    text-align: center;
+    padding-bottom: 10px;
+    margin: 0 0 14px;
+    border-bottom: 3px double var(--letter-green);
+}
+
+.report-letterhead .ministry-letterhead__logo {
+    width: 72px !important;
+    height: 72px !important;
+    max-width: 72px;
+    margin: 0 auto 10px;
+    display: block;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--letter-gold);
+    border: 2px solid var(--letter-green);
+    padding: 2px;
+}
+
+.report-letterhead .ministry-letterhead__line {
+    margin: 0;
+    font-size: 10.5pt;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--letter-green-dark);
+    text-transform: uppercase;
+    line-height: 1.35;
+}
+
+.report-letterhead .ministry-letterhead__line--so {
+    font-size: 11pt;
+}
+
+.report-letterhead .ministry-letterhead__line--ministry {
+    margin-top: 8px;
+    font-size: 12pt;
+}
+
+.report-letterhead .ministry-letterhead__line--dept {
+    margin-top: 6px;
+    font-size: 10.5pt;
+    font-weight: 600;
+    color: var(--letter-muted);
+}
+
+.report-letterhead__meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 14px;
+    font-size: 11pt;
+    text-align: left;
+}
+
+.report-letterhead__meta-item {
+    margin: 0;
+}
+
+.report-letterhead__meta-label {
+    font-weight: 700;
+    color: var(--letter-green-dark);
+}
+
+.report-letterhead__meta-value {
+    font-weight: 700;
+    border-bottom: 1px solid #9ca3af;
+    padding: 0 4px 1px;
+    min-width: 120px;
+    display: inline-block;
+}
+
+.report-letterhead__title-block {
+    text-align: center;
+    margin: 0;
+    padding: 10px 12px;
+    background: var(--letter-green-soft);
+    border: 1px solid var(--letter-green);
+}
+
+.report-letterhead__doc-type {
+    margin: 0 0 4px;
+    font-size: 9pt;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--letter-green);
+}
+
+.report-letterhead__title {
+    margin: 0;
+    font-size: 15pt;
+    font-weight: 700;
+    color: var(--letter-green-dark);
+    letter-spacing: 0.03em;
+    line-height: 1.3;
+}
+
+.report-letterhead__subtitle {
+    margin: 4px 0 0;
+    font-size: 12pt;
+    font-weight: 700;
+    color: var(--letter-green);
+}
+
+.report-page .data-table thead th,
+.report-page .data-table thead th a {
+    color: #14382c;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.report-page .data-table {
+    border-collapse: collapse;
+    border: 1px solid #1b4d3e;
+}
+
+.report-page .data-table thead th,
+.report-page .data-table tbody td {
+    border: 1px solid #9ca3af;
+}
+
+.report-page .data-table thead th {
+    border-color: #1b4d3e;
+    border-bottom-width: 1.5px;
+}
+
+.report-page .data-table tbody tr:last-child td {
+    border-bottom: 1px solid #9ca3af;
+}
+
+.report-print-footer {
+    display: none;
+}
+
+@media print {
+    .no-print {
+        display: none !important;
+    }
+
+    .report-letterhead {
+        border: 0;
+        border-radius: 0;
+        padding: 0 0 8px;
+        margin: 0 0 12px;
+        box-shadow: none;
+        background: transparent;
+    }
+
+    .report-letterhead__title-block,
+    .report-print-footer {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .report-page {
+        padding: 0 !important;
+    }
+
+    .report-page .data-card {
+        box-shadow: none !important;
+        border: 1px solid #1b4d3e !important;
+        border-radius: 0 !important;
+    }
+
+    .report-table thead a {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .report-table thead a span {
+        display: none;
+    }
+
+    .report-print-footer {
+        display: block;
+        margin-top: 22px;
+        padding: 8px 12px;
+        text-align: center;
+        font-size: 9pt;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: #fff;
+        background: #1b4d3e;
+    }
+
+    html,
+    body,
+    body > div,
+    body > div > div,
+    main {
+        display: block !important;
+        overflow: visible !important;
+        height: auto !important;
+        width: 100% !important;
+        max-width: none !important;
+        min-height: 0 !important;
+        min-width: 0 !important;
+    }
+
+    .report-page .data-card,
+    .report-page .overflow-x-auto {
+        overflow: visible !important;
+        max-width: none !important;
+        width: 100% !important;
+    }
+
+    .report-page .data-table,
+    .report-page .report-table {
+        min-width: 0 !important;
+        width: 100% !important;
+        table-layout: auto;
+        font-size: 7.5pt;
+        border-collapse: collapse;
+        border: 1px solid #1b4d3e !important;
+    }
+
+    .report-page .data-table thead {
+        display: table-header-group;
+    }
+
+    .report-page .data-table thead th {
+        padding: 4px 5px !important;
+        white-space: nowrap !important;
+        word-break: normal;
+        overflow-wrap: normal;
+        font-size: 7pt;
+        font-weight: 700 !important;
+        letter-spacing: 0.02em;
+        line-height: 1.2;
+        color: #14382c !important;
+        background: #e8f0ec !important;
+        border: 1px solid #1b4d3e !important;
+        vertical-align: middle;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .report-page .data-table tbody td {
+        padding: 3px 4px !important;
+        white-space: normal !important;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+        font-size: 7.5pt;
+        line-height: 1.25;
+        color: #1a1a1a;
+        vertical-align: top;
+        border: 1px solid #1b4d3e !important;
+    }
+
+    .report-page .data-table thead a {
+        display: inline !important;
+        white-space: nowrap !important;
+        color: #14382c !important;
+        font-weight: 700 !important;
+        text-decoration: none;
+    }
+
+    .report-page .data-table tbody tr {
+        break-inside: avoid;
+    }
+}

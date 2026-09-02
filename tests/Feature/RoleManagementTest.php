@@ -93,6 +93,42 @@ class RoleManagementTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_removing_frequency_tasks_blocks_the_frequencies_module(): void
+    {
+        $this->seed(\Database\Seeders\PermissionSeeder::class);
+
+        Permissions::syncRoleTasks(
+            'inspector',
+            array_values(array_filter(
+                Permissions::ROLE_TASKS['inspector'],
+                fn (string $task) => ! str_starts_with($task, 'frequencies.'),
+            )),
+        );
+
+        $inspector = User::factory()->create(['role' => 'inspector']);
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $this->assertFalse($inspector->canAccessGroup('frequencies'));
+        $this->assertTrue($admin->canAccessGroup('frequencies'));
+
+        $this->actingAs($inspector)
+            ->get(route('frequencies.dashboard'))
+            ->assertForbidden();
+
+        $this->actingAs($inspector)
+            ->get(route('frequencies.registry'))
+            ->assertForbidden();
+
+        $this->actingAs($inspector)
+            ->get(route('map'))
+            ->assertOk()
+            ->assertDontSee(__('app.nav.frequencies'), false);
+
+        $this->actingAs($admin)
+            ->get(route('frequencies.dashboard'))
+            ->assertOk();
+    }
+
     public function test_system_roles_cannot_be_deleted(): void
     {
         $this->seed(\Database\Seeders\PermissionSeeder::class);

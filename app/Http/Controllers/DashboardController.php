@@ -31,8 +31,12 @@ class DashboardController extends Controller
             'overdueCount' => (clone $towers)->inspectionOverdue()->count(),
             'expiringCount' => (clone $licenses)->expiringSoon()->count(),
             'expiredCount' => (clone $licenses)->expired()->count(),
-            'frequencyExpiringCount' => (clone $frequencies)->expiringSoon()->count(),
-            'frequencyExpiredCount' => (clone $frequencies)->expired()->count(),
+            'frequencyExpiringCount' => $user->canAccessGroup('frequencies')
+                ? (clone $frequencies)->expiringSoon()->count()
+                : 0,
+            'frequencyExpiredCount' => $user->canAccessGroup('frequencies')
+                ? (clone $frequencies)->expired()->count()
+                : 0,
             'pendingApprovalCount' => ($user->canTask('approvals.review') || $user->isInspector())
                 ? ApprovalRequest::query()->visibleTo($user)->pending()->count()
                 : 0,

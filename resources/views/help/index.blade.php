@@ -50,6 +50,33 @@
             </div>
         </section>
 
+        <section class="mt-8">
+            <h2 class="text-sm font-semibold uppercase tracking-[0.12em] text-gray-400">{{ __('app.help.modules.title') }}</h2>
+            <div class="mt-3 grid gap-3 md:grid-cols-2">
+                <article class="rounded-2xl border border-gray-200/90 bg-white p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+                    <p class="text-sm leading-6 text-gray-700">{{ __('app.help.modules.reports') }}</p>
+                    @if (Auth::user()->canTask('reports.view'))
+                        <a href="{{ route('reports.index') }}" class="mt-4 inline-flex text-sm font-semibold text-brand hover:underline">{{ __('app.help.modules.open_reports') }}</a>
+                    @endif
+                </article>
+                <article class="rounded-2xl border border-gray-200/90 bg-white p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+                    <p class="text-sm leading-6 text-gray-700">{{ __('app.help.modules.frequencies') }}</p>
+                    @if (Auth::user()->canAccessGroup('frequencies'))
+                        <a href="{{ route('frequencies.dashboard') }}" class="mt-4 inline-flex text-sm font-semibold text-brand hover:underline">{{ __('app.help.modules.open_frequencies') }}</a>
+                    @endif
+                </article>
+                <article class="rounded-2xl border border-gray-200/90 bg-white p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+                    <p class="text-sm leading-6 text-gray-700">{{ __('app.help.modules.letters') }}</p>
+                </article>
+                <article class="rounded-2xl border border-gray-200/90 bg-white p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+                    <p class="text-sm leading-6 text-gray-700">{{ __('app.help.modules.approvals') }}</p>
+                    @if (Auth::user()->canTask('approvals.review') || Auth::user()->isInspector())
+                        <a href="{{ route('approvals.index') }}" class="mt-4 inline-flex text-sm font-semibold text-brand hover:underline">{{ __('app.help.modules.open_approvals') }}</a>
+                    @endif
+                </article>
+            </div>
+        </section>
+
         <section class="mt-8 rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
             <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div class="max-w-2xl">

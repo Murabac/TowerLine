@@ -191,6 +191,17 @@ class RoleScopeAndHandoverTest extends TestCase
         $this->actingAs($admin)->get(route('users.index'))->assertOk();
         $this->actingAs($admin)->get(route('audit-logs.index'))->assertOk();
         $this->actingAs($admin)->get(route('help'))->assertOk();
+        $this->actingAs($admin)->get(route('reports.index'))->assertOk();
+        $this->actingAs($admin)->get(route('frequencies.dashboard'))->assertOk();
+        $this->actingAs($admin)->get(route('districts.index'))->assertOk();
+
+        $this->assertGreaterThan(50, \App\Models\District::query()->count());
+        $this->assertTrue(\App\Models\Operator::query()->where('name', 'Truecable')->first()?->regions()->exists());
+        $this->assertGreaterThan(0, \App\Models\BuildApprovalLetter::query()->count());
+        $this->assertGreaterThan(0, \App\Models\FrequencyAllocation::query()->count());
+        $this->assertGreaterThan(0, \App\Models\ApprovalRequest::query()->pending()->count());
+        $this->assertNotNull(User::query()->where('email', 'ops@mocit.local')->first());
+        $this->assertNotNull(User::query()->where('email', 'analyst.maroodi@mocit.local')->first());
 
         $this->actingAs($inspector)->get(route('map'))->assertOk();
         $this->actingAs($inspector)->get(route('approvals.index'))->assertOk();

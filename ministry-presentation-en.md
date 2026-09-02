@@ -4,7 +4,7 @@
 **Working name:** TowerLine  
 **Prepared for:** Ministry of Communication and Information Technology (MoCIT), Somaliland  
 **Audience:** Ministers, directors, and technical staff reviewing the demo / pilot  
-**Status:** Demo and pilot-ready (12-week build complete)
+**Status:** Phase 2 demo / pilot v2 (weeks 13–23 complete)
 
 Use this document as a speaking script and slide outline when presenting the live system.
 
@@ -14,7 +14,7 @@ Use this document as a speaking script and slide outline when presenting the liv
 
 **Say:**
 
-> TowerLine is the Ministry’s official system for registering, mapping, inspecting, and licensing telecom and broadcast towers across Somaliland. It brings the map, the registry, field inspections, and license renewals into one place — in English and Somali.
+> TowerLine is the Ministry’s official system for registering, mapping, inspecting, and licensing telecom and broadcast towers across Somaliland. It brings the map, the registry, field inspections, build-approval letters, frequency allocations, and printable reports into one place — in English and Somali.
 
 **Key message:** One system for daily work, live briefings, and compliance follow-up.
 
@@ -26,7 +26,8 @@ Without a shared system, ministry staff often rely on spreadsheets, paper, and s
 
 - Where are the towers, and who operates them?
 - Which sites need inspection or urgent attention?
-- Which licenses expire in the next 30 days?
+- Which frequency allocations expire soon?
+- Which inspector submissions are waiting for ministry approval?
 - Who changed a record, and when?
 
 **TowerLine answers those questions from one screen.**
@@ -37,13 +38,16 @@ Without a shared system, ministry staff often rely on spreadsheets, paper, and s
 
 | Module | What leaders see |
 |---|---|
-| **Map (flagship)** | All towers on one national map — filter by region, operator, status, health, or license; print/snapshot for briefings |
-| **Tower registry** | Structured list: location, operator, type, height, capacity, status |
-| **Inspections** | Field form for power, generator/battery, physical condition, notes, and photos |
-| **Licenses** | Types A, B, C with active / expiring soon / expired status and a dashboard renewal banner |
-| **Users & access** | Ministry admin and regional inspectors (one or more regions per inspector) |
-| **Audit log** | Clear history of who added, changed, or removed records |
-| **Help** | Short in-app guide for staff |
+| **Map (flagship)** | All towers on one national map — filter by region, district, operator, status, or health; colour pins by operator or status; print/snapshot for briefings |
+| **Tower registry** | Structured list with official registration fields, districts, sub-districts, and multiple power sources |
+| **Inspections** | Field form — most checks optional; comment always available; photos optional |
+| **Approvals** | Inspector registrations, edits, and inspections wait here until admin or operations manager publishes them |
+| **Build approval letters** | Ministry letter per tower, no expiry, print-ready |
+| **Frequencies** | Band/range per operator, yearly renewal, letters and receipts, expiry on the dashboard |
+| **Report centre** | Printable and Excel reports for towers, geography, inspections, letters, frequencies, and executive briefings |
+| **Users & access** | Admin, operations manager, regional inspectors, and custom roles (task checklist) |
+| **Audit log** | Admin-only history of who added, changed, or removed records |
+| **Help** | Short in-app guide (`/help`) |
 
 **Languages:** English (default) and Somali — toggle in the header.
 
@@ -60,20 +64,28 @@ Open: `http://127.0.0.1:8001` (or the pilot URL when hosted).
 ### Step A — Ministry admin
 
 1. On the login page, use **Quick demo login → Ministry admin**.
-2. Open the **Dashboard** — show total towers, critical sites, overdue inspections, and licenses expiring soon.
-3. Open the **Map** — filter by region or operator; click a tower; use **Print / snapshot**.
-4. Open **Tower registry** — show search and filters.
-5. Open **Licenses** — show A/B/C and expiry states.
-6. Open **Users** and **Audit log** — show who can access what, and that changes are recorded.
+2. Open the **Dashboard** — show total towers, critical sites, overdue inspections, pending approvals, and frequency renewals.
+3. Open the **Map** — colour pins by operator; filter by region; click a tower; use **Print / snapshot**.
+4. Open **Tower registry** — show district, power sources, and search.
+5. Open **Reports** — open Master tower register, print preview, mention Excel.
+6. Open **Frequencies** — show active / expiring allocations.
+7. Open **Users** and **Audit log** — show who can access what, and that changes are recorded.
 
 ### Step B — Regional inspector
 
 1. Log out, then choose **Inspector · Maroodi Jeex**.
 2. Show that the map and list only cover that region.
-3. Open a tower → **Log inspection** — power, condition, optional photos.
-4. Optionally log in as **Inspector · West** to show one inspector covering **three regions**.
+3. Open a tower → **Log inspection** — show optional fields and a comment-only visit.
+4. Show **My submissions** — the visit is pending until ministry review.
+5. Optionally log in as **Inspector · West** to show one inspector covering **three regions**.
 
-### Step C — Language
+### Step C — Operations manager
+
+1. Log in as **Operations manager** (`ops@mocit.local`).
+2. Open **Approvals**, approve the inspector visit, and confirm it is now live.
+3. Show that **Users** and **Audit log** are not available to this role.
+
+### Step D — Language
 
 Toggle **EN / SO** in the header so the room sees Somali labels.
 
@@ -83,8 +95,10 @@ Toggle **EN / SO** in the header so the room sees Somali labels.
 
 | Role | Access |
 |---|---|
-| **Ministry admin** | Full system: towers, licenses, users, audit log |
-| **Regional inspector** | Towers and inspections in assigned region(s) only |
+| **Ministry admin** | Full system: towers, letters, frequencies, reports, users, audit log |
+| **Operations manager** | Same operational work as admin except users, audit log, and settings |
+| **Regional inspector** | Towers and inspections in assigned region(s); submissions wait for approval |
+| **Regional analyst** | Seeded custom role: map and reports for assigned region |
 | **Operator viewer** | Prepared for later; **switched off for this phase** |
 
 - Staff do **not** self-register — admins create accounts.
@@ -102,8 +116,9 @@ Be clear and confident:
 - No public citizen map yet  
 - No native mobile app yet (mobile web works for field use)  
 - Real national inventory import waits on MoCIT’s spreadsheet  
+- Official complete district/sub-district list can replace the interim Law 23/2019 seed when MoCIT sends it  
 
-These are **Phase 2** candidates after the pilot.
+These stay out of the current pilot unless the Ministry asks for them.
 
 ---
 
@@ -111,9 +126,9 @@ These are **Phase 2** candidates after the pilot.
 
 **Start small:** one region — Maroodi Jeex.
 
-1. Admin reviews dashboard, map, licenses, and users.
-2. One inspector files a real inspection on a tablet.
-3. Leadership prints a map snapshot for a short briefing.
+1. Admin reviews dashboard, map, reports, frequencies, and users.
+2. One inspector files a real inspection on a tablet; ops or admin approves it.
+3. Leadership prints a map snapshot **and** one Report centre PDF.
 4. Collect feedback for 1–2 weeks, then expand region by region.
 
 **Hosting next step:** deploy on a government server (Apache/Nginx + PHP + MySQL). Exact server details to confirm with MoCIT IT.
@@ -124,7 +139,7 @@ These are **Phase 2** candidates after the pilot.
 
 **Say:**
 
-> The demo is ready. We ask the Ministry to (1) approve a one-region pilot, (2) confirm government hosting, and (3) share the official tower inventory format when available so we can replace sample data with real sites.
+> The Phase 2 demo is ready. We ask the Ministry to (1) approve a one-region pilot, (2) confirm government hosting (PHP 8.3, Laravel 12, MySQL), and (3) share the official tower inventory and district list when available so we can replace sample and interim data.
 
 **Leave behind:**
 

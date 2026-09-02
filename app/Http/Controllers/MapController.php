@@ -58,6 +58,13 @@ class MapController extends Controller
             'subDistricts' => $subDistricts,
             'operators' => $operatorCollection,
             'operatorOptions' => Operator::query()->with('regions')->orderBy('name')->get()->map->toFormOption()->values(),
+            'legendOperators' => $operatorCollection
+                ->map(fn (Operator $operator) => [
+                    'id' => $operator->id,
+                    'name' => $operator->displayName(),
+                    'color' => $operator->color,
+                ])
+                ->values(),
             'filters' => $request->only(['region_id', 'district_id', 'sub_district_id', 'operator_id', 'category', 'status', 'license_state', 'health_status', 'overdue', 'power_source']),
         ]);
     }
@@ -137,10 +144,12 @@ class MapController extends Controller
                 'lng' => (float) $tower->longitude,
                 'status' => $tower->status,
                 'health_status' => $tower->health_status,
-                'color' => $tower->statusColor(),
+                'color' => $tower->operator->color,
+                'status_color' => $tower->statusColor(),
                 'signal_radius_m' => $tower->signal_radius_m,
                 'type' => $tower->type,
                 'operator' => [
+                    'id' => $tower->operator->id,
                     'name' => $tower->operator->name,
                     'color' => $tower->operator->color,
                     'category' => $tower->operator->category,

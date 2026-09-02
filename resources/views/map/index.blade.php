@@ -6,6 +6,7 @@
             'districtsUrl' => route('geography.districts'),
             'subDistrictsUrl' => route('geography.sub-districts'),
             'operators' => $operatorOptions,
+            'legendOperators' => $legendOperators,
             'filters' => $filters,
             'districts' => $districts->map(fn ($d) => ['id' => $d->id, 'name' => $d->localizedName()])->values(),
             'subDistricts' => $subDistricts->map(fn ($s) => ['id' => $s->id, 'name' => $s->localizedName()])->values(),
@@ -125,7 +126,16 @@
             </label>
             <div class="px-4 pb-4 space-y-2">
                 <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400">{{ __('app.map.layers') }}</p>
+                <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400 pt-1">{{ __('app.map.color_pins_by') }}</p>
                 <label class="flex items-center gap-2 text-sm text-gray-700">
+                    <input type="radio" value="operator" x-model="pinColorMode" class="border-gray-300 text-brand focus:ring-brand/30">
+                    {{ __('app.map.color_by_operator') }}
+                </label>
+                <label class="flex items-center gap-2 text-sm text-gray-700">
+                    <input type="radio" value="status" x-model="pinColorMode" class="border-gray-300 text-brand focus:ring-brand/30">
+                    {{ __('app.map.color_by_status') }}
+                </label>
+                <label class="flex items-center gap-2 text-sm text-gray-700 pt-1">
                     <input type="checkbox" x-model="onlyFlagged" class="rounded border-gray-300 text-brand focus:ring-brand/30">
                     {{ __('app.map.flagged') }}
                 </label>
@@ -140,7 +150,20 @@
             </div>
 
             <div class="mt-auto px-4 py-4 border-t border-gray-100 space-y-4">
-                <div>
+                <div x-show="pinColorMode === 'operator'" x-cloak>
+                    <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400 mb-2">{{ __('app.map.operator_legend') }}</p>
+                    <ul class="space-y-1.5 text-xs text-gray-600">
+                        @forelse ($operators as $operator)
+                            <li class="flex items-center gap-2">
+                                <span class="h-2.5 w-2.5 rounded-full shrink-0" style="background: {{ $operator->color }}"></span>
+                                {{ $operator->displayName() }}
+                            </li>
+                        @empty
+                            <li class="text-gray-400">{{ __('app.none') }}</li>
+                        @endforelse
+                    </ul>
+                </div>
+                <div x-show="pinColorMode === 'status'" x-cloak>
                     <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400 mb-2">{{ __('app.map.status_legend') }}</p>
                     <ul class="space-y-1.5 text-xs text-gray-600">
                         <li class="flex items-center gap-2"><span class="h-2.5 w-2.5 rounded-full bg-health-good"></span> {{ __('app.status.good') }}</li>
@@ -149,17 +172,6 @@
                         <li class="flex items-center gap-2"><span class="h-2.5 w-2.5 rounded-full bg-health-construction"></span> {{ __('app.status.under_construction') }}</li>
                         <li class="flex items-center gap-2"><span class="h-2.5 w-2.5 rounded-full" style="background:#94A3B8"></span> {{ __('app.status.unknown') }}</li>
                         <li class="flex items-center gap-2"><span class="h-2.5 w-2.5 rounded-full bg-health-unknown"></span> {{ __('app.status.decommissioned') }}</li>
-                    </ul>
-                </div>
-                <div>
-                    <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400 mb-2">{{ __('app.map.operator_legend') }}</p>
-                    <ul class="space-y-1.5 text-xs text-gray-600">
-                        @foreach ($operators as $operator)
-                            <li class="flex items-center gap-2">
-                                <span class="h-2.5 w-2.5 rounded-full shrink-0" style="background: {{ $operator->color }}"></span>
-                                {{ $operator->displayName() }}
-                            </li>
-                        @endforeach
                     </ul>
                 </div>
             </div>
@@ -191,6 +203,31 @@
 
             <div id="tower-map" class="absolute inset-0 bg-gray-100"></div>
 
+            <div class="map-print-legend" aria-hidden="true">
+                <div x-show="pinColorMode === 'operator'">
+                    <p class="map-print-legend__title">{{ __('app.map.operator_legend') }}</p>
+                    <ul class="map-print-legend__list">
+                        <template x-for="operator in printLegendOperators" :key="operator.id || operator.name">
+                            <li>
+                                <span class="map-print-legend__swatch" :style="`background:${operator.color}`"></span>
+                                <span x-text="operator.name"></span>
+                            </li>
+                        </template>
+                    </ul>
+                </div>
+                <div x-show="pinColorMode === 'status'">
+                    <p class="map-print-legend__title">{{ __('app.map.status_legend') }}</p>
+                    <ul class="map-print-legend__list">
+                        <li><span class="map-print-legend__swatch" style="background:#22C55E"></span> {{ __('app.status.good') }}</li>
+                        <li><span class="map-print-legend__swatch" style="background:#F59E0B"></span> {{ __('app.status.needs_attention') }}</li>
+                        <li><span class="map-print-legend__swatch" style="background:#DC2626"></span> {{ __('app.status.critical') }}</li>
+                        <li><span class="map-print-legend__swatch" style="background:#2563EB"></span> {{ __('app.status.under_construction') }}</li>
+                        <li><span class="map-print-legend__swatch" style="background:#94A3B8"></span> {{ __('app.status.unknown') }}</li>
+                        <li><span class="map-print-legend__swatch" style="background:#6B7280"></span> {{ __('app.status.decommissioned') }}</li>
+                    </ul>
+                </div>
+            </div>
+
             <div
                 class="absolute z-[1050] top-16 left-3 right-3 md:left-auto md:right-3 md:w-80 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden"
                 x-show="selected"
@@ -201,8 +238,13 @@
                         <div class="flex items-start justify-between gap-3 px-4 py-3 border-b border-gray-100">
                             <div class="min-w-0">
                                 <p class="font-semibold text-brand truncate" x-text="selected.name"></p>
-                                <p class="text-xs text-gray-500 mt-0.5">
-                                    <span x-text="selected.operator.name + ' · ' + selected.region"></span>
+                                <p class="text-xs text-gray-500 mt-0.5 flex items-center gap-1.5 min-w-0">
+                                    <span
+                                        x-show="pinColorMode === 'operator'"
+                                        class="h-2 w-2 rounded-full shrink-0"
+                                        :style="`background:${selected.operator.color}`"
+                                    ></span>
+                                    <span class="truncate" x-text="selected.operator.name + ' · ' + selected.region"></span>
                                     <template x-if="selected.district">
                                         <span x-text="' · ' + selected.district"></span>
                                     </template>
@@ -261,7 +303,55 @@
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
         <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
         <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
-        <style>[x-cloak]{display:none !important}</style>
+        <style>
+            [x-cloak]{display:none !important}
+            .map-print-legend { display: none; }
+            @media print {
+                .map-print-legend {
+                    display: block !important;
+                    position: absolute;
+                    left: 12px;
+                    bottom: 12px;
+                    z-index: 1200;
+                    background: #fff;
+                    border: 1px solid #e5e7eb;
+                    border-radius: 8px;
+                    padding: 10px 12px;
+                    min-width: 10rem;
+                    max-width: 16rem;
+                    box-shadow: 0 1px 4px rgba(0,0,0,.12);
+                }
+                .map-print-legend__title {
+                    margin: 0 0 6px;
+                    font-size: 10px;
+                    font-weight: 700;
+                    letter-spacing: .08em;
+                    text-transform: uppercase;
+                    color: #6b7280;
+                }
+                .map-print-legend__list {
+                    margin: 0;
+                    padding: 0;
+                    list-style: none;
+                    display: grid;
+                    gap: 4px;
+                    font-size: 11px;
+                    color: #374151;
+                }
+                .map-print-legend__list li {
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                }
+                .map-print-legend__swatch {
+                    width: 10px;
+                    height: 10px;
+                    border-radius: 9999px;
+                    flex-shrink: 0;
+                    border: 1px solid rgba(0,0,0,.12);
+                }
+            }
+        </style>
     @endpush
     @push('scripts')
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -293,6 +383,7 @@
                     operatorOptions: config.operators || [],
                     visibleOperators: config.operators || [],
                     showCoverage: true,
+                    pinColorMode: localStorage.getItem('towerline-pin-color') || 'operator',
                     onlyFlagged: false,
                     onlyLicenseAlert: false,
                     filtersOpen: false,
@@ -305,6 +396,20 @@
                     circles: null,
                     get countLabel() {
                         return this.labels.shown.replace(':count', this.count);
+                    },
+                    get printLegendOperators() {
+                        const seen = new Map();
+                        this.visibleTowers().forEach((tower) => {
+                            const key = String(tower.operator?.id || tower.operator?.name);
+                            if (! seen.has(key)) {
+                                seen.set(key, {
+                                    id: tower.operator?.id || key,
+                                    name: tower.operator?.name,
+                                    color: tower.operator?.color,
+                                });
+                            }
+                        });
+                        return Array.from(seen.values());
                     },
                     get activeFilterCount() {
                         return Object.values(this.filters).filter(Boolean).length
@@ -319,6 +424,12 @@
                             return this.labels.overdue;
                         }
                         return healthLabels[tower.health_status] || tower.health_status;
+                    },
+                    pinColor(tower) {
+                        if (this.pinColorMode === 'operator') {
+                            return tower.operator?.color || tower.color;
+                        }
+                        return tower.status_color || tower.color;
                     },
                     init() {
                         this.map = L.map('tower-map', { zoomControl: true }).setView([9.56, 44.06], 7);
@@ -341,6 +452,10 @@
                             } else {
                                 this.map.removeLayer(this.circles);
                             }
+                        });
+                        this.$watch('pinColorMode', (mode) => {
+                            localStorage.setItem('towerline-pin-color', mode);
+                            this.draw(false);
                         });
                         this.$watch('onlyFlagged', () => this.draw(false));
                         this.$watch('onlyLicenseAlert', () => this.draw(false));
@@ -458,15 +573,16 @@
                             L.circle([tower.lat, tower.lng], {
                                 pane: 'coverage',
                                 radius: tower.signal_radius_m,
-                                color: tower.operator.color,
-                                fillColor: tower.operator.color,
+                                color: this.pinColor(tower),
+                                fillColor: this.pinColor(tower),
                                 fillOpacity: 0.12,
                                 weight: 1,
                             }).addTo(this.circles);
 
+                            const color = this.pinColor(tower);
                             const icon = L.divIcon({
                                 className: '',
-                                html: `<span style="display:block;width:16px;height:16px;border-radius:9999px;background:${tower.color};border:2px solid white;box-shadow:0 1px 5px rgba(0,0,0,.3)"></span>`,
+                                html: `<span style="display:block;width:16px;height:16px;border-radius:9999px;background:${color};border:2px solid white;box-shadow:0 1px 5px rgba(0,0,0,.3)"></span>`,
                                 iconSize: [16, 16],
                                 iconAnchor: [8, 8],
                             });

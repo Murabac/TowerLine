@@ -9,11 +9,15 @@ class FrequencyAllocationPolicy
 {
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->canAccessGroup('frequencies');
     }
 
     public function view(User $user, FrequencyAllocation $allocation): bool
     {
+        if (! $user->canAccessGroup('frequencies')) {
+            return false;
+        }
+
         return FrequencyAllocation::query()
             ->visibleTo($user)
             ->whereKey($allocation->id)
@@ -22,12 +26,12 @@ class FrequencyAllocationPolicy
 
     public function create(User $user): bool
     {
-        return $user->canWrite();
+        return $user->canTask('frequencies.create');
     }
 
     public function update(User $user, FrequencyAllocation $allocation): bool
     {
-        return $user->canWrite() && $this->view($user, $allocation);
+        return $user->canTask('frequencies.update') && $this->view($user, $allocation);
     }
 
     public function delete(User $user, FrequencyAllocation $allocation): bool
@@ -37,6 +41,6 @@ class FrequencyAllocationPolicy
 
     public function renew(User $user, FrequencyAllocation $allocation): bool
     {
-        return $this->update($user, $allocation);
+        return $user->canTask('frequencies.renew') && $this->view($user, $allocation);
     }
 }

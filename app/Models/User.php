@@ -99,6 +99,24 @@ class User extends Authenticatable
         return Permissions::roleCan($this->role, $task);
     }
 
+    public function canAnyTask(string ...$tasks): bool
+    {
+        foreach ($tasks as $task) {
+            if ($this->canTask($task)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function canAccessGroup(string $group): bool
+    {
+        $tasks = Permissions::TASK_GROUPS[$group] ?? [];
+
+        return $tasks !== [] && $this->canAnyTask(...$tasks);
+    }
+
     /**
      * @return list<int>
      */

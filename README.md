@@ -1,6 +1,6 @@
 # TowerLine
 
-Wasaaradda Isgaarsiinta iyo Technology — tower registry, map, inspections, and licenses for Somaliland MoCIT.
+Wasaaradda Isgaarsiinta iyo Technology — tower registry, map, inspections, frequencies, reports, and approval letters for Somaliland MoCIT.
 
 English is the default. Somali is available from the header toggle.
 
@@ -17,7 +17,7 @@ php artisan storage:link
 php artisan serve --host=127.0.0.1 --port=8001
 ```
 
-Open http://127.0.0.1:8001 and sign in as `admin@mocit.local` / `password`.
+Open http://127.0.0.1:8001 and sign in as `admin@mocit.local` / `password`. Other demo accounts (ops manager, inspectors, regional analyst) are listed in **[HANDOVER.md](HANDOVER.md)**.
 
 Staff training, pilot steps, and server notes: **[HANDOVER.md](HANDOVER.md)**. Locked product decisions: **[CONTEXT.md](CONTEXT.md)**.
 

@@ -7,6 +7,7 @@
     <title>{{ $title ?? __('app.app_short') }} — {{ __('app.ministry_en') }}</title>
     <link rel="icon" href="{{ asset('images/mocit-logo.jpg') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="stylesheet" href="{{ asset('css/report-print.css') }}?v={{ filemtime(public_path('css/report-print.css')) }}">
     @stack('head')
 </head>
 <body class="font-sans antialiased text-gray-900 bg-surface {{ $map ? 'h-screen overflow-hidden' : 'min-h-screen' }}"
@@ -100,9 +101,10 @@
                         ['dashboard', 'app.nav.dashboard', 'dashboard', 'M3 7.5A1.5 1.5 0 0 1 4.5 6h5A1.5 1.5 0 0 1 11 7.5v3A1.5 1.5 0 0 1 9.5 12h-5A1.5 1.5 0 0 1 3 10.5v-3Zm10.5 0A1.5 1.5 0 0 1 15 6h4.5A1.5 1.5 0 0 1 21 7.5v9a1.5 1.5 0 0 1-1.5 1.5H15a1.5 1.5 0 0 1-1.5-1.5v-9ZM3 16.5A1.5 1.5 0 0 1 4.5 15h5a1.5 1.5 0 0 1 1.5 1.5v3A1.5 1.5 0 0 1 9.5 21h-5A1.5 1.5 0 0 1 3 19.5v-3Z'],
                         ['map', 'app.nav.map', 'map', 'M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z'],
                         ['towers.index', 'app.nav.towers', 'towers.*', 'M12 21V10.5M8.25 21V14.25m7.5 6.75V12M4.5 21h15M12 3.75 6.75 8.25h10.5L12 3.75Z'],
-                        ['licenses.index', 'app.nav.licenses', 'licenses.*', 'M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z'],
-                        ['frequencies.dashboard', 'app.nav.frequencies', 'frequencies.*', 'M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 0 0 2.25-2.25V6.75a2.25 2.25 0 0 0-2.25-2.25H6.75A2.25 2.25 0 0 0 4.5 6.75v10.5a2.25 2.25 0 0 0 2.25 2.25Zm.75-12h9v9h-9v-9Z'],
                     ];
+                    if (Auth::user()->canAccessGroup('frequencies')) {
+                        $links[] = ['frequencies.dashboard', 'app.nav.frequencies', 'frequencies.*', 'M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 0 0 2.25-2.25V6.75a2.25 2.25 0 0 0-2.25-2.25H6.75A2.25 2.25 0 0 0 4.5 6.75v10.5a2.25 2.25 0 0 0 2.25 2.25Zm.75-12h9v9h-9v-9Z'];
+                    }
                     if (Auth::user()->canTask('approvals.review') || Auth::user()->isInspector()) {
                         $links[] = [
                             'approvals.index',
@@ -111,7 +113,9 @@
                             'M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z',
                         ];
                     }
-                    $links[] = ['help', 'app.nav.help', 'help', 'M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z'];
+                    if (Auth::user()->canTask('reports.view')) {
+                        $links[] = ['reports.index', 'app.nav.reports', 'reports.*', 'M3 3v1.5M3 21v-6m0 0 2.77-.693a9 9 0 0 1 6.208.682l.108.054a9 9 0 0 0 6.086.71l3.114-.732a48.524 48.524 0 0 1-.005-10.499l-3.11.732a9 9 0 0 1-6.085-.711l-.108-.054a9 9 0 0 0-6.208-.682L3 4.5M3 15V4.5'];
+                    }
                     if (Auth::user()->canTask('geography.view')) {
                         $links[] = ['districts.index', 'app.nav.geography', 'districts.*', 'M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25h9m-4.5-8.25L12 3m0 0 4.5 3.75M12 3 7.5 6.75'];
                     }

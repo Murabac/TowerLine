@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\OperatorPalette;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -16,6 +17,18 @@ class Operator extends Model
         'logo',
         'contact_info',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (Operator $operator): void {
+            if (filled($operator->color)) {
+                return;
+            }
+
+            $used = static::query()->pluck('color')->all();
+            $operator->color = OperatorPalette::colorFor((string) $operator->name, $used);
+        });
+    }
 
     public function towers(): HasMany
     {
@@ -84,7 +97,7 @@ class Operator extends Model
     }
 
     /**
-     * @return array{id: int, name: string, display_name: string, national: bool, region_ids: list<int>}
+     * @return array{id: int, name: string, display_name: string, color: string, national: bool, region_ids: list<int>}
      */
     public function toFormOption(): array
     {
@@ -96,6 +109,7 @@ class Operator extends Model
             'id' => $this->id,
             'name' => $this->name,
             'display_name' => $this->displayName(),
+            'color' => $this->color,
             'national' => $this->isNational(),
             'region_ids' => $regionIds,
         ];
