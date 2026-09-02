@@ -219,7 +219,7 @@ class TowerController extends Controller
         $user = request()->user();
         $regions = Region::query()->orderBy('name_en')->get();
 
-        if ($user->isInspector()) {
+        if ($user->requiresRegions()) {
             return $regions->whereIn('id', $user->regionIds() ?: [0])->values();
         }
 

@@ -3,13 +3,14 @@
 namespace App\Support;
 
 use App\Models\Permission;
+use App\Models\Role;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class Permissions
 {
     /**
-     * Fixed task list — source of truth until Week 20 custom roles UI.
+     * Fixed task list — labels are English defaults; UI uses lang keys when present.
      *
      * @var array<string, string>
      */
@@ -20,6 +21,7 @@ class Permissions
         'settings.manage' => 'Manage ministry settings',
         'geography.view' => 'View geography master data',
         'geography.manage' => 'Edit districts and sub-districts',
+        'map.view' => 'Open the tower map',
         'towers.view' => 'View towers',
         'towers.create' => 'Register towers',
         'towers.update' => 'Edit towers',
@@ -43,6 +45,34 @@ class Permissions
     /**
      * @var array<string, list<string>>
      */
+    public const TASK_GROUPS = [
+        'towers' => ['towers.view', 'towers.create', 'towers.update', 'towers.delete', 'towers.approve'],
+        'inspections' => ['inspections.create', 'inspections.delete', 'inspections.approve'],
+        'approvals' => ['approvals.review'],
+        'map' => ['map.view'],
+        'letters' => ['letters.create'],
+        'licenses' => ['licenses.create', 'licenses.update', 'licenses.delete'],
+        'frequencies' => ['frequencies.create', 'frequencies.update', 'frequencies.delete', 'frequencies.renew'],
+        'reports' => ['reports.view'],
+        'users' => ['users.manage', 'roles.manage'],
+        'geography' => ['geography.view', 'geography.manage'],
+        'audit' => ['audit.view'],
+        'settings' => ['settings.manage'],
+    ];
+
+    /**
+     * @var array<string, array{name: string, requires_regions: bool}>
+     */
+    public const SYSTEM_ROLES = [
+        'admin' => ['name' => 'Ministry admin', 'requires_regions' => false],
+        'operations_manager' => ['name' => 'Operations manager', 'requires_regions' => false],
+        'inspector' => ['name' => 'Regional inspector', 'requires_regions' => true],
+        'operator_viewer' => ['name' => 'Operator viewer', 'requires_regions' => false],
+    ];
+
+    /**
+     * @var array<string, list<string>>
+     */
     public const ROLE_TASKS = [
         'admin' => [
             'audit.view',
@@ -51,6 +81,7 @@ class Permissions
             'settings.manage',
             'geography.view',
             'geography.manage',
+            'map.view',
             'towers.view',
             'towers.create',
             'towers.update',
@@ -73,6 +104,7 @@ class Permissions
         'operations_manager' => [
             'geography.view',
             'geography.manage',
+            'map.view',
             'towers.view',
             'towers.create',
             'towers.update',
@@ -90,6 +122,7 @@ class Permissions
         ],
         'inspector' => [
             'geography.view',
+            'map.view',
             'towers.view',
             'towers.create',
             'towers.update',
@@ -103,6 +136,7 @@ class Permissions
             'reports.view',
         ],
         'operator_viewer' => [
+            'map.view',
             'towers.view',
             'reports.view',
         ],
@@ -110,9 +144,7 @@ class Permissions
 
     public static function roleCan(string $role, string $task): bool
     {
-        $tasks = self::tasksForRole($role);
-
-        return in_array($task, $tasks, true);
+        return in_array($task, self::tasksForRole($role), true);
     }
 
     /**
@@ -135,6 +167,38 @@ class Permissions
         });
     }
 
+    /**
+     * @param  list<string>  $tasks
+     */
+    public static function syncRoleTasks(string $role, array $tasks): void
+    {
+        $permissionIds = Permission::query()->pluck('id', 'key');
+
+        DB::table('role_permission')->where('role', $role)->delete();
+
+        foreach (array_unique($tasks) as $task) {
+            $permissionId = $permissionIds[$task] ?? null;
+
+            if ($permissionId === null) {
+                continue;
+            }
+
+            DB::table('role_permission')->insert([
+                'role' => $role,
+                'permission_id' => $permissionId,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        self::forgetRole($role);
+    }
+
+    public static function forgetRole(string $role): void
+    {
+        Cache::forget("permissions.role.{$role}");
+    }
+
     public static function syncToDatabase(): void
     {
         foreach (self::TASKS as $key => $label) {
@@ -144,27 +208,27 @@ class Permissions
             );
         }
 
-        $permissionIds = Permission::query()->pluck('id', 'key');
+        foreach (self::SYSTEM_ROLES as $key => $meta) {
+            Role::query()->updateOrCreate(
+                ['key' => $key],
+                [
+                    'name' => $meta['name'],
+                    'is_system' => true,
+                    'requires_regions' => $meta['requires_regions'],
+                ],
+            );
+        }
 
         foreach (self::ROLE_TASKS as $role => $tasks) {
-            DB::table('role_permission')->where('role', $role)->delete();
+            self::syncRoleTasks($role, $tasks);
+        }
 
-            foreach ($tasks as $task) {
-                $permissionId = $permissionIds[$task] ?? null;
+        $roleIds = Role::query()->pluck('id', 'key');
 
-                if ($permissionId === null) {
-                    continue;
-                }
-
-                DB::table('role_permission')->insert([
-                    'role' => $role,
-                    'permission_id' => $permissionId,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-            }
-
-            Cache::forget("permissions.role.{$role}");
+        foreach ($roleIds as $key => $id) {
+            DB::table('users')->where('role', $key)->where(function ($query) use ($id) {
+                $query->whereNull('role_id')->orWhere('role_id', '!=', $id);
+            })->update(['role_id' => $id]);
         }
     }
 }

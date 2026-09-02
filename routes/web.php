@@ -16,6 +16,7 @@ use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\MapController;
 use App\Http\Controllers\MinistrySettingsController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\TowerController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -68,6 +69,7 @@ Route::middleware('auth')->group(function () {
     Route::post('approvals/{approval}/approve', [ApprovalRequestController::class, 'approve'])->name('approvals.approve');
     Route::post('approvals/{approval}/reject', [ApprovalRequestController::class, 'reject'])->name('approvals.reject');
     Route::resource('users', UserController::class)->except(['show']);
+    Route::resource('roles', RoleController::class)->except(['show']);
     Route::get('audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
     Route::get('settings/ministry', [MinistrySettingsController::class, 'edit'])->name('settings.ministry.edit');
     Route::put('settings/ministry/{ministry_setting}', [MinistrySettingsController::class, 'update'])->name('settings.ministry.update');

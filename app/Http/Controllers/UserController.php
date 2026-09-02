@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreUserRequest;
 use App\Models\Operator;
 use App\Models\Region;
+use App\Models\Role;
 use App\Models\User;
 use App\Support\Audits;
 use Illuminate\Http\RedirectResponse;
@@ -17,7 +18,7 @@ class UserController extends Controller
     {
         $this->authorize('viewAny', User::class);
 
-        $query = User::query()->with(['regions', 'operator'])->orderBy('name');
+        $query = User::query()->with(['regions', 'operator', 'roleRecord'])->orderBy('name');
 
         if ($request->filled('role')) {
             $query->where('role', $request->string('role'));
@@ -25,6 +26,7 @@ class UserController extends Controller
 
         return view('users.index', [
             'users' => $query->paginate(20)->withQueryString(),
+            'roles' => Role::query()->assignable()->orderByDesc('is_system')->orderBy('name')->get(),
         ]);
     }
 
@@ -38,15 +40,21 @@ class UserController extends Controller
     public function store(StoreUserRequest $request): RedirectResponse
     {
         $data = $request->validated();
-        $regionIds = $data['role'] === 'inspector' ? ($data['region_ids'] ?? []) : [];
+        $role = Role::query()->where('key', $data['role'])->firstOrFail();
+        $regionIds = $role->requires_regions ? ($data['region_ids'] ?? []) : [];
         unset($data['region_ids']);
-        $data['region_id'] = $regionIds[0] ?? null;
-        $data['operator_id'] = null;
 
         $user = User::query()->create([
-            ...$data,
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => $data['password'],
+            'role' => $role->key,
+            'role_id' => $role->id,
+            'region_id' => $regionIds[0] ?? null,
+            'operator_id' => null,
             'email_verified_at' => now(),
         ]);
+        $user->setRelation('roleRecord', $role);
         $user->syncInspectorRegions($regionIds);
         Audits::log('created', $user, $user->only(['name', 'email', 'role']));
 
@@ -57,7 +65,7 @@ class UserController extends Controller
     {
         $this->authorize('update', $user);
 
-        return view('users.edit', array_merge($this->formData(), ['managedUser' => $user->load('regions')]));
+        return view('users.edit', array_merge($this->formData(), ['managedUser' => $user->load(['regions', 'roleRecord'])]));
     }
 
     public function update(StoreUserRequest $request, User $user): RedirectResponse
@@ -65,15 +73,25 @@ class UserController extends Controller
         $this->authorize('update', $user);
 
         $data = $request->validated();
-        if (empty($data['password'])) {
-            unset($data['password']);
-        }
-        $regionIds = $data['role'] === 'inspector' ? ($data['region_ids'] ?? []) : [];
+        $role = Role::query()->where('key', $data['role'])->firstOrFail();
+        $regionIds = $role->requires_regions ? ($data['region_ids'] ?? []) : [];
         unset($data['region_ids']);
-        $data['region_id'] = $regionIds[0] ?? null;
-        $data['operator_id'] = null;
 
-        $user->update($data);
+        $payload = [
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'role' => $role->key,
+            'role_id' => $role->id,
+            'region_id' => $regionIds[0] ?? null,
+            'operator_id' => null,
+        ];
+
+        if (! empty($data['password'])) {
+            $payload['password'] = $data['password'];
+        }
+
+        $user->update($payload);
+        $user->setRelation('roleRecord', $role);
         $user->syncInspectorRegions($regionIds);
         Audits::log('updated', $user, $user->only(['name', 'email', 'role']));
 
@@ -89,11 +107,15 @@ class UserController extends Controller
         return redirect()->route('users.index')->with('status', __('app.users.deleted'));
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function formData(): array
     {
         return [
             'regions' => Region::query()->orderBy('name_en')->get(),
             'operators' => Operator::query()->orderBy('name')->get(),
+            'roles' => Role::query()->assignable()->orderByDesc('is_system')->orderBy('name')->get(),
         ];
     }
 }

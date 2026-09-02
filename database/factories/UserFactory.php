@@ -39,7 +39,14 @@ class UserFactory extends Factory
     public function configure(): static
     {
         return $this->afterCreating(function (User $user) {
-            if ($user->isInspector() && $user->region_id) {
+            $role = \App\Models\Role::query()->where('key', $user->role)->first();
+
+            if ($role && (int) $user->role_id !== (int) $role->id) {
+                $user->forceFill(['role_id' => $role->id])->saveQuietly();
+                $user->setRelation('roleRecord', $role);
+            }
+
+            if ($user->requiresRegions() && $user->region_id) {
                 $user->regions()->syncWithoutDetaching([(int) $user->region_id]);
             }
         });

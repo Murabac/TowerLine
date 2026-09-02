@@ -115,6 +115,26 @@ class DatabaseSeeder extends Seeder
         }
 
         $this->call(PermissionSeeder::class);
+
+        $analystRole = \App\Models\Role::query()->where('key', 'regional_analyst')->first();
+
+        if ($analystRole && $maroodi) {
+            $analyst = User::query()->updateOrCreate(
+                ['email' => 'analyst.maroodi@mocit.local'],
+                [
+                    'name' => 'Regional Analyst Maroodi Jeex',
+                    'password' => Hash::make('password'),
+                    'role' => $analystRole->key,
+                    'role_id' => $analystRole->id,
+                    'region_id' => $maroodi->id,
+                    'operator_id' => null,
+                    'email_verified_at' => now(),
+                ]
+            );
+            $analyst->setRelation('roleRecord', $analystRole);
+            $analyst->syncInspectorRegions([$maroodi->id]);
+        }
+
         $this->call(TowerSeeder::class);
         $this->call(InspectionSeeder::class);
         $this->call(MinistrySettingSeeder::class);

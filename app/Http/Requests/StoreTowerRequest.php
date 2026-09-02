@@ -34,7 +34,7 @@ class StoreTowerRequest extends FormRequest
     {
         $regionRule = ['required', 'exists:regions,id'];
 
-        if ($this->user()->isInspector()) {
+        if ($this->user()->requiresRegions()) {
             $regionRule[] = Rule::in($this->user()->regionIds());
         }
 

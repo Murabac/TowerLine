@@ -57,7 +57,7 @@ class BuildApprovalLetter extends Model
             return $query;
         }
 
-        if ($user->isInspector()) {
+        if ($user->requiresRegions()) {
             return $query->whereHas('tower', fn (Builder $towers) => $towers->whereIn('region_id', $user->regionIds() ?: [0]));
         }
 

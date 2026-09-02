@@ -17,8 +17,8 @@
             <form method="GET" class="data-toolbar">
                 <select name="role" class="field lg:w-56">
                     <option value="">{{ __('app.users.role') }}</option>
-                    @foreach (['admin', 'operations_manager', 'inspector'] as $role)
-                        <option value="{{ $role }}" @selected(request('role') === $role)>{{ __('app.roles.'.$role) }}</option>
+                    @foreach ($roles as $role)
+                        <option value="{{ $role->key }}" @selected(request('role') === $role->key)>{{ $role->displayName() }}</option>
                     @endforeach
                 </select>
                 <div class="flex items-center gap-2">
@@ -47,7 +47,7 @@
                                 <td class="text-gray-600">{{ $managed->email }}</td>
                                 <td>{{ $managed->roleLabel() }}</td>
                                 <td class="text-gray-600">
-                                    @if ($managed->isInspector())
+                                    @if ($managed->requiresRegions())
                                         {{ $managed->regions->map->localizedName()->join(', ') ?: '—' }}
                                     @elseif ($managed->isOperatorViewer())
                                         {{ $managed->operator?->name ?: '—' }}

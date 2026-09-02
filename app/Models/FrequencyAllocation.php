@@ -185,7 +185,7 @@ class FrequencyAllocation extends Model
             return $query;
         }
 
-        if ($user->isInspector()) {
+        if ($user->requiresRegions()) {
             return $query->where(function (Builder $scoped) use ($user) {
                 $regionIds = $user->regionIds() ?: [0];
 

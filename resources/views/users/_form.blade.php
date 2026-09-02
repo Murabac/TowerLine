@@ -1,10 +1,15 @@
 @php
     $managedUser = $managedUser ?? null;
+    $regionalRoleKeys = $roles->where('requires_regions', true)->pluck('key')->values();
 @endphp
 
 <div
     class="space-y-6"
-    x-data="{ role: @js(old('role', $managedUser?->role ?? 'inspector')) }"
+    x-data="{
+        role: @js(old('role', $managedUser?->role ?? 'inspector')),
+        regionalRoles: @js($regionalRoleKeys),
+        get needsRegions() { return this.regionalRoles.includes(this.role) }
+    }"
 >
     <div class="grid sm:grid-cols-2 gap-4">
         <div>
@@ -29,22 +34,19 @@
     </div>
 
     <div class="space-y-2">
-        <div class="flex items-stretch gap-3">
-            <p class="text-sm font-semibold text-gray-900 shrink-0 self-center w-16 sm:w-20">{{ __('app.users.role') }}</p>
-            <div class="flex flex-1 flex-row gap-2 min-w-0">
-                @foreach (['admin', 'operations_manager', 'inspector'] as $role)
-                    <label class="flex-1 min-w-0 cursor-pointer rounded-2xl border border-gray-200 bg-white px-2 py-3 sm:px-3 text-center transition has-[:checked]:border-brand has-[:checked]:bg-[#F4F8F6] has-[:checked]:shadow-[inset_0_0_0_1px_#1B4D3E]">
-                        <input type="radio" name="role" value="{{ $role }}" class="sr-only" x-model="role" @checked(old('role', $managedUser?->role ?? 'inspector') === $role) required>
-                        <span class="block text-[11px] sm:text-sm font-semibold text-gray-900 leading-snug">{{ __('app.roles.'.$role) }}</span>
-                    </label>
-                @endforeach
-            </div>
-        </div>
-        @error('role') <p class="text-sm text-red-600 pl-[4.75rem] sm:pl-[5.75rem]">{{ $message }}</p> @enderror
-        <p class="text-sm text-gray-500 leading-relaxed pl-[4.75rem] sm:pl-[5.75rem]">{{ __('app.users.role_help') }}</p>
+        <label for="role" class="text-sm font-semibold text-gray-900">{{ __('app.users.role') }}</label>
+        <select id="role" name="role" class="field mt-2" x-model="role" required>
+            @foreach ($roles as $roleOption)
+                <option value="{{ $roleOption->key }}" @selected(old('role', $managedUser?->role ?? 'inspector') === $roleOption->key)>
+                    {{ $roleOption->displayName() }}
+                </option>
+            @endforeach
+        </select>
+        @error('role') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+        <p class="text-sm text-gray-500 leading-relaxed">{{ __('app.users.role_help') }}</p>
     </div>
 
-    <div x-show="role === 'inspector'" x-cloak>
+    <div x-show="needsRegions" x-cloak>
         <p class="text-sm font-semibold text-gray-900">{{ __('app.users.regions') }}</p>
         <p class="mt-1 text-sm text-gray-500">{{ __('app.users.regions_help') }}</p>
         @error('region_ids') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror

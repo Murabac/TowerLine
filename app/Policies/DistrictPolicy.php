@@ -18,7 +18,7 @@ class DistrictPolicy
             return true;
         }
 
-        if ($user->isInspector()) {
+        if ($user->requiresRegions()) {
             return in_array($district->region_id, $user->regionIds(), true);
         }
 

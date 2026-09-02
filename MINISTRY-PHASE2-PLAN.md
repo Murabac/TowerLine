@@ -1,7 +1,7 @@
 # TowerLine — Phase 2 plan (MoCIT meeting)
 
 **Source:** Ministry officials meeting (Aug 2026)  
-**Status:** Planning — **Week 19 done** (Sep 2026)  
+**Status:** Planning — **Week 20 done** (Sep 2026)  
 **Builds on:** Week 12 demo (`CONTEXT.md`)  
 **How we work:** Same as Phase 1 — finish **one week’s deliverable** per session, then stop for review.
 
@@ -413,15 +413,15 @@ _Remaining items only — most decisions are locked above._
 
 ### Admin UI
 
-- [ ] Roles CRUD (system roles `admin`, `inspector`, `ops_manager` protected from delete)
-- [ ] Task checklist grouped by area: towers, inspections, approvals, letters, frequencies, reports, users, geography, audit
-- [ ] Assign role to user on user form
-- [ ] Replace hard-coded `isAdmin()` checks gradually with `canTask()`
+- [x] Roles CRUD (system roles `admin`, `inspector`, `ops_manager` protected from delete)
+- [x] Task checklist grouped by area: towers, inspections, approvals, letters, frequencies, reports, users, geography, audit
+- [x] Assign role to user on user form
+- [x] Replace hard-coded `isAdmin()` checks gradually with `canTask()`
 
 ### Migration
 
-- [ ] Map existing users to new role records
-- [ ] Seed default roles matching current behaviour
+- [x] Map existing users to new role records
+- [x] Seed default roles matching current behaviour
 
 **Done when:** Admin can create e.g. “Regional read-only analyst” with only report + map view tasks.
 
@@ -518,4 +518,4 @@ _Remaining items only — most decisions are locked above._
 ## Next step
 
 1. Ministry sends **letter PDF**, **registration form PDF**, and **official district/sub-district list** when ready.
-2. Say **“Start Week 14”** (or another week) to begin implementation.
+2. Say **“Start Week 21”** for operator colors on the map.

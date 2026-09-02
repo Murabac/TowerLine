@@ -30,11 +30,17 @@
                     'admin' => ['bg' => 'bg-emerald-50', 'ring' => 'ring-emerald-200', 'badge' => 'bg-emerald-100 text-emerald-800'],
                     'operations_manager' => ['bg' => 'bg-amber-50', 'ring' => 'ring-amber-200', 'badge' => 'bg-amber-100 text-amber-800'],
                     'inspector' => ['bg' => 'bg-sky-50', 'ring' => 'ring-sky-200', 'badge' => 'bg-sky-100 text-sky-800'],
+                    'custom' => ['bg' => 'bg-violet-50', 'ring' => 'ring-violet-200', 'badge' => 'bg-violet-100 text-violet-800'],
                 ] as $role => $tone)
-                    <article class="rounded-2xl border border-gray-200/80 {{ $tone['bg'] }} p-5 {{ Auth::user()->role === $role ? 'ring-2 '.$tone['ring'] : '' }}">
+                    @php
+                        $isYours = $role === 'custom'
+                            ? ! in_array(Auth::user()->role, ['admin', 'operations_manager', 'inspector'], true)
+                            : Auth::user()->role === $role;
+                    @endphp
+                    <article class="rounded-2xl border border-gray-200/80 {{ $tone['bg'] }} p-5 {{ $isYours ? 'ring-2 '.$tone['ring'] : '' }}">
                         <div class="flex items-start justify-between gap-2">
                             <h3 class="text-base font-semibold text-gray-900">{{ __('app.roles.'.$role) }}</h3>
-                            @if (Auth::user()->role === $role)
+                            @if ($isYours)
                                 <span class="shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold {{ $tone['badge'] }}">{{ __('app.help.your_role') }}</span>
                             @endif
                         </div>

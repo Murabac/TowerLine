@@ -189,7 +189,7 @@ class Tower extends Model
             return $query;
         }
 
-        if ($user->isInspector()) {
+        if ($user->requiresRegions()) {
             return $query->whereIn('region_id', $user->regionIds() ?: [0]);
         }
 

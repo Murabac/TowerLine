@@ -21,6 +21,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'role_id',
         'region_id',
         'operator_id',
     ];
@@ -53,6 +54,11 @@ class User extends Authenticatable
         return $this->belongsTo(Operator::class);
     }
 
+    public function roleRecord(): BelongsTo
+    {
+        return $this->belongsTo(Role::class, 'role_id');
+    }
+
     public function inspections(): HasMany
     {
         return $this->hasMany(Inspection::class, 'inspector_id');
@@ -80,7 +86,12 @@ class User extends Authenticatable
 
     public function hasFullRegionAccess(): bool
     {
-        return $this->isAdmin() || $this->isOperationsManager();
+        return ! $this->requiresRegions() && ! $this->isOperatorViewer();
+    }
+
+    public function requiresRegions(): bool
+    {
+        return (bool) ($this->roleRecord?->requires_regions ?? $this->isInspector());
     }
 
     public function canTask(string $task): bool
@@ -102,7 +113,7 @@ class User extends Authenticatable
             return true;
         }
 
-        if (! $this->isInspector() || $regionId === null) {
+        if (! $this->requiresRegions() || $regionId === null) {
             return false;
         }
 
@@ -140,8 +151,28 @@ class User extends Authenticatable
         return $this->hasFullRegionAccess() ? 'dashboard' : 'map';
     }
 
+    public function assignRole(Role|string $role): void
+    {
+        $record = $role instanceof Role
+            ? $role
+            : Role::query()->where('key', $role)->firstOrFail();
+
+        $this->forceFill([
+            'role' => $record->key,
+            'role_id' => $record->id,
+        ])->save();
+
+        $this->setRelation('roleRecord', $record);
+    }
+
     public function roleLabel(): string
     {
-        return __('app.roles.'.$this->role);
+        $key = 'app.roles.'.$this->role;
+
+        if (trans()->has($key)) {
+            return __($key);
+        }
+
+        return $this->roleRecord?->name ?? $this->role;
     }
 }

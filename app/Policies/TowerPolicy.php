@@ -9,7 +9,7 @@ class TowerPolicy
 {
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->canTask('towers.view');
     }
 
     public function view(User $user, Tower $tower): bool
@@ -38,7 +38,7 @@ class TowerPolicy
             return true;
         }
 
-        if ($user->isInspector()) {
+        if ($user->requiresRegions()) {
             return $user->coversRegion((int) $tower->region_id);
         }
 

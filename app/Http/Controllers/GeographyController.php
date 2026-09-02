@@ -21,7 +21,7 @@ class GeographyController extends Controller
 
         $user = $request->user();
 
-        if ($user->isInspector() && ! in_array($request->integer('region_id'), $user->regionIds(), true)) {
+        if ($user->requiresRegions() && ! in_array($request->integer('region_id'), $user->regionIds(), true)) {
             abort(403);
         }
 
@@ -48,7 +48,7 @@ class GeographyController extends Controller
         $district = District::query()->findOrFail($request->integer('district_id'));
         $user = $request->user();
 
-        if ($user->isInspector() && ! in_array($district->region_id, $user->regionIds(), true)) {
+        if ($user->requiresRegions() && ! in_array($district->region_id, $user->regionIds(), true)) {
             abort(403);
         }
 
@@ -75,7 +75,7 @@ class GeographyController extends Controller
         $district = District::query()->findOrFail($request->integer('district_id'));
         $user = $request->user();
 
-        if ($user->isInspector() && ! in_array($district->region_id, $user->regionIds(), true)) {
+        if ($user->requiresRegions() && ! in_array($district->region_id, $user->regionIds(), true)) {
             abort(403);
         }
 
@@ -95,7 +95,7 @@ class GeographyController extends Controller
         $regionId = $request->integer('region_id') ?: null;
         $user = $request->user();
 
-        if ($user->isInspector() && $regionId && ! in_array($regionId, $user->regionIds(), true)) {
+        if ($user->requiresRegions() && $regionId && ! in_array($regionId, $user->regionIds(), true)) {
             abort(403);
         }
 

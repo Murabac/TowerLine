@@ -18,13 +18,14 @@ class MapController extends Controller
     public function index(Request $request): View
     {
         $this->authorize('viewAny', Tower::class);
+        abort_unless($request->user()->canTask('map.view'), 403);
 
         $user = $request->user();
 
         $regions = Region::query()->orderBy('name_en');
         $operators = Operator::query()->with('regions')->orderBy('name');
 
-        if ($user->isInspector()) {
+        if ($user->requiresRegions()) {
             $regions->whereIn('id', $user->regionIds() ?: [0]);
         }
 
@@ -64,6 +65,7 @@ class MapController extends Controller
     public function towers(Request $request): JsonResponse
     {
         $this->authorize('viewAny', Tower::class);
+        abort_unless($request->user()->canTask('map.view'), 403);
 
         $query = Tower::query()
             ->visibleTo($request->user())
