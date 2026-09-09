@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\License;
 use App\Models\Operator;
 use App\Models\Region;
+use App\Models\SiteApplication;
 use App\Models\Tower;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -176,12 +177,31 @@ class RoleScopeAndHandoverTest extends TestCase
             ->assertSee(__('app.help.title', [], 'so'), false);
     }
 
+    public function test_help_lists_hq_roles_and_the_public_apply_path(): void
+    {
+        $head = User::factory()->create(['role' => 'section_head']);
+
+        $this->actingAs($head)
+            ->get(route('help'))
+            ->assertOk()
+            ->assertSee(route('apply.create'), false)
+            ->assertSee(__('app.help.daily.five'), false)
+            ->assertSee(__('app.help.roles.section_head'), false)
+            ->assertSee(__('app.help.roles.regional_coordinator'), false)
+            ->assertSee(__('app.help.roles.department_director'), false)
+            ->assertSee(__('app.help.roles.director_general'), false)
+            ->assertSee(__('app.help.your_role'), false);
+    }
+
     public function test_seeded_demo_covers_the_main_staff_screens(): void
     {
         $this->seed(\Database\Seeders\DatabaseSeeder::class);
 
         $admin = User::query()->where('email', 'admin@mocit.local')->first();
         $inspector = User::query()->where('email', 'inspector.maroodi@mocit.local')->first();
+        $ops = User::query()->where('email', 'ops@mocit.local')->first();
+        $head = User::query()->where('email', 'section.head@mocit.local')->first();
+        $coordinator = User::query()->where('email', 'coordinator.maroodi@mocit.local')->first();
 
         $this->actingAs($admin)->get(route('dashboard'))->assertOk();
         $this->actingAs($admin)->get(route('approvals.index'))->assertOk();
@@ -190,18 +210,57 @@ class RoleScopeAndHandoverTest extends TestCase
         $this->actingAs($admin)->get(route('licenses.index'))->assertOk();
         $this->actingAs($admin)->get(route('users.index'))->assertOk();
         $this->actingAs($admin)->get(route('audit-logs.index'))->assertOk();
+        $this->actingAs($admin)->get(route('applications.index'))->assertOk();
         $this->actingAs($admin)->get(route('help'))->assertOk();
         $this->actingAs($admin)->get(route('reports.index'))->assertOk();
         $this->actingAs($admin)->get(route('frequencies.dashboard'))->assertOk();
         $this->actingAs($admin)->get(route('districts.index'))->assertOk();
 
         $this->assertGreaterThan(50, \App\Models\District::query()->count());
-        $this->assertTrue(\App\Models\Operator::query()->where('name', 'Truecable')->first()?->regions()->exists());
+        $this->assertFalse(\App\Models\Operator::query()->where('name', 'Truecable')->first()?->regions()->exists());
+        $this->assertNotNull(\App\Models\Operator::query()->where('name', 'Somcable')->first());
+        $this->assertNull(\App\Models\Operator::query()->where('name', 'Sogasho')->first());
         $this->assertGreaterThan(0, \App\Models\BuildApprovalLetter::query()->count());
         $this->assertGreaterThan(0, \App\Models\FrequencyAllocation::query()->count());
         $this->assertGreaterThan(0, \App\Models\ApprovalRequest::query()->pending()->count());
-        $this->assertNotNull(User::query()->where('email', 'ops@mocit.local')->first());
-        $this->assertNotNull(User::query()->where('email', 'analyst.maroodi@mocit.local')->first());
+        $this->assertNotNull($ops);
+        $this->assertNotNull($head);
+        $this->assertNotNull($coordinator);
+        $this->assertNull(User::query()->where('email', 'officer@mocit.local')->first());
+        $this->assertNull(User::query()->where('email', 'coordinator.sahil@mocit.local')->first());
+        $this->assertNull(User::query()->where('email', 'analyst.maroodi@mocit.local')->first());
+        $this->assertNull(User::query()->where('email', 'inspector.sahil@mocit.local')->first());
+        $this->assertNull(User::query()->where('email', 'inspector.west@mocit.local')->first());
+        $this->assertNotNull(User::query()->where('email', 'director@mocit.local')->first());
+        $this->assertNotNull(User::query()->where('email', 'dg@mocit.local')->first());
+        $this->assertTrue($head->canTask('applications.assign'));
+        $this->assertTrue($coordinator->requiresRegions());
+        $this->assertTrue($coordinator->canTask('applications.review'));
+        $this->assertFalse($head->canTask('applications.review'));
+        $director = User::query()->where('email', 'director@mocit.local')->first();
+        $dg = User::query()->where('email', 'dg@mocit.local')->first();
+        $this->assertTrue($director->canTask('applications.concur'));
+        $this->assertFalse($director->canTask('applications.grant'));
+        $this->assertTrue($dg->canTask('applications.grant'));
+        $this->assertFalse($dg->canTask('applications.concur'));
+        $this->assertGreaterThan(0, SiteApplication::query()->where('status', SiteApplication::STATUS_RECEIVED)->count());
+        $this->assertGreaterThan(0, SiteApplication::query()->where('status', SiteApplication::STATUS_ASSIGNED)->count());
+        $this->assertGreaterThan(0, SiteApplication::query()->where('status', SiteApplication::STATUS_RETURNED)->count());
+        $this->assertGreaterThan(0, SiteApplication::query()->where('status', SiteApplication::STATUS_DIRECTOR_REVIEW)->count());
+        $this->assertGreaterThan(0, SiteApplication::query()->where('status', SiteApplication::STATUS_DG_REVIEW)->count());
+        $this->assertGreaterThan(0, SiteApplication::query()->where('status', SiteApplication::STATUS_REFUSED)->count());
+        $this->assertGreaterThan(0, SiteApplication::query()->where('status', SiteApplication::STATUS_GRANTED)->count());
+
+        $granted = SiteApplication::query()->where('site_name', 'Demo granted Maroodi site')->first();
+        $this->assertNotNull($granted?->tower_id);
+        $this->assertNotNull($granted?->officer_signature_path);
+        $this->assertNotNull($granted?->director_signature_path);
+        $this->assertNotNull($granted?->dg_signature_path);
+        $this->assertNotNull($granted?->tower?->currentApprovalLetter);
+
+        $this->actingAs($head)->get(route('applications.index'))->assertOk();
+        $this->actingAs($coordinator)->get(route('applications.index'))->assertOk();
+        $this->actingAs($ops)->get(route('applications.index'))->assertForbidden();
 
         $this->actingAs($inspector)->get(route('map'))->assertOk();
         $this->actingAs($inspector)->get(route('approvals.index'))->assertOk();

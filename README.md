@@ -17,7 +17,9 @@ php artisan storage:link
 php artisan serve --host=127.0.0.1 --port=8001
 ```
 
-Open http://127.0.0.1:8001 and sign in as `admin@mocit.local` / `password`. Other demo accounts (ops manager, inspectors, regional analyst) are listed in **[HANDOVER.md](HANDOVER.md)**.
+Open http://127.0.0.1:8001 and sign in as `admin@mocit.local` / `password`. Other demo accounts are listed in **[HANDOVER.md](HANDOVER.md)**.
+
+Public (no login): **[Guidelines](http://127.0.0.1:8001/guidelines)** and **[Apply](http://127.0.0.1:8001/apply)**.
 
 Staff training, pilot steps, and server notes: **[HANDOVER.md](HANDOVER.md)**. Locked product decisions: **[CONTEXT.md](CONTEXT.md)**.
 

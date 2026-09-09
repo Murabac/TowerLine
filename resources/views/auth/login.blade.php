@@ -27,6 +27,13 @@
             <x-primary-button class="w-full justify-center">{{ __('app.log_in') }}</x-primary-button>
         </form>
 
+        <p class="mt-5 text-center">
+            <a href="{{ route('guidelines') }}" target="_blank" rel="noopener" class="text-sm font-semibold text-brand hover:underline">{{ __('app.guidelines.open') }}</a>
+        </p>
+        <p class="mt-2 text-center">
+            <a href="{{ route('apply.create') }}" class="text-sm font-medium text-gray-600 hover:text-brand hover:underline">{{ __('app.apply.open', [], 'en') }}</a>
+        </p>
+
         @unless (app()->isProduction())
             <div class="mt-6 border-t border-gray-100 pt-5">
                 <p class="text-[11px] font-semibold uppercase tracking-[0.12em] text-gray-400">{{ __('app.demo.quick_login') }}</p>
@@ -36,8 +43,10 @@
                         ['email' => 'admin@mocit.local', 'label' => __('app.demo.admin'), 'class' => 'border-emerald-200 bg-emerald-50 text-emerald-900 hover:bg-emerald-100'],
                         ['email' => 'ops@mocit.local', 'label' => __('app.demo.operations_manager'), 'class' => 'border-amber-200 bg-amber-50 text-amber-900 hover:bg-amber-100'],
                         ['email' => 'inspector.maroodi@mocit.local', 'label' => __('app.demo.inspector_maroodi'), 'class' => 'border-sky-200 bg-sky-50 text-sky-900 hover:bg-sky-100'],
-                        ['email' => 'inspector.sahil@mocit.local', 'label' => __('app.demo.inspector_sahil'), 'class' => 'border-sky-200 bg-sky-50 text-sky-900 hover:bg-sky-100'],
-                        ['email' => 'inspector.west@mocit.local', 'label' => __('app.demo.inspector_west'), 'class' => 'border-sky-200 bg-sky-50 text-sky-900 hover:bg-sky-100'],
+                        ['email' => 'section.head@mocit.local', 'label' => __('app.demo.section_head'), 'class' => 'border-violet-200 bg-violet-50 text-violet-900 hover:bg-violet-100'],
+                        ['email' => 'coordinator.maroodi@mocit.local', 'label' => __('app.demo.coordinator_maroodi'), 'class' => 'border-violet-200 bg-violet-50 text-violet-900 hover:bg-violet-100'],
+                        ['email' => 'director@mocit.local', 'label' => __('app.demo.director'), 'class' => 'border-violet-200 bg-violet-50 text-violet-900 hover:bg-violet-100'],
+                        ['email' => 'dg@mocit.local', 'label' => __('app.demo.dg'), 'class' => 'border-violet-200 bg-violet-50 text-violet-900 hover:bg-violet-100'],
                     ] as $account)
                         <form method="POST" action="{{ route('login') }}">
                             @csrf

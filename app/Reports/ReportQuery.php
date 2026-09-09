@@ -133,7 +133,6 @@ class ReportQuery
 
                 return [
                     'operator' => $operator?->name ?: '—',
-                    'scope' => $operator?->isNational() ? __('app.reports.national') : __('app.reports.regional'),
                     'category' => $operator ? __('app.status.'.$operator->category) : '—',
                     'total' => $group->count(),
                     'active' => $group->where('status', 'active')->count(),
@@ -145,7 +144,6 @@ class ReportQuery
 
         return new ReportResult([
             $this->col('operator', __('app.towers.operator')),
-            $this->col('scope', __('app.reports.scope')),
             $this->col('category', __('app.map.category')),
             $this->col('total', __('app.reports.total')),
             $this->col('active', __('app.status.active')),
@@ -747,7 +745,7 @@ class ReportQuery
     {
         $query = Tower::query()
             ->visibleTo($user)
-            ->with(['operator.regions', 'region', 'district', 'subDistrict', 'latestInspection', 'currentApprovalLetter']);
+            ->with(['operator', 'region', 'district', 'subDistrict', 'latestInspection', 'currentApprovalLetter']);
 
         if (! empty($filters['region_id'])) {
             $query->where('region_id', (int) $filters['region_id']);

@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Operator;
 use App\Models\Region;
+use App\Models\Role;
 use App\Models\User;
 use App\Support\OperatorPalette;
 use Illuminate\Database\Seeder;
@@ -28,10 +29,12 @@ class DatabaseSeeder extends Seeder
 
         $this->call(GeographySeeder::class);
 
+        Operator::query()->where('name', 'Sogasho')->update(['name' => 'Somcable']);
+
         $operators = [
             ['name' => 'Telesom', 'category' => 'telecom', 'contact_info' => 'Hargeisa'],
             ['name' => 'Somtel', 'category' => 'telecom', 'contact_info' => 'Hargeisa'],
-            ['name' => 'Sogasho', 'category' => 'telecom', 'contact_info' => 'Hargeisa'],
+            ['name' => 'Somcable', 'category' => 'telecom', 'contact_info' => 'Hargeisa'],
             ['name' => 'Truecable', 'category' => 'broadcast', 'contact_info' => 'Hargeisa'],
             ['name' => 'Astaan', 'category' => 'broadcast', 'contact_info' => 'Hargeisa'],
             ['name' => 'Horncable', 'category' => 'broadcast', 'contact_info' => 'Hargeisa'],
@@ -46,28 +49,9 @@ class DatabaseSeeder extends Seeder
             }
         }
 
+        Operator::query()->each(fn (Operator $operator) => $operator->regions()->sync([]));
+
         $maroodi = Region::query()->where('name_en', 'Maroodi Jeex')->first();
-        $sahil = Region::query()->where('name_en', 'Sahil')->first();
-        $awdal = Region::query()->where('name_en', 'Awdal')->first();
-
-        $nationalOperators = ['Telesom', 'Somtel', 'Sogasho'];
-        $regionalOperators = [
-            'Truecable' => [$sahil?->id],
-            'Astaan' => [$maroodi?->id],
-            'Horncable' => [$awdal?->id],
-        ];
-
-        foreach ($nationalOperators as $name) {
-            Operator::query()->where('name', $name)->first()?->regions()->sync([]);
-        }
-
-        foreach ($regionalOperators as $name => $regionIds) {
-            $operator = Operator::query()->where('name', $name)->first();
-
-            if ($operator) {
-                $operator->regions()->sync(array_filter($regionIds));
-            }
-        }
 
         $users = [
             [
@@ -87,18 +71,6 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Inspector Maroodi Jeex',
                 'role' => 'inspector',
                 'region_ids' => array_filter([$maroodi?->id]),
-            ],
-            [
-                'email' => 'inspector.sahil@mocit.local',
-                'name' => 'Inspector Sahil',
-                'role' => 'inspector',
-                'region_ids' => array_filter([$sahil?->id]),
-            ],
-            [
-                'email' => 'inspector.west@mocit.local',
-                'name' => 'Inspector West',
-                'role' => 'inspector',
-                'region_ids' => array_filter([$awdal?->id, $maroodi?->id, $sahil?->id]),
             ],
         ];
 
@@ -122,24 +94,59 @@ class DatabaseSeeder extends Seeder
 
         $this->call(PermissionSeeder::class);
 
-        $analystRole = \App\Models\Role::query()->where('key', 'regional_analyst')->first();
+        $roleIds = Role::query()->pluck('id', 'key');
 
-        if ($analystRole && $maroodi) {
-            $analyst = User::query()->updateOrCreate(
-                ['email' => 'analyst.maroodi@mocit.local'],
+        $hqUsers = [
+            [
+                'email' => 'section.head@mocit.local',
+                'name' => 'Section Head',
+                'role' => Role::KEY_SECTION_HEAD,
+                'region_ids' => [],
+            ],
+            [
+                'email' => 'coordinator.maroodi@mocit.local',
+                'name' => 'Coordinator Maroodi Jeex',
+                'role' => Role::KEY_REGIONAL_COORDINATOR,
+                'region_ids' => array_filter([$maroodi?->id]),
+            ],
+            [
+                'email' => 'director@mocit.local',
+                'name' => 'Department Director',
+                'role' => Role::KEY_DEPARTMENT_DIRECTOR,
+                'region_ids' => [],
+            ],
+            [
+                'email' => 'dg@mocit.local',
+                'name' => 'Director General',
+                'role' => Role::KEY_DIRECTOR_GENERAL,
+                'region_ids' => [],
+            ],
+        ];
+
+        foreach ($hqUsers as $user) {
+            $record = User::query()->updateOrCreate(
+                ['email' => $user['email']],
                 [
-                    'name' => 'Regional Analyst Maroodi Jeex',
+                    'name' => $user['name'],
                     'password' => Hash::make('password'),
-                    'role' => $analystRole->key,
-                    'role_id' => $analystRole->id,
-                    'region_id' => $maroodi->id,
+                    'role' => $user['role'],
+                    'role_id' => $roleIds[$user['role']] ?? null,
+                    'region_id' => $user['region_ids'][0] ?? null,
                     'operator_id' => null,
                     'email_verified_at' => now(),
                 ]
             );
-            $analyst->setRelation('roleRecord', $analystRole);
-            $analyst->syncInspectorRegions([$maroodi->id]);
+
+            $record->syncInspectorRegions($user['region_ids']);
         }
+
+        User::query()->whereIn('email', [
+            'inspector.sahil@mocit.local',
+            'inspector.west@mocit.local',
+            'officer@mocit.local',
+            'coordinator.sahil@mocit.local',
+            'analyst.maroodi@mocit.local',
+        ])->delete();
 
         $this->call(TowerSeeder::class);
         $this->call(InspectionSeeder::class);
@@ -149,5 +156,6 @@ class DatabaseSeeder extends Seeder
         $this->call(LicenseSeeder::class);
         $this->call(ApprovalRequestSeeder::class);
         $this->call(AuditLogSeeder::class);
+        $this->call(SiteApplicationSeeder::class);
     }
 }

@@ -96,19 +96,21 @@ class OperationsManagerAndRegionalOperatorsTest extends TestCase
 
         $this->assertTrue($admin->canTask('audit.view'));
         $this->assertTrue($admin->canTask('users.manage'));
+        $this->assertTrue($admin->canTask('applications.view'));
+        $this->assertTrue($admin->canTask('applications.assign'));
+        $this->assertFalse($ops->canTask('applications.view'));
 
         $this->assertTrue($inspector->canTask('towers.create'));
         $this->assertFalse($inspector->canTask('approvals.review'));
     }
 
-    public function test_regional_operators_are_filtered_by_region_on_geography_endpoint(): void
+    public function test_all_operators_are_listed_regardless_of_region(): void
     {
         $region = Region::query()->create(['name_en' => 'Sahil', 'name_so' => 'Saaxil']);
         $other = Region::query()->create(['name_en' => 'Awdal', 'name_so' => 'Awdal']);
 
-        $national = Operator::query()->create(['name' => 'Telesom', 'category' => 'telecom', 'color' => '#0F766E']);
-        $regional = Operator::query()->create(['name' => 'Truecable', 'category' => 'broadcast', 'color' => '#C2410C']);
-        $regional->regions()->sync([$region->id]);
+        Operator::query()->create(['name' => 'Telesom', 'category' => 'telecom', 'color' => '#0F766E']);
+        Operator::query()->create(['name' => 'Truecable', 'category' => 'broadcast', 'color' => '#C2410C']);
 
         $admin = User::factory()->create(['role' => 'admin']);
 
@@ -119,49 +121,42 @@ class OperationsManagerAndRegionalOperatorsTest extends TestCase
             ->assertJsonFragment(['name' => 'Truecable'])
             ->assertJsonCount(2, 'operators');
 
-        $response = $this->actingAs($admin)
+        $this->actingAs($admin)
             ->getJson(route('geography.operators', ['region_id' => $other->id]))
             ->assertOk()
-            ->assertJsonFragment(['name' => 'Telesom']);
-
-        $names = collect($response->json('operators'))->pluck('name')->all();
-        $this->assertNotContains('Truecable', $names);
+            ->assertJsonFragment(['name' => 'Telesom'])
+            ->assertJsonFragment(['name' => 'Truecable'])
+            ->assertJsonCount(2, 'operators');
     }
 
-    public function test_tower_store_rejects_operator_outside_selected_region(): void
+    public function test_tower_store_accepts_any_operator_in_any_region(): void
     {
         $region = Region::query()->create(['name_en' => 'Sahil', 'name_so' => 'Saaxil']);
-        $other = Region::query()->create(['name_en' => 'Awdal', 'name_so' => 'Awdal']);
-        $regional = Operator::query()->create(['name' => 'Truecable', 'category' => 'broadcast', 'color' => '#C2410C']);
-        $regional->regions()->sync([$other->id]);
+        $operator = Operator::query()->create(['name' => 'Truecable', 'category' => 'broadcast', 'color' => '#C2410C']);
 
         $admin = User::factory()->create(['role' => 'admin']);
 
-        $payload = array_merge($this->minimalTowerPayload($region, $regional), [
-            'region_id' => $region->id,
-            'operator_id' => $regional->id,
-        ]);
-
         $this->actingAs($admin)
-            ->post(route('towers.store'), $payload)
-            ->assertSessionHasErrors('operator_id');
+            ->post(route('towers.store'), $this->minimalTowerPayload($region, $operator))
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('towers', [
+            'operator_id' => $operator->id,
+            'region_id' => $region->id,
+        ]);
     }
 
-    public function test_seeded_regional_operators_have_expected_scopes(): void
+    public function test_seeded_operators_are_not_limited_to_regions(): void
     {
         $this->seed(\Database\Seeders\DatabaseSeeder::class);
 
-        $sahil = Region::query()->where('name_en', 'Sahil')->firstOrFail();
-        $awdal = Region::query()->where('name_en', 'Awdal')->firstOrFail();
+        $this->assertNotNull(Operator::query()->where('name', 'Somcable')->first());
+        $this->assertNull(Operator::query()->where('name', 'Sogasho')->first());
 
-        $telesom = Operator::query()->where('name', 'Telesom')->firstOrFail();
-        $truecable = Operator::query()->where('name', 'Truecable')->firstOrFail();
-
-        $this->assertTrue($telesom->isNational());
-        $this->assertTrue($telesom->servesRegion($sahil->id));
-        $this->assertTrue($truecable->servesRegion($sahil->id));
-        $this->assertFalse($truecable->servesRegion($awdal->id));
-        $this->assertStringContainsString('Sahil', $truecable->displayName());
+        Operator::query()->each(function (Operator $operator): void {
+            $this->assertFalse($operator->regions()->exists(), $operator->name.' should not be limited to a region');
+            $this->assertSame($operator->name, $operator->displayName());
+        });
     }
 
     public function test_permissions_are_seeded_in_database(): void
@@ -177,6 +172,18 @@ class OperationsManagerAndRegionalOperatorsTest extends TestCase
 
         $this->assertContains('approvals.review', $opsTasks);
         $this->assertNotContains('audit.view', $opsTasks);
+        $this->assertNotContains('applications.view', $opsTasks);
+        $this->assertContains('applications.assign', Permissions::tasksForRole('admin'));
+        $this->assertContains('applications.review', Permissions::tasksForRole('admin'));
+        $this->assertContains('applications.concur', Permissions::tasksForRole('admin'));
+        $this->assertContains('applications.grant', Permissions::tasksForRole('admin'));
+        $this->assertContains('applications.review', Permissions::tasksForRole('regional_coordinator'));
+        $this->assertNotContains('applications.review', Permissions::tasksForRole('section_head'));
+        $this->assertContains('applications.assign', Permissions::tasksForRole('section_head'));
+        $this->assertContains('applications.concur', Permissions::tasksForRole('department_director'));
+        $this->assertContains('applications.grant', Permissions::tasksForRole('director_general'));
+        $this->assertNotContains('applications.concur', Permissions::tasksForRole('section_head'));
+        $this->assertNotContains('applications.grant', Permissions::tasksForRole('department_director'));
     }
 
     /**
@@ -192,7 +199,7 @@ class OperationsManagerAndRegionalOperatorsTest extends TestCase
             'operator_id' => $operator->id,
             'type' => 'monopole',
             'height_m' => 30,
-            'capacity' => 'macro',
+            'capacity' => '4g',
             'power_sources' => ['grid'],
             'signal_radius_m' => 5000,
             'status' => 'active',

@@ -60,7 +60,7 @@ class FrequencyAllocationSeeder extends Seeder
 
         $samples = [
             ['operator' => 'Telesom', 'band' => '1800 MHz', 'range' => '1710–1785 MHz / 1805–1880 MHz', 'region' => $maroodi?->id, 'expires' => now()->addDays(18)],
-            ['operator' => 'Sogasho', 'band' => '900 MHz', 'range' => '880–915 MHz / 925–960 MHz', 'region' => $sahil?->id, 'expires' => now()->subDays(12)],
+            ['operator' => 'Somcable', 'band' => '900 MHz', 'range' => '880–915 MHz / 925–960 MHz', 'region' => $sahil?->id, 'expires' => now()->subDays(12)],
             ['operator' => 'Somtel', 'band' => '1800 MHz', 'range' => '1710–1785 MHz / 1805–1880 MHz', 'region' => null, 'expires' => now()->subDays(40)],
             ['operator' => 'Truecable', 'band' => '700 MHz', 'range' => '703–748 MHz / 758–803 MHz', 'region' => $maroodi?->id, 'expires' => now()->subDays(75)],
         ];

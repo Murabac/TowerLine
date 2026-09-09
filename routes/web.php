@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ApplicationInboxController;
 use App\Http\Controllers\ApprovalRequestController;
 use App\Http\Controllers\BuildApprovalLetterController;
 use App\Http\Controllers\AuditLogController;
@@ -9,6 +10,8 @@ use App\Http\Controllers\FrequencyAllocationController;
 use App\Http\Controllers\FrequencyAllocationLetterController;
 use App\Http\Controllers\FrequencyRenewalReceiptController;
 use App\Http\Controllers\GeographyController;
+use App\Http\Controllers\SiteApplicationController;
+use App\Http\Controllers\GuidelinesController;
 use App\Http\Controllers\HelpController;
 use App\Http\Controllers\InspectionController;
 use App\Http\Controllers\LicenseController;
@@ -29,6 +32,11 @@ Route::get('/', function () {
 });
 
 Route::post('/locale', LocaleController::class)->name('locale.update');
+Route::get('/guidelines', [GuidelinesController::class, 'show'])->name('guidelines');
+Route::get('/guidelines.pdf', [GuidelinesController::class, 'pdf'])->name('guidelines.pdf');
+Route::get('/apply', [SiteApplicationController::class, 'create'])->name('apply.create');
+Route::post('/apply', [SiteApplicationController::class, 'store'])->middleware('throttle:site-applications')->name('apply.store');
+Route::get('/apply/received', [SiteApplicationController::class, 'received'])->name('apply.received');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
@@ -63,6 +71,15 @@ Route::middleware('auth')->group(function () {
     Route::get('frequencies/{frequency}/letter/print', [FrequencyAllocationLetterController::class, 'print'])->name('frequencies.letter.print');
     Route::get('frequencies/{frequency}/receipt', [FrequencyRenewalReceiptController::class, 'show'])->name('frequencies.receipt.show');
     Route::get('frequencies/{frequency}/receipt/print', [FrequencyRenewalReceiptController::class, 'print'])->name('frequencies.receipt.print');
+    Route::get('applications', [ApplicationInboxController::class, 'index'])->name('applications.index');
+    Route::get('applications/{application}', [ApplicationInboxController::class, 'show'])->name('applications.show');
+    Route::post('applications/{application}/assign', [ApplicationInboxController::class, 'assign'])->name('applications.assign');
+    Route::post('applications/{application}/review', [ApplicationInboxController::class, 'review'])->name('applications.review');
+    Route::post('applications/{application}/concur', [ApplicationInboxController::class, 'concur'])->name('applications.concur');
+    Route::post('applications/{application}/grant', [ApplicationInboxController::class, 'grant'])->name('applications.grant');
+    Route::get('applications/{application}/signatures/{party}', [ApplicationInboxController::class, 'signature'])->name('applications.signatures.show');
+    Route::get('applications/{application}/permit/print', [ApplicationInboxController::class, 'permitPrint'])->name('applications.permit.print');
+    Route::get('applications/{application}/documents/{document}', [ApplicationInboxController::class, 'document'])->name('applications.documents.show');
     Route::get('approvals', [ApprovalRequestController::class, 'index'])->name('approvals.index');
     Route::get('approvals/{approval}/edit', [ApprovalRequestController::class, 'edit'])->name('approvals.edit');
     Route::put('approvals/{approval}', [ApprovalRequestController::class, 'update'])->name('approvals.update');
@@ -80,6 +97,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/profile/signature', [ProfileController::class, 'showSignature'])->name('profile.signature.show');
+    Route::post('/profile/signature', [ProfileController::class, 'storeSignature'])->name('profile.signature.store');
+    Route::delete('/profile/signature', [ProfileController::class, 'destroySignature'])->name('profile.signature.destroy');
 });
 
 require __DIR__.'/auth.php';

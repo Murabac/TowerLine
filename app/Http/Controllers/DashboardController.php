@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ApprovalRequest;
 use App\Models\FrequencyAllocation;
 use App\Models\License;
+use App\Models\SiteApplication;
 use App\Models\Tower;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -41,6 +42,18 @@ class DashboardController extends Controller
                 ? ApprovalRequest::query()->visibleTo($user)->pending()->count()
                 : 0,
             'pendingApprovalIsOwn' => $user->isInspector() && ! $user->canTask('approvals.review'),
+            'pendingApplicationCount' => $user->canTask('applications.assign')
+                ? SiteApplication::query()->whereIn('status', [SiteApplication::STATUS_RECEIVED, SiteApplication::STATUS_RETURNED])->count()
+                : 0,
+            'pendingOfficerReviewCount' => $user->canTask('applications.review') && ! $user->canTask('applications.assign')
+                ? SiteApplication::query()->visibleTo($user)->where('status', SiteApplication::STATUS_ASSIGNED)->count()
+                : 0,
+            'pendingDirectorReviewCount' => $user->canTask('applications.concur') && ! $user->canTask('applications.assign')
+                ? SiteApplication::query()->where('status', SiteApplication::STATUS_DIRECTOR_REVIEW)->count()
+                : 0,
+            'pendingDgReviewCount' => $user->canTask('applications.grant') && ! $user->canTask('applications.assign')
+                ? SiteApplication::query()->where('status', SiteApplication::STATUS_DG_REVIEW)->count()
+                : 0,
             'alerts' => Tower::query()
                 ->visibleTo($user)
                 ->with(['region', 'operator'])

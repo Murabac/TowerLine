@@ -4,10 +4,10 @@
 **Official product name:** Wasaaradda Isgaarsiinta iyo Technology — Tower Management & Monitoring System  
 **Client:** Ministry of Communication and Information Technology (MoCIT), Somaliland  
 **Languages:** English (default) + Somali toggle  
-**Status:** Phase 2 complete through **Week 23** (Sep 2026). Demo / pilot v2.  
-**Current week:** **Week 23 complete — Integration, tests, docs, pilot update**  
-**Last completed:** **Week 23**  
-**Source of truth:** this file. Update it when a product decision changes. Phase 2 week-by-week work is recorded in `MINISTRY-PHASE2-PLAN.md`.
+**Status:** Phase 3 complete — **Week 29 done** (Sep 2026). Phase 2 complete through Week 23.  
+**Current week:** **Week 29 complete — Integration, tests, docs**  
+**Last completed:** **Week 29**  
+**Source of truth:** this file. Update it when a product decision changes. Phase 2 week notes: `MINISTRY-PHASE2-PLAN.md`. Phase 3 (public site applications): `MINISTRY-PHASE3-PLAN.md`.
 
 ---
 
@@ -39,6 +39,7 @@ This is **not** a consumer product. Official, bilingual, usable on tablet/phone 
 | `CONTEXT.md` (this file) | Locked decisions + implementation guide |
 | `MINISTRY-PHASE2-PLAN.md` | Phase 2 roadmap from MoCIT meeting (Aug 2026) — weeks 13–23 |
 | `HANDOVER.md` | Staff training, pilot steps, local/server runbook |
+| `MINISTRY-PHASE3-PLAN.md` | Phase 3 site-registration portal — weeks 24–29 |
 
 Build from the design reference + this file. No separate Figma phase — the app **is** the design.
 
@@ -49,7 +50,7 @@ Build from the design reference + this file. No separate Figma phase — the app
 | Topic | Decision |
 |---|---|
 | Tower inventory | Real list comes later. Demo uses sample data only. |
-| Operators | **Telecom:** Telesom, Somtel, Sogasho. **Broadcast:** Truecable, Astaan, Horncable |
+| Operators | **Telecom:** Telesom, Somtel, Somcable. **Broadcast:** Truecable, Astaan, Horncable |
 | Regions | Awdal, Maroodi Jeex, Sahil, Togdheer, Sanaag, Sool |
 | Inspectors | Ministry members (MoCIT staff), assigned **one or more regions** |
 | Hosting | Not decided; likely **government server**. Keep standard Laravel (Apache/Nginx + PHP + MySQL). No Redis required. |
@@ -87,6 +88,23 @@ Full catalogue and week notes: `MINISTRY-PHASE2-PLAN.md`.
 | Map operator colors | Fixed color-blind-safe palette; pins can colour by operator or by status |
 | Reports | Print/PDF + Excel. Admin and ops see the full centre. Inspectors see a region-scoped subset. Audit report **admin only** |
 | Help in sidebar | Hidden for now; `/help` still works |
+
+---
+
+## 3c. Phase 3 locked decisions (MoCIT, Sep 2026)
+
+Full week notes: `MINISTRY-PHASE3-PLAN.md`.
+
+| Topic | Decision |
+|---|---|
+| Site application | Public form, **no login**. Ministry staff process the file. |
+| Inspector queue | Unchanged — still for field edits/inspections on **live** towers |
+| After DG grant | Create live tower **and** issue build-approval letter |
+| Guidelines | Public `/guidelines` window + official PDF `resources/docs/Xeer-Nidaamiyaha Goobaha Isgaadhsiinta.pdf` (Xeer-Nidaamiye Lr.02/2019) |
+| Public apply | `/apply` — no login; five compulsory uploads; tracking number on screen (`MoCIT/APP/{year}/0001`) |
+| HQ roles | Section Head, Assigned Officer, Department Director, Director General — seeded demo users |
+| Regional coordinator | Region-scoped assigned officer. Section Head assigns a file to the coordinator who covers that region. |
+| Staff inbox | `/applications` — Section Head assigns; coordinator/officer records a site visit then approves to the Department Director or returns the file. Director Yes/No. DG grants a live tower + letter or returns to the Director. Director No closes the file. Officer, Director, and DG each draw or reuse a saved signature; the trail stays on the file, tower, and printed letter. |
 
 ---
 
@@ -179,7 +197,7 @@ Logo file lives at `public/images/mocit-logo.jpg` (copy of `wasaarada logo.jpg`)
 |---|---|
 | Telesom | `#009E73` |
 | Somtel | `#0072B2` |
-| Sogasho | `#CC79A7` |
+| Somcable | `#CC79A7` |
 | Truecable | `#D55E00` |
 | Astaan | `#56B4E9` |
 | Horncable | `#E69F00` |
@@ -211,7 +229,7 @@ Map default: center ~ `9.56, 44.06`, zoom 7, Somaliland bounds.
 |---|---|
 | Telesom | telecom |
 | Somtel | telecom |
-| Sogasho | telecom |
+| Somcable | telecom |
 | Truecable | broadcast |
 | Astaan | broadcast |
 | Horncable | broadcast |
@@ -296,6 +314,9 @@ Overdue: no inspection in **90 days**.
 9. **Reports** — hub, print/PDF, Excel
 10. **Admin** — users, custom roles, districts, audit log, ministry settings
 11. **Help** — `/help` (sidebar hidden)
+12. **Guidelines** — public `/guidelines` + PDF (no login)
+13. **Apply** — public `/apply` (English; tracking number after submit)
+14. **Applications** — HQ inbox: assign → site visit → Director Yes/No → DG grant
 
 ---
 
@@ -313,6 +334,9 @@ Overdue: no inspection in **90 days**.
 - `resource operators` / `resource regions` / districts (admin, ops)
 - `GET /audit-logs` (admin)
 - `GET /help` (sidebar hidden)
+- `GET /guidelines` + `GET /guidelines.pdf` (public)
+- `GET /apply` + `POST /apply` + `GET /apply/received` (public, English, rate-limited)
+- `GET /applications` + show / assign / review / concur / grant (HQ chain)
 - `POST /locale`
 
 Policies on every write. Map JSON never includes out-of-scope towers.
@@ -328,9 +352,10 @@ Password for all: `password`
 | `admin@mocit.local` | admin | all |
 | `ops@mocit.local` | operations_manager | all except users, audit, settings |
 | `inspector.maroodi@mocit.local` | inspector | Maroodi Jeex |
-| `inspector.sahil@mocit.local` | inspector | Sahil |
-| `inspector.west@mocit.local` | inspector | Awdal, Maroodi Jeex, Sahil |
-| `analyst.maroodi@mocit.local` | regional_analyst | Maroodi Jeex (map + reports) |
+| `section.head@mocit.local` | section_head | all site applications; can assign |
+| `coordinator.maroodi@mocit.local` | regional_coordinator | Maroodi Jeex files assigned to them; site visit + decision |
+| `director@mocit.local` | department_director | all site applications; Yes/No concurrence |
+| `dg@mocit.local` | director_general | all site applications; grant permit or return to Director |
 
 ---
 
@@ -363,6 +388,12 @@ Do **not** build the whole product in one pass. Each session finishes **one week
 | 21 | Operator colors on map | **Done** |
 | 22 | Report centre | **Done** |
 | 23 | Integration, tests, docs, pilot v2 | **Done** |
+| 24 | Site registration guidelines (public window + PDF) | **Done** |
+| 25 | Public application form | **Done** |
+| 26 | HQ roles and assignment inbox | **Done** |
+| 27 | Officer review and site visit | **Done** |
+| 28 | Director chain, permit, archive | **Done** |
+| 29 | Integration, tests, docs (pilot-ready portal) | **Done** |
 
 Auth (Breeze) is installed. User-admin, audit-log, and Help screens are live for ministry staff.
 

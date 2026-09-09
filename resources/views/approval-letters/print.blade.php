@@ -54,12 +54,17 @@
 <body class="approval-letter-print-body">
     <div class="approval-letter-print-toolbar">
         <div class="approval-letter-print-toolbar__inner">
-            <p>{{ __('app.approval_letters.print_hint') }}</p>
+            <p>{{ ($copy ?? 'hq') === 'customer' ? __('app.applications.permit_customer_hint') : __('app.approval_letters.print_hint') }}</p>
             <button type="button" onclick="window.print()">{{ __('app.approval_letters.print') }}</button>
         </div>
     </div>
     <main class="approval-letter-print-page">
-        @include('approval-letters._document', ['letter' => $letter])
+        @include('approval-letters._document', [
+            'letter' => $letter,
+            'copy' => $copy ?? 'hq',
+            'permitApplication' => $permitApplication ?? null,
+            'signatureImages' => $signatureImages ?? [],
+        ])
     </main>
     <script>
         if (new URLSearchParams(window.location.search).get('auto') === '1') {

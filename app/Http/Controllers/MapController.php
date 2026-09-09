@@ -23,7 +23,7 @@ class MapController extends Controller
         $user = $request->user();
 
         $regions = Region::query()->orderBy('name_en');
-        $operators = Operator::query()->with('regions')->orderBy('name');
+        $operators = Operator::query()->orderBy('name');
 
         if ($user->requiresRegions()) {
             $regions->whereIn('id', $user->regionIds() ?: [0]);
@@ -46,22 +46,16 @@ class MapController extends Controller
 
         $operatorCollection = $operators->get();
 
-        if ($regionId) {
-            $operatorCollection = $operatorCollection
-                ->filter(fn (Operator $operator) => $operator->servesRegion($regionId))
-                ->values();
-        }
-
         return view('map.index', [
             'regions' => $regions->get(),
             'districts' => $districts,
             'subDistricts' => $subDistricts,
             'operators' => $operatorCollection,
-            'operatorOptions' => Operator::query()->with('regions')->orderBy('name')->get()->map->toFormOption()->values(),
+            'operatorOptions' => Operator::query()->orderBy('name')->get()->map->toFormOption()->values(),
             'legendOperators' => $operatorCollection
                 ->map(fn (Operator $operator) => [
                     'id' => $operator->id,
-                    'name' => $operator->displayName(),
+                    'name' => $operator->name,
                     'color' => $operator->color,
                 ])
                 ->values(),

@@ -24,6 +24,7 @@ class User extends Authenticatable
         'role_id',
         'region_id',
         'operator_id',
+        'signature_path',
     ];
 
     protected $hidden = [
@@ -79,9 +80,25 @@ class User extends Authenticatable
         return $this->role === 'inspector';
     }
 
+    public function hasSavedSignature(): bool
+    {
+        return \App\Support\UserSignature::exists($this->signature_path);
+    }
+
     public function isOperatorViewer(): bool
     {
-        return $this->role === 'operator_viewer';
+        return $this->role === Role::KEY_OPERATOR_VIEWER;
+    }
+
+    public function managesSiteApplications(): bool
+    {
+        return $this->canTask('applications.assign')
+            || in_array($this->role, [
+                Role::KEY_ADMIN,
+                Role::KEY_SECTION_HEAD,
+                Role::KEY_DEPARTMENT_DIRECTOR,
+                Role::KEY_DIRECTOR_GENERAL,
+            ], true);
     }
 
     public function hasFullRegionAccess(): bool
@@ -166,6 +183,16 @@ class User extends Authenticatable
 
     public function homeRouteName(): string
     {
+        if (in_array($this->role, [
+            Role::KEY_SECTION_HEAD,
+            Role::KEY_ASSIGNED_OFFICER,
+            Role::KEY_REGIONAL_COORDINATOR,
+            Role::KEY_DEPARTMENT_DIRECTOR,
+            Role::KEY_DIRECTOR_GENERAL,
+        ], true)) {
+            return 'applications.index';
+        }
+
         return $this->hasFullRegionAccess() ? 'dashboard' : 'map';
     }
 

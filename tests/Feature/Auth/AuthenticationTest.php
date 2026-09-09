@@ -18,8 +18,12 @@ class AuthenticationTest extends TestCase
         $this->assertGuest();
         $response->assertSee(__('app.demo.quick_login'), false);
         $response->assertSee(__('app.demo.admin'), false);
+        $response->assertSee(__('app.demo.section_head'), false);
+        $response->assertSee(__('app.demo.coordinator_maroodi'), false);
         $response->assertSee(__('app.demo.inspector_maroodi'), false);
-        $response->assertSee(__('app.demo.inspector_west'), false);
+        $response->assertSee(__('app.demo.director'), false);
+        $response->assertSee(__('app.demo.dg'), false);
+        $response->assertDontSee('inspector.west@mocit.local', false);
         $response->assertDontSee('viewer.telesom@mocit.local', false);
     }
 

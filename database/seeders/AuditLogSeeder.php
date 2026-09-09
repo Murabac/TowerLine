@@ -17,7 +17,6 @@ class AuditLogSeeder extends Seeder
 
         $admin = User::query()->where('email', 'admin@mocit.local')->first();
         $maroodi = User::query()->where('email', 'inspector.maroodi@mocit.local')->first();
-        $sahil = User::query()->where('email', 'inspector.sahil@mocit.local')->first();
 
         if (! $admin) {
             return;
@@ -43,7 +42,7 @@ class AuditLogSeeder extends Seeder
         }
 
         foreach ($inspections->take(6) as $i => $inspection) {
-            $inspector = $i % 2 === 0 ? ($maroodi ?? $admin) : ($sahil ?? $admin);
+            $inspector = $maroodi ?? $admin;
 
             $this->write(
                 userId: $inspector->id,

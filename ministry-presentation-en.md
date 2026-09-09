@@ -4,7 +4,7 @@
 **Working name:** TowerLine  
 **Prepared for:** Ministry of Communication and Information Technology (MoCIT), Somaliland  
 **Audience:** Ministers, directors, and technical staff reviewing the demo / pilot  
-**Status:** Phase 2 demo / pilot v2 (weeks 13–23 complete)
+**Status:** Phase 3 complete (weeks 13–29). Public site applications + HQ chain are in the demo.
 
 Use this document as a speaking script and slide outline when presenting the live system.
 
@@ -14,7 +14,7 @@ Use this document as a speaking script and slide outline when presenting the liv
 
 **Say:**
 
-> TowerLine is the Ministry’s official system for registering, mapping, inspecting, and licensing telecom and broadcast towers across Somaliland. It brings the map, the registry, field inspections, build-approval letters, frequency allocations, and printable reports into one place — in English and Somali.
+> TowerLine is the Ministry’s official system for registering, mapping, inspecting, and licensing telecom and broadcast towers across Somaliland. It brings the map, the registry, field inspections, public site applications, build-approval letters, frequency allocations, and printable reports into one place — in English and Somali.
 
 **Key message:** One system for daily work, live briefings, and compliance follow-up.
 
@@ -29,6 +29,7 @@ Without a shared system, ministry staff often rely on spreadsheets, paper, and s
 - Which frequency allocations expire soon?
 - Which inspector submissions are waiting for ministry approval?
 - Who changed a record, and when?
+- Has a new site application been assigned, visited, and granted?
 
 **TowerLine answers those questions from one screen.**
 
@@ -45,19 +46,20 @@ Without a shared system, ministry staff often rely on spreadsheets, paper, and s
 | **Build approval letters** | Ministry letter per tower, no expiry, print-ready |
 | **Frequencies** | Band/range per operator, yearly renewal, letters and receipts, expiry on the dashboard |
 | **Report centre** | Printable and Excel reports for towers, geography, inspections, letters, frequencies, and executive briefings |
-| **Users & access** | Admin, operations manager, regional inspectors, and custom roles (task checklist) |
+| **Users & access** | Admin, operations manager, regional inspectors, HQ application roles, and custom roles (task checklist) |
+| **Site applications** | Public `/guidelines` and `/apply` (no login). Section Head assigns; coordinator records a visit; Director Yes/No; DG grants a live tower and letter |
 | **Audit log** | Admin-only history of who added, changed, or removed records |
-| **Help** | Short in-app guide (`/help`) |
+| **Help** | Short in-app guide (`/help`) — HQ roles and the public apply path |
 
-**Languages:** English (default) and Somali — toggle in the header.
+**Languages:** English (default) and Somali — toggle in the header. Public apply stays English.
 
-**Operators in the demo:** Telesom, Somtel, Sogasho (telecom); Truecable, Astaan, Horncable (broadcast).
+**Operators in the demo:** Telesom, Somtel, Somcable (telecom); Truecable, Astaan, Horncable (broadcast).
 
 **Regions covered:** Awdal, Maroodi Jeex, Sahil, Togdheer, Sanaag, Sool.
 
 ---
 
-## 4. Live demo walkthrough (8–10 minutes)
+## 4. Live demo walkthrough (12–14 minutes)
 
 Open: `http://127.0.0.1:8001` (or the pilot URL when hosted).
 
@@ -77,7 +79,6 @@ Open: `http://127.0.0.1:8001` (or the pilot URL when hosted).
 2. Show that the map and list only cover that region.
 3. Open a tower → **Log inspection** — show optional fields and a comment-only visit.
 4. Show **My submissions** — the visit is pending until ministry review.
-5. Optionally log in as **Inspector · West** to show one inspector covering **three regions**.
 
 ### Step C — Operations manager
 
@@ -89,16 +90,29 @@ Open: `http://127.0.0.1:8001` (or the pilot URL when hosted).
 
 Toggle **EN / SO** in the header so the room sees Somali labels.
 
+### Step E — Public site application (HQ chain)
+
+Use the seeded Maroodi Jeex files (each stage already exists). Password for every demo account: `password`.
+
+1. As a guest, open **Guidelines** (`/guidelines`) then **Apply** (`/apply`). No login. Mention that a tracking number appears after submit.
+2. Log in as **Section Head**. Open **Applications**. Show **Demo Maroodi Jeex Site** (received) and **Demo assigned Maroodi site**.
+3. Log in as **Coordinator Maroodi Jeex**. Open the assigned file. Site visit, remarks, and signature send it to the Director (or return it).
+4. **Department Director:** **Demo director review Maroodi site** is waiting for Yes/No. **Demo refused Maroodi site** shows that **No closes the file**.
+5. **Director General:** **Demo DG review Maroodi site** is waiting for Grant or Return. **Demo granted Maroodi site** is already a live tower with a letter. Print HQ and operator copies. Names and signatures appear on the file, the tower, and the letter.
+
 ---
 
 ## 5. Roles and security (2 minutes)
 
 | Role | Access |
 |---|---|
-| **Ministry admin** | Full system: towers, letters, frequencies, reports, users, audit log |
-| **Operations manager** | Same operational work as admin except users, audit log, and settings |
+| **Ministry admin** | Full system: towers, letters, frequencies, reports, users, audit log, applications |
+| **Operations manager** | Same operational work as admin except users, audit log, settings, and site applications |
 | **Regional inspector** | Towers and inspections in assigned region(s); submissions wait for approval |
-| **Regional analyst** | Seeded custom role: map and reports for assigned region |
+| **Section Head** | Public site applications. Assigns a received or returned file |
+| **Regional coordinator** | Assigned Maroodi Jeex files. Site visit, then send to the Director or return |
+| **Department Director** | Yes sends the file to the DG. No closes it |
+| **Director General** | Grant (live tower + letter) or return to the Director |
 | **Operator viewer** | Prepared for later; **switched off for this phase** |
 
 - Staff do **not** self-register — admins create accounts.
@@ -128,8 +142,9 @@ These stay out of the current pilot unless the Ministry asks for them.
 
 1. Admin reviews dashboard, map, reports, frequencies, and users.
 2. One inspector files a real inspection on a tablet; ops or admin approves it.
-3. Leadership prints a map snapshot **and** one Report centre PDF.
-4. Collect feedback for 1–2 weeks, then expand region by region.
+3. Walk one public application through Section Head → coordinator → Director → DG (or use the seeded files).
+4. Leadership prints a map snapshot, one Report centre PDF, and one grant letter.
+5. Collect feedback for 1–2 weeks, then expand region by region.
 
 **Hosting next step:** deploy on a government server (Apache/Nginx + PHP + MySQL). Exact server details to confirm with MoCIT IT.
 
@@ -139,7 +154,7 @@ These stay out of the current pilot unless the Ministry asks for them.
 
 **Say:**
 
-> The Phase 2 demo is ready. We ask the Ministry to (1) approve a one-region pilot, (2) confirm government hosting (PHP 8.3, Laravel 12, MySQL), and (3) share the official tower inventory and district list when available so we can replace sample and interim data.
+> The Phase 3 demo is ready: registry, map, inspections, and the public apply → HQ grant path. We ask the Ministry to (1) approve a one-region pilot (Maroodi Jeex), (2) confirm government hosting (PHP 8.3, Laravel 12, MySQL), and (3) share the official tower inventory and district list when available so we can replace sample and interim data.
 
 **Leave behind:**
 
@@ -157,6 +172,7 @@ These stay out of the current pilot unless the Ministry asks for them.
 | Can inspectors work offline? | Forms are simple POST forms that work with poor connectivity; not a full offline app. |
 | Can one inspector cover several regions? | Yes. |
 | Can operators log in? | Operator viewer is built but disabled until the Ministry asks to turn it on. |
+| How does a new site get registered? | Guest opens `/guidelines` then `/apply` (no login). Section Head assigns; coordinator visits; Director Yes/No; DG grants a live tower and letter. |
 | Who owns the data? | MoCIT. The system is built for ministry servers. |
 
 ---

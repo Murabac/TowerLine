@@ -152,11 +152,19 @@ class RoleManagementTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_seeded_regional_analyst_is_region_scoped(): void
+    public function test_regional_analyst_role_is_region_scoped(): void
     {
         $this->seed(\Database\Seeders\DatabaseSeeder::class);
 
-        $analyst = User::query()->where('email', 'analyst.maroodi@mocit.local')->firstOrFail();
+        $role = Role::query()->where('key', 'regional_analyst')->firstOrFail();
+        $this->assertTrue($role->requires_regions);
+        $this->assertFalse($role->is_system);
+
+        $analyst = User::factory()->create([
+            'role' => $role->key,
+            'role_id' => $role->id,
+            'region_id' => Region::query()->where('name_en', 'Maroodi Jeex')->value('id'),
+        ]);
 
         $this->assertTrue($analyst->canTask('towers.view'));
         $this->assertTrue($analyst->canTask('map.view'));

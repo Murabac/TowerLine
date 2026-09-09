@@ -7,6 +7,7 @@ use App\Models\BuildApprovalLetter;
 use App\Models\Tower;
 use App\Support\Audits;
 use App\Support\BuildApprovalLetterNumberGenerator;
+use App\Support\UserSignature;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -66,6 +67,18 @@ class BuildApprovalLetterController extends Controller
 
         $this->authorize('view', $letter);
 
-        return view('approval-letters.print', compact('tower', 'letter'));
+        $application = $tower->siteApplication;
+        $application?->loadMissing(['officerReviewer', 'directorReviewer', 'dgReviewer']);
+
+        return view('approval-letters.print', [
+            'tower' => $tower,
+            'letter' => $letter,
+            'permitApplication' => $application,
+            'signatureImages' => $application ? [
+                'officer' => UserSignature::dataUri($application->officer_signature_path),
+                'director' => UserSignature::dataUri($application->director_signature_path),
+                'dg' => UserSignature::dataUri($application->dg_signature_path),
+            ] : [],
+        ]);
     }
 }

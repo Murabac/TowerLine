@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\DB;
 
 class Tower extends Model
@@ -153,9 +154,14 @@ class Tower extends Model
         return $this->hasMany(BuildApprovalLetter::class)->latest('issued_at');
     }
 
-    public function currentApprovalLetter(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function currentApprovalLetter(): HasOne
     {
         return $this->hasOne(BuildApprovalLetter::class)->latestOfMany('issued_at');
+    }
+
+    public function siteApplication(): HasOne
+    {
+        return $this->hasOne(SiteApplication::class);
     }
 
     public function letterLocationLine(): string

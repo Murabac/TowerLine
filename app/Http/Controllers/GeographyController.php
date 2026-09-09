@@ -99,7 +99,9 @@ class GeographyController extends Controller
             abort(403);
         }
 
-        $operators = Operator::optionsForRegion($regionId)
+        $operators = Operator::query()
+            ->orderBy('name')
+            ->get()
             ->map(fn (Operator $operator) => $operator->toFormOption())
             ->values();
 

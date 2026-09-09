@@ -16,6 +16,8 @@ return [
         'director_name' => env('MINISTRY_APPROVAL_DIRECTOR_NAME', ''),
         'director_title_so' => env('MINISTRY_APPROVAL_DIRECTOR_TITLE_SO', 'Agaasimaha Waaxda Isgaadhsiinta'),
         'director_title_en' => env('MINISTRY_APPROVAL_DIRECTOR_TITLE_EN', 'Director of Communication Department'),
+        'dg_title_so' => env('MINISTRY_APPROVAL_DG_TITLE_SO', 'Agaasimaha Guud'),
+        'dg_title_en' => env('MINISTRY_APPROVAL_DG_TITLE_EN', 'Director General'),
     ],
 
 ];

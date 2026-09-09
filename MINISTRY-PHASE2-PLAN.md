@@ -517,6 +517,8 @@ _Remaining items only — most decisions are locked above._
 
 ## Next step
 
+Phase 3 site-registration portal: `MINISTRY-PHASE3-PLAN.md` (weeks 24–29 **done**).
+
 1. Ministry sends the **official district/sub-district list** (and any remaining paper templates) when ready.
-2. Deploy the Phase 2 demo on staging / Bluehost using `DEPLOY-BLUEHOST.md` (PHP 8.3, Laravel 12).
+2. Deploy using `DEPLOY-BLUEHOST.md` (PHP 8.3, Laravel 12).
 3. Run the one-region pilot in `HANDOVER.md`.

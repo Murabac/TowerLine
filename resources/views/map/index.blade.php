@@ -74,8 +74,8 @@
 
                 <select name="operator_id" x-model="filters.operator_id" class="field">
                     <option value="">{{ __('app.towers.operator') }}</option>
-                    <template x-for="operator in visibleOperators" :key="operator.id">
-                        <option :value="operator.id" x-text="operator.display_name"></option>
+                    <template x-for="operator in operatorOptions" :key="operator.id">
+                        <option :value="operator.id" x-text="operator.name"></option>
                     </template>
                 </select>
 
@@ -381,7 +381,6 @@
                     districtOptions: config.districts || [],
                     subDistrictOptions: config.subDistricts || [],
                     operatorOptions: config.operators || [],
-                    visibleOperators: config.operators || [],
                     showCoverage: true,
                     pinColorMode: localStorage.getItem('towerline-pin-color') || 'operator',
                     onlyFlagged: false,
@@ -460,7 +459,6 @@
                         this.$watch('onlyFlagged', () => this.draw(false));
                         this.$watch('onlyLicenseAlert', () => this.draw(false));
                         this.loadTowers();
-                        this.refreshOperatorOptions();
                         this.$nextTick(() => this.map.invalidateSize());
                         window.addEventListener('resize', () => this.map.invalidateSize());
                     },
@@ -491,23 +489,8 @@
                         this.filters.district_id = '';
                         this.filters.sub_district_id = '';
                         this.subDistrictOptions = [];
-                        this.refreshOperatorOptions();
                         await this.loadDistrictOptions();
                         this.applyFilters();
-                    },
-                    refreshOperatorOptions() {
-                        const regionId = this.filters.region_id || '';
-                        this.visibleOperators = this.operatorOptions.filter((operator) => {
-                            if (! regionId || operator.national) {
-                                return true;
-                            }
-
-                            return (operator.region_ids || []).map(String).includes(String(regionId));
-                        });
-
-                        if (this.filters.operator_id && ! this.visibleOperators.some((operator) => String(operator.id) === String(this.filters.operator_id))) {
-                            this.filters.operator_id = '';
-                        }
                     },
                     async onDistrictFilterChange() {
                         this.filters.sub_district_id = '';

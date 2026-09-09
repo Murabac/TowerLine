@@ -9,7 +9,7 @@ class OperatorPaletteTest extends TestCase
 {
     public function test_named_demo_operators_use_unique_color_blind_safe_colors(): void
     {
-        $names = ['Telesom', 'Somtel', 'Sogasho', 'Truecable', 'Astaan', 'Horncable'];
+        $names = ['Telesom', 'Somtel', 'Somcable', 'Truecable', 'Astaan', 'Horncable'];
         $colors = array_map(fn (string $name) => OperatorPalette::forName($name), $names);
 
         $this->assertCount(6, array_unique($colors));

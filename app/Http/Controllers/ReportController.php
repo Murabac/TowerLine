@@ -123,7 +123,7 @@ class ReportController extends Controller
             'result' => $result,
             'filters' => $filters,
             'regions' => $regions->get(),
-            'operators' => Operator::query()->with('regions')->orderBy('name')->get(),
+            'operators' => Operator::query()->orderBy('name')->get(),
             'initialDistricts' => $regionId
                 ? District::query()->where('region_id', $regionId)->orderBy('name')->get()->map(fn ($d) => ['id' => $d->id, 'name' => $d->localizedName()])->values()
                 : collect(),

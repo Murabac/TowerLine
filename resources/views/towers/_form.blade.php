@@ -11,17 +11,13 @@
         <h2 class="text-sm font-semibold text-brand">{{ __('app.towers.sections.company_location') }}</h2>
         <p class="mt-1 text-xs text-gray-500">{{ __('app.towers.sections.company_location_hint') }}</p>
         <div class="mt-4 grid lg:grid-cols-2 gap-4">
-            <div x-data="operatorRegionFilter({
-                options: @js(($operatorOptions ?? $operators->map->toFormOption())->values()),
-                selected: @js((string) old('operator_id', $tower?->operator_id ?? '')),
-            })" x-init="init()" @change.window="onRegionChange($event)">
+            <div>
                 <x-input-label for="operator_id" :value="__('app.towers.form_fields.company')" />
-                <select id="operator_id" name="operator_id" class="mt-1 block w-full rounded-md border-gray-300 focus:border-brand focus:ring-brand" required x-model="selected">
-                    <template x-for="operator in visibleOperators" :key="operator.id">
-                        <option :value="operator.id" :data-name="operator.name" x-text="operator.display_name"></option>
-                    </template>
+                <select id="operator_id" name="operator_id" class="mt-1 block w-full rounded-md border-gray-300 focus:border-brand focus:ring-brand" required>
+                    @foreach ($operators as $operator)
+                        <option value="{{ $operator->id }}" @selected((string) old('operator_id', $tower?->operator_id) === (string) $operator->id)>{{ $operator->name }}</option>
+                    @endforeach
                 </select>
-                <p class="mt-1 text-xs text-gray-500">{{ __('app.operators.region_filter_hint') }}</p>
                 <x-input-error :messages="$errors->get('operator_id')" class="mt-1" />
             </div>
             <div>
@@ -274,38 +270,6 @@
 @once
     @push('scripts')
         <script>
-            function operatorRegionFilter(config) {
-                return {
-                    options: config.options || [],
-                    selected: config.selected || '',
-                    visibleOperators: [],
-                    init() {
-                        this.refresh();
-                    },
-                    onRegionChange(event) {
-                        if (! event?.target || event.target.name !== 'region_id') {
-                            return;
-                        }
-
-                        this.refresh();
-                    },
-                    refresh() {
-                        const regionId = document.getElementById('region_id')?.value || '';
-                        this.visibleOperators = this.options.filter((operator) => {
-                            if (! regionId || operator.national) {
-                                return true;
-                            }
-
-                            return (operator.region_ids || []).map(String).includes(String(regionId));
-                        });
-
-                        if (this.selected && ! this.visibleOperators.some((operator) => String(operator.id) === String(this.selected))) {
-                            this.selected = this.visibleOperators[0]?.id ? String(this.visibleOperators[0].id) : '';
-                        }
-                    },
-                };
-            }
-
             function towerNamePreview(config) {
                 return {
                     operators: config.operators || [],

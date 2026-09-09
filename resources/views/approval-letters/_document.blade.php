@@ -1,8 +1,15 @@
 @php
     $tower = $letter->tower->loadMissing(['region', 'district', 'subDistrict', 'operator']);
     $director = \App\Support\MinistrySettings::approvalLetterDirector();
+    $dgTitles = \App\Support\MinistrySettings::approvalLetterDg();
+    $copy = $copy ?? 'hq';
+    $permitApplication = $permitApplication ?? null;
+    $signatureImages = $signatureImages ?? [];
 @endphp
 <article class="approval-letter">
+    @if ($copy === 'customer')
+        <p class="approval-letter__copy-banner">{{ __('app.applications.permit_customer_banner') }}</p>
+    @endif
     <header class="approval-letter__header">
         <img src="{{ asset('images/mocit-logo.jpg') }}" alt="" class="approval-letter__logo">
         <p class="approval-letter__header-line approval-letter__header-line--so">Jamhuuriyadda Somaliland</p>
@@ -21,6 +28,12 @@
             <span class="approval-letter__meta-label">{{ __('app.approval_letters.date') }}:</span>
             <span class="approval-letter__meta-value">{{ $letter->issued_at->format('d/m/Y') }}</span>
         </p>
+        @if ($permitApplication)
+            <p class="approval-letter__meta-item">
+                <span class="approval-letter__meta-label">{{ __('app.apply.tracking') }}:</span>
+                <span class="approval-letter__meta-value">{{ $permitApplication->reference_number }}</span>
+            </p>
+        @endif
     </div>
 
     <div class="approval-letter__title-block">
@@ -114,14 +127,51 @@
 
     <section>
         <h2 class="approval-letter__signatures-title">Ansixinta iyo Saxeexyada</h2>
-        <div class="approval-letter__signature-box">
-            @if (filled($director['name']))
-                <p class="approval-letter__signature-name">{{ $director['name'] }}</p>
-            @endif
-            <p class="approval-letter__signature-title">{{ $director['title_so'] }}</p>
-            <p class="approval-letter__signature-role">{{ $director['title_en'] }}</p>
-            <div class="approval-letter__signature-space">{{ __('app.approval_letters.signature_placeholder') }}</div>
-        </div>
+        @if ($permitApplication)
+            <div class="approval-letter__signature-grid {{ $permitApplication->officerReviewer ? 'approval-letter__signature-grid--three' : '' }}">
+                @if ($permitApplication->officerReviewer)
+                    <div class="approval-letter__signature-box">
+                        <p class="approval-letter__signature-name">{{ $permitApplication->officerReviewer->name }}</p>
+                        <p class="approval-letter__signature-title">{{ __('app.signatures.officer_so') }}</p>
+                        <p class="approval-letter__signature-role">{{ __('app.signatures.officer') }}</p>
+                        @if (! empty($signatureImages['officer']))
+                            <img src="{{ $signatureImages['officer'] }}" alt="" class="approval-letter__signature-image">
+                        @else
+                            <div class="approval-letter__signature-space">{{ __('app.approval_letters.signature_placeholder') }}</div>
+                        @endif
+                    </div>
+                @endif
+                <div class="approval-letter__signature-box">
+                    <p class="approval-letter__signature-name">{{ $permitApplication->director_name ?: $director['name'] }}</p>
+                    <p class="approval-letter__signature-title">{{ $director['title_so'] }}</p>
+                    <p class="approval-letter__signature-role">{{ $director['title_en'] }}</p>
+                    @if (! empty($signatureImages['director']))
+                        <img src="{{ $signatureImages['director'] }}" alt="" class="approval-letter__signature-image">
+                    @else
+                        <div class="approval-letter__signature-space">{{ __('app.approval_letters.signature_placeholder') }}</div>
+                    @endif
+                </div>
+                <div class="approval-letter__signature-box">
+                    <p class="approval-letter__signature-name">{{ $permitApplication->dg_name }}</p>
+                    <p class="approval-letter__signature-title">{{ $dgTitles['title_so'] }}</p>
+                    <p class="approval-letter__signature-role">{{ $dgTitles['title_en'] }}</p>
+                    @if (! empty($signatureImages['dg']))
+                        <img src="{{ $signatureImages['dg'] }}" alt="" class="approval-letter__signature-image">
+                    @else
+                        <div class="approval-letter__signature-space">{{ __('app.approval_letters.signature_placeholder') }}</div>
+                    @endif
+                </div>
+            </div>
+        @else
+            <div class="approval-letter__signature-box">
+                @if (filled($director['name']))
+                    <p class="approval-letter__signature-name">{{ $director['name'] }}</p>
+                @endif
+                <p class="approval-letter__signature-title">{{ $director['title_so'] }}</p>
+                <p class="approval-letter__signature-role">{{ $director['title_en'] }}</p>
+                <div class="approval-letter__signature-space">{{ __('app.approval_letters.signature_placeholder') }}</div>
+            </div>
+        @endif
     </section>
 
     <footer class="approval-letter__footer">

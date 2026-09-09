@@ -19,4 +19,15 @@ class MinistrySettings
             'title_en' => $settings?->approval_director_title_en ?: config('ministry.approval_letter.director_title_en'),
         ];
     }
+
+    /**
+     * @return array{title_so: string, title_en: string}
+     */
+    public static function approvalLetterDg(): array
+    {
+        return [
+            'title_so' => config('ministry.approval_letter.dg_title_so'),
+            'title_en' => config('ministry.approval_letter.dg_title_en'),
+        ];
+    }
 }

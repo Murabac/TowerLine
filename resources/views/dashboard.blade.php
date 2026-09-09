@@ -11,6 +11,30 @@
             </a>
         @endif
 
+        @if (! empty($pendingApplicationCount))
+            <a href="{{ route('applications.index') }}" class="block rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                {{ __('app.dashboard.pending_applications_banner', ['count' => $pendingApplicationCount]) }}
+            </a>
+        @endif
+
+        @if (! empty($pendingOfficerReviewCount))
+            <a href="{{ route('applications.index') }}" class="block rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                {{ __('app.dashboard.pending_officer_review_banner', ['count' => $pendingOfficerReviewCount]) }}
+            </a>
+        @endif
+
+        @if (! empty($pendingDirectorReviewCount))
+            <a href="{{ route('applications.index') }}" class="block rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                {{ __('app.dashboard.pending_director_review_banner', ['count' => $pendingDirectorReviewCount]) }}
+            </a>
+        @endif
+
+        @if (! empty($pendingDgReviewCount))
+            <a href="{{ route('applications.index') }}" class="block rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                {{ __('app.dashboard.pending_dg_review_banner', ['count' => $pendingDgReviewCount]) }}
+            </a>
+        @endif
+
         @if ($frequencyExpiringCount)
             <a href="{{ route('frequencies.dashboard') }}" class="block rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
                 {{ __('app.dashboard.frequency_renewal_banner', ['count' => $frequencyExpiringCount]) }}

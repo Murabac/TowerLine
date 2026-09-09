@@ -64,7 +64,7 @@ class TowerController extends Controller
         return view('towers.index', [
             'towers' => $query->paginate(15)->withQueryString(),
             'regions' => $this->scopedRegions(),
-            'operators' => Operator::query()->with('regions')->orderBy('name')->get(),
+            'operators' => Operator::query()->orderBy('name')->get(),
             'powerSources' => TowerPowerSource::OPTIONS,
             'initialDistricts' => $this->districtOptionsForRegion($request->integer('region_id') ?: null),
             'initialSubDistricts' => $this->subDistrictOptionsForDistrict($request->integer('district_id') ?: null),
@@ -145,6 +145,9 @@ class TowerController extends Controller
             'licenses.operator',
             'currentApprovalLetter.issuer',
             'pendingApprovalRequests.submitter',
+            'siteApplication.officerReviewer',
+            'siteApplication.directorReviewer',
+            'siteApplication.dgReviewer',
         ]);
 
         return view('towers.show', compact('tower'));
@@ -198,8 +201,7 @@ class TowerController extends Controller
 
         return [
             'regions' => $this->scopedRegions(),
-            'operators' => Operator::query()->with('regions')->orderBy('name')->get(),
-            'operatorOptions' => Operator::query()->with('regions')->orderBy('name')->get()->map->toFormOption()->values(),
+            'operators' => Operator::query()->orderBy('name')->get(),
             'powerSources' => TowerPowerSource::OPTIONS,
             'initialDistricts' => $this->districtOptionsForRegion(
                 old('region_id', $tower?->region_id ?? $user->regionIds()[0] ?? null)

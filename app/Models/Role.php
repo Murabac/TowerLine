@@ -17,6 +17,16 @@ class Role extends Model
 
     public const KEY_OPERATOR_VIEWER = 'operator_viewer';
 
+    public const KEY_SECTION_HEAD = 'section_head';
+
+    public const KEY_ASSIGNED_OFFICER = 'assigned_officer';
+
+    public const KEY_REGIONAL_COORDINATOR = 'regional_coordinator';
+
+    public const KEY_DEPARTMENT_DIRECTOR = 'department_director';
+
+    public const KEY_DIRECTOR_GENERAL = 'director_general';
+
     protected $fillable = [
         'key',
         'name',

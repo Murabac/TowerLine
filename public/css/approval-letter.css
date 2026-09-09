@@ -255,6 +255,41 @@
     font-weight: 600;
 }
 
+.approval-letter__copy-banner {
+    margin: 0 0 16px;
+    padding: 8px 12px;
+    border: 1px dashed var(--letter-green-dark);
+    text-align: center;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 10pt;
+    letter-spacing: 0.04em;
+    color: var(--letter-green-dark);
+}
+
+.approval-letter__signature-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.approval-letter__signature-grid .approval-letter__signature-box {
+    margin: 0;
+    max-width: none;
+}
+
+.approval-letter__signature-grid--three {
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+.approval-letter__signature-image {
+    display: block;
+    margin: 12px auto 0;
+    max-height: 52px;
+    max-width: 100%;
+    object-fit: contain;
+}
+
 /* Signatures */
 .approval-letter__signatures-title {
     margin: 0 0 12px;

@@ -124,6 +124,15 @@
             </div>
         </div>
 
+        @if ($tower->siteApplication)
+            <div class="data-card p-5">
+                @include('applications._signatories', [
+                    'application' => $tower->siteApplication,
+                    'signatories' => $tower->siteApplication->approvalSignatories(),
+                ])
+            </div>
+        @endif
+
         <div class="grid lg:grid-cols-5 gap-5">
             <div class="lg:col-span-2 data-card p-5">
                 <h2 class="text-sm font-semibold text-brand mb-4">{{ __('app.towers.overview') }}</h2>

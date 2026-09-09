@@ -33,7 +33,7 @@ class OperatorPalette
     public const NAMED = [
         'Telesom' => '#009E73',
         'Somtel' => '#0072B2',
-        'Sogasho' => '#CC79A7',
+        'Somcable' => '#CC79A7',
         'Truecable' => '#D55E00',
         'Astaan' => '#56B4E9',
         'Horncable' => '#E69F00',
