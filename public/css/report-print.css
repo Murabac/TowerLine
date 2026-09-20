@@ -129,6 +129,31 @@
     white-space: nowrap;
 }
 
+.report-page .data-toolbar {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.report-page .data-toolbar > .field,
+.report-page .data-toolbar select.field,
+.report-page .data-toolbar input.field {
+    width: 100%;
+    max-width: none;
+}
+
+.report-page .data-toolbar > details {
+    grid-column: 1 / -1;
+}
+
+.report-page .data-toolbar > div:last-child {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    grid-column: auto;
+}
+
 .report-page .data-table {
     border-collapse: collapse;
     border: 1px solid #1b4d3e;

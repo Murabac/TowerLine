@@ -74,7 +74,11 @@ class ReportCentreTest extends TestCase
             ->assertSee('Wasaaradda Isgaadhsiinta iyo Teknoolojiyadda', false)
             ->assertSee('Waaxda Isgaadhsiinta', false)
             ->assertSee(__('app.reports.official_document'), false)
-            ->assertSee(__('app.reports.no'), false);
+            ->assertSee(__('app.reports.no'), false)
+            ->assertSee(__('app.map.health'), false)
+            ->assertSee(__('app.towers.power_source'), false)
+            ->assertSee(__('app.filter'), false)
+            ->assertSee(__('app.reset'), false);
     }
 
     public function test_admin_can_download_excel(): void
