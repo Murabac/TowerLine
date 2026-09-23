@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Complaint;
 use App\Models\District;
 use App\Models\Operator;
 use App\Models\Region;
@@ -60,6 +61,8 @@ class MapController extends Controller
                 ])
                 ->values(),
             'filters' => $request->only(['region_id', 'district_id', 'sub_district_id', 'operator_id', 'category', 'status', 'license_state', 'health_status', 'overdue', 'power_source']),
+            'canViewComplaints' => $user->canTask('complaints.view'),
+            'complaintsEndpoint' => $user->canTask('complaints.view') ? route('map.complaints') : null,
         ]);
     }
 
@@ -148,6 +151,7 @@ class MapController extends Controller
                     'color' => $tower->operator->color,
                     'category' => $tower->operator->category,
                 ],
+                'region_id' => $tower->region_id,
                 'region' => $tower->region->localizedName(),
                 'district' => $tower->district?->localizedName(),
                 'sub_district' => $tower->subDistrict?->localizedName(),
@@ -171,13 +175,58 @@ class MapController extends Controller
             ];
         });
 
-        $bounds = $this->boundsFromTowers($towers)
-            ?? $this->geographyBounds($request);
+        $bounds = $this->geographyBounds($request)
+            ?? $this->boundsFromTowers($towers);
 
         return response()->json([
             'towers' => $towers,
             'bounds' => $bounds,
         ]);
+    }
+
+    public function complaints(Request $request): JsonResponse
+    {
+        $this->authorize('viewAny', Complaint::class);
+
+        $complaints = Complaint::query()
+            ->visibleTo($request->user())
+            ->with(['region', 'tower.operator'])
+            ->get()
+            ->map(function (Complaint $complaint) {
+                $lat = $complaint->mapLatitude();
+                $lng = $complaint->mapLongitude();
+
+                if ($lat === null || $lng === null) {
+                    return null;
+                }
+
+                return [
+                    'id' => $complaint->id,
+                    'reference_number' => $complaint->reference_number,
+                    'lat' => (float) $lat,
+                    'lng' => (float) $lng,
+                    'status' => $complaint->status,
+                    'status_label' => $complaint->statusLabel(),
+                    'priority' => $complaint->priority,
+                    'priority_label' => $complaint->priorityLabel(),
+                    'type_label' => $complaint->typeLabel(),
+                    'color' => match ($complaint->status) {
+                        Complaint::STATUS_SUBMITTED => '#D97706',
+                        Complaint::STATUS_UNDER_REVIEW => '#0284C7',
+                        Complaint::STATUS_ASSIGNED => '#7C3AED',
+                        Complaint::STATUS_IN_PROGRESS => '#4F46E5',
+                        Complaint::STATUS_RESOLVED => '#059669',
+                        Complaint::STATUS_CLOSED => '#64748B',
+                        Complaint::STATUS_REJECTED => '#E11D48',
+                        default => '#D97706',
+                    },
+                    'url' => route('complaints.show', $complaint),
+                ];
+            })
+            ->filter()
+            ->values();
+
+        return response()->json(['complaints' => $complaints]);
     }
 
     /**
@@ -207,6 +256,42 @@ class MapController extends Controller
             return null;
         }
 
+        if ($request->filled('sub_district_id')) {
+            $subDistrict = SubDistrict::query()->with('district.subDistricts')->find($request->integer('sub_district_id'));
+            $bounds = $subDistrict ? GeographyReference::boundsForSubDistrict($subDistrict) : null;
+
+            if ($bounds) {
+                return $bounds;
+            }
+
+            $bounds = $subDistrict?->district?->mapBounds();
+
+            if ($bounds) {
+                return $bounds;
+            }
+        }
+
+        if ($request->filled('district_id')) {
+            $district = District::query()->with('subDistricts')->find($request->integer('district_id'));
+            $bounds = $district?->mapBounds();
+
+            if ($bounds) {
+                return $bounds;
+            }
+        }
+
+        if ($request->filled('region_id')) {
+            $districts = District::query()
+                ->with('subDistricts')
+                ->where('region_id', $request->integer('region_id'))
+                ->get();
+            $bounds = GeographyReference::unionBounds($districts->map(fn (District $district) => $district->mapBounds()));
+
+            if ($bounds) {
+                return $bounds;
+            }
+        }
+
         $query = Tower::query()
             ->visibleTo($request->user())
             ->whereNotNull('latitude')
@@ -226,12 +311,6 @@ class MapController extends Controller
             $subDistrict = SubDistrict::query()->find($request->integer('sub_district_id'));
 
             if ($subDistrict) {
-                $centroidBounds = GeographyReference::boundsForSubDistrict($subDistrict);
-
-                if ($centroidBounds) {
-                    return $centroidBounds;
-                }
-
                 $coordinates = Tower::query()
                     ->visibleTo($request->user())
                     ->where('district_id', $subDistrict->district_id)

@@ -21,7 +21,7 @@
         $application->isDgReview() => 'bg-indigo-50 text-indigo-900 ring-indigo-600/15',
         $application->isGranted() => 'bg-emerald-50 text-emerald-900 ring-emerald-600/15',
         $application->isRefused() => 'bg-gray-100 text-gray-800 ring-gray-500/15',
-        $application->isReturned() => 'bg-rose-50 text-rose-900 ring-rose-600/15',
+        $application->isReturned() || $application->isReturnedToDirector() => 'bg-rose-50 text-rose-900 ring-rose-600/15',
         default => 'bg-gray-100 text-gray-700 ring-gray-500/10',
     };
 @endphp
@@ -52,11 +52,17 @@
                             <span class="text-gray-300">·</span>
                             <span>{{ $locationLine }}</span>
                         @endif
-                        @if ($application->assignee)
-                            <span class="text-gray-300">·</span>
-                            <span>{{ __('app.applications.assignee') }}: {{ $application->assignee->name }}</span>
-                        @endif
                     </div>
+                    <p class="mt-1.5 text-xs text-gray-500 tabular-nums">
+                        {{ __('app.applications.received_at') }}: {{ \App\Models\SiteApplication::stamp($application->created_at) ?: '—' }}
+                        @if ($application->assigned_at)
+                            <span class="text-gray-300"> · </span>
+                            {{ __('app.applications.assigned_at') }}: {{ \App\Models\SiteApplication::stamp($application->assigned_at) }}
+                            @if ($application->assignee)
+                                ({{ $application->assignee->name }})
+                            @endif
+                        @endif
+                    </p>
                 </div>
                 @if ($application->isGranted() && $application->tower)
                     <a href="{{ route('towers.show', $application->tower) }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-brand text-white text-sm font-semibold rounded-xl hover:bg-brand-dark shrink-0">
@@ -231,6 +237,10 @@
                                 <dd class="mt-1 font-medium text-gray-900">{{ $application->site_visit_on?->timezone(config('app.timezone'))->format('d M Y') ?: '—' }}</dd>
                             </div>
                             <div>
+                                <dt class="stat-label">{{ __('app.applications.visit_recorded_at') }}</dt>
+                                <dd class="mt-1 font-medium text-gray-900 tabular-nums">{{ \App\Models\SiteApplication::stamp($application->site_visited_at ?: $application->officer_reviewed_at) ?: '—' }}</dd>
+                            </div>
+                            <div>
                                 <dt class="stat-label">{{ __('app.applications.visited_by') }}</dt>
                                 <dd class="mt-1 font-medium text-gray-900">{{ $application->visitor?->name ?: '—' }}</dd>
                             </div>
@@ -243,7 +253,7 @@
                                     <dt class="stat-label">{{ __('app.applications.officer_remarks') }}</dt>
                                     <dd class="mt-1 text-gray-800 whitespace-pre-wrap">{{ $application->officer_remarks }}</dd>
                                     @if ($application->officerReviewer)
-                                        <p class="mt-1 text-xs text-gray-500">{{ $application->officerReviewer->name }}@if ($application->officer_reviewed_at) · {{ $application->officer_reviewed_at->timezone(config('app.timezone'))->format('d M Y H:i') }}@endif</p>
+                                        <p class="mt-1 text-xs text-gray-500">{{ $application->officerReviewer->name }}@if ($application->officer_reviewed_at) · {{ \App\Models\SiteApplication::stamp($application->officer_reviewed_at) }}@endif</p>
                                     @endif
                                 </div>
                             @endif
@@ -267,7 +277,7 @@
                                 <dt class="stat-label">{{ __('app.applications.director_remarks') }}</dt>
                                 <dd class="mt-1 text-gray-800 whitespace-pre-wrap">{{ $application->director_remarks }}</dd>
                                 @if ($application->directorReviewer)
-                                    <p class="mt-1 text-xs text-gray-500">{{ $application->directorReviewer->name }}@if ($application->director_reviewed_at) · {{ $application->director_reviewed_at->timezone(config('app.timezone'))->format('d M Y H:i') }}@endif</p>
+                                    <p class="mt-1 text-xs text-gray-500">{{ $application->directorReviewer->name }}@if ($application->director_reviewed_at) · {{ \App\Models\SiteApplication::stamp($application->director_reviewed_at) }}@endif</p>
                                 @endif
                             </div>
                         </dl>
@@ -290,7 +300,7 @@
                                 <dt class="stat-label">{{ __('app.applications.dg_remarks') }}</dt>
                                 <dd class="mt-1 text-gray-800 whitespace-pre-wrap">{{ $application->dg_remarks }}</dd>
                                 @if ($application->dgReviewer)
-                                    <p class="mt-1 text-xs text-gray-500">{{ $application->dgReviewer->name }}@if ($application->dg_reviewed_at) · {{ $application->dg_reviewed_at->timezone(config('app.timezone'))->format('d M Y H:i') }}@endif</p>
+                                    <p class="mt-1 text-xs text-gray-500">{{ $application->dgReviewer->name }}@if ($application->dg_reviewed_at) · {{ \App\Models\SiteApplication::stamp($application->dg_reviewed_at) }}@endif</p>
                                 @endif
                             </div>
                         </dl>
@@ -312,6 +322,21 @@
             </div>
 
             <aside class="lg:col-span-2 space-y-5">
+                <section class="data-card overflow-hidden">
+                    <x-section-bar :title="__('app.applications.timeline')" />
+                    <ol class="divide-y divide-gray-100">
+                        @foreach ($application->timeline() as $row)
+                            <li class="px-5 py-3.5">
+                                <p class="text-xs font-medium uppercase tracking-wide text-gray-400">{{ $row['label'] }}</p>
+                                <p class="mt-0.5 text-sm font-semibold tabular-nums text-gray-900">{{ $row['at'] }}</p>
+                                @if ($row['who'])
+                                    <p class="mt-0.5 text-xs text-gray-500">{{ $row['who'] }}</p>
+                                @endif
+                            </li>
+                        @endforeach
+                    </ol>
+                </section>
+
                 @can('review', $application)
                     <section class="data-card overflow-hidden">
                         <x-section-bar :title="__('app.applications.review_title')" :hint="__('app.applications.review_hint')" />
@@ -426,9 +451,18 @@
 
                 @can('assign', $application)
                     <section class="data-card overflow-hidden">
-                        <x-section-bar :title="__('app.applications.assign_to')" :hint="__('app.applications.assign_hint')" />
+                        <x-section-bar
+                            :title="$application->isAssigned() ? __('app.applications.status.assigned') : __('app.applications.assign_to')"
+                            :hint="$application->isAssigned() ? __('app.applications.reassign_hint') : __('app.applications.assign_hint')"
+                        />
                         <form method="POST" action="{{ route('applications.assign', $application) }}" class="p-5 sm:p-6 space-y-3">
                             @csrf
+                            @if ($application->isAssigned() && $application->assignee)
+                                <p class="text-sm text-gray-700">{{ __('app.applications.assignee') }}: <span class="font-semibold">{{ $application->assignee->name }}</span></p>
+                                @if ($application->assigned_at)
+                                    <p class="text-xs text-gray-500 tabular-nums">{{ __('app.applications.assigned_at') }}: {{ \App\Models\SiteApplication::stamp($application->assigned_at) }}</p>
+                                @endif
+                            @endif
                             <select name="assigned_to" class="field w-full" required>
                                 <option value="">{{ __('app.applications.select_assignee') }}</option>
                                 @foreach ($assignees as $assignee)
@@ -442,7 +476,7 @@
                                 <p class="text-sm text-amber-800">{{ __('app.applications.no_assignees') }}</p>
                             @endif
                             <button type="submit" class="inline-flex w-full items-center justify-center rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-dark" @disabled($assignees->isEmpty())>
-                                {{ __('app.applications.assign') }}
+                                {{ $application->isAssigned() ? __('app.applications.reassign') : __('app.applications.assign') }}
                             </button>
                         </form>
                     </section>

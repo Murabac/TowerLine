@@ -26,19 +26,28 @@
         <div class="data-card">
             <form method="GET" class="data-toolbar">
                 <select name="status" class="field lg:w-56">
-                    @if ($canAssign)
-                        <option value="pending" @selected($status === 'pending')>{{ __('app.applications.status.pending') }}</option>
-                    @endif
-                    @if ($canAssign || $seesAll)
+                    @if ($dgInbox)
                         <option value="received" @selected($status === 'received')>{{ __('app.applications.status.received') }}</option>
                         <option value="returned" @selected($status === 'returned')>{{ __('app.applications.status.returned') }}</option>
-                        <option value="director_review" @selected($status === 'director_review')>{{ __('app.applications.status.director_review') }}</option>
-                        <option value="dg_review" @selected($status === 'dg_review')>{{ __('app.applications.status.dg_review') }}</option>
-                        <option value="granted" @selected($status === 'granted')>{{ __('app.applications.status.granted') }}</option>
+                        <option value="assigned" @selected($status === 'assigned')>{{ __('app.applications.status.assigned') }}</option>
                         <option value="refused" @selected($status === 'refused')>{{ __('app.applications.status.refused') }}</option>
+                        <option value="granted" @selected($status === 'granted')>{{ __('app.applications.status.granted') }}</option>
+                        <option value="all" @selected($status === 'all')>{{ __('app.all') }}</option>
+                    @else
+                        @if ($canAssign)
+                            <option value="pending" @selected($status === 'pending')>{{ __('app.applications.status.pending') }}</option>
+                        @endif
+                        @if ($canAssign || $seesAll)
+                            <option value="received" @selected($status === 'received')>{{ __('app.applications.status.received') }}</option>
+                            <option value="returned" @selected($status === 'returned')>{{ __('app.applications.status.returned') }}</option>
+                            <option value="director_review" @selected($status === 'director_review')>{{ __('app.applications.status.director_review') }}</option>
+                            <option value="dg_review" @selected($status === 'dg_review')>{{ __('app.applications.status.dg_review') }}</option>
+                            <option value="granted" @selected($status === 'granted')>{{ __('app.applications.status.granted') }}</option>
+                            <option value="refused" @selected($status === 'refused')>{{ __('app.applications.status.refused') }}</option>
+                        @endif
+                        <option value="assigned" @selected($status === 'assigned')>{{ __('app.applications.status.assigned') }}</option>
+                        <option value="all" @selected($status === 'all')>{{ __('app.all') }}</option>
                     @endif
-                    <option value="assigned" @selected($status === 'assigned')>{{ __('app.applications.status.assigned') }}</option>
-                    <option value="all" @selected($status === 'all')>{{ __('app.all') }}</option>
                 </select>
                 <div class="flex items-center gap-2">
                     <button class="inline-flex items-center px-4 py-2 bg-brand text-white text-sm font-semibold rounded-lg hover:bg-brand-dark">{{ __('app.filter') }}</button>
@@ -55,6 +64,7 @@
                             <th>{{ __('app.apply.region') }}</th>
                             <th>{{ __('app.approvals.status_label') }}</th>
                             <th>{{ __('app.applications.assignee') }}</th>
+                            <th>{{ __('app.applications.received_at') }}</th>
                             <th class="text-right">{{ __('app.actions') }}</th>
                         </tr>
                     </thead>
@@ -74,14 +84,22 @@
                                         'bg-indigo-100 text-indigo-900' => $item->isDgReview(),
                                         'bg-emerald-100 text-emerald-900' => $item->isGranted(),
                                         'bg-gray-200 text-gray-800' => $item->isRefused(),
-                                        'bg-rose-100 text-rose-900' => $item->isReturned(),
+                                        'bg-rose-100 text-rose-900' => $item->isReturned() || $item->isReturnedToDirector(),
                                     ])>{{ $item->statusLabel() }}</span>
                                 </td>
-                                <td class="text-gray-600">{{ $item->assignee?->name ?: '—' }}</td>
+                                <td class="text-gray-600">
+                                    {{ $item->assignee?->name ?: '—' }}
+                                    @if ($item->assigned_at)
+                                        <p class="text-xs text-gray-400 tabular-nums">{{ \App\Models\SiteApplication::stamp($item->assigned_at) }}</p>
+                                    @endif
+                                </td>
+                                <td class="text-gray-500 whitespace-nowrap tabular-nums">{{ \App\Models\SiteApplication::stamp($item->created_at) ?: '—' }}</td>
                                 <td class="actions">
                                     <a href="{{ route('applications.show', $item) }}" class="text-sm font-semibold text-brand hover:underline">
-                                        @if ($canAssign && $item->canBeAssigned())
+                                        @if ($canAssign && ($item->isReceived() || $item->isReturned()))
                                             {{ __('app.applications.assign') }}
+                                        @elseif ($canAssign && $item->isAssigned())
+                                            {{ __('app.applications.status.assigned') }}
                                         @elseif ($canReview && $item->canBeReviewed())
                                             {{ __('app.applications.review') }}
                                         @elseif ($canConcur && $item->canReceiveDirectorDecision())
@@ -96,7 +114,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="!py-16 text-center text-sm text-gray-500">{{ $canAssign ? __('app.applications.empty') : __('app.applications.empty_assigned') }}</td>
+                                <td colspan="8" class="!py-16 text-center text-sm text-gray-500">{{ $canAssign ? __('app.applications.empty') : __('app.applications.empty_assigned') }}</td>
                             </tr>
                         @endforelse
                     </tbody>

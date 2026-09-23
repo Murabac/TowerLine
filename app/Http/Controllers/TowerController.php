@@ -229,7 +229,7 @@ class TowerController extends Controller
     }
 
     /**
-     * @return list<array{id: int, name: string}>
+     * @return list<array{id: int, name: string, bounds: array{south: float, west: float, north: float, east: float}|null}>
      */
     private function districtOptionsForRegion(mixed $regionId): array
     {
@@ -238,15 +238,20 @@ class TowerController extends Controller
         }
 
         return District::query()
+            ->with('subDistricts')
             ->where('region_id', $regionId)
             ->orderBy('name')
             ->get()
-            ->map(fn (District $district) => ['id' => $district->id, 'name' => $district->name])
+            ->map(fn (District $district) => [
+                'id' => $district->id,
+                'name' => $district->name,
+                'bounds' => $district->mapBounds(),
+            ])
             ->all();
     }
 
     /**
-     * @return list<array{id: int, name: string}>
+     * @return list<array{id: int, name: string, bounds: array{south: float, west: float, north: float, east: float}|null}>
      */
     private function subDistrictOptionsForDistrict(mixed $districtId): array
     {
@@ -259,7 +264,11 @@ class TowerController extends Controller
             ?->subDistricts()
             ->orderBy('name')
             ->get()
-            ->map(fn ($subDistrict) => ['id' => $subDistrict->id, 'name' => $subDistrict->name])
+            ->map(fn ($subDistrict) => [
+                'id' => $subDistrict->id,
+                'name' => $subDistrict->name,
+                'bounds' => $subDistrict->mapBounds(),
+            ])
             ->all() ?? [];
     }
 

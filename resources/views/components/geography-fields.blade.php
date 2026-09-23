@@ -105,6 +105,8 @@
                         if (this.districtId && ! this.cities.length) {
                             this.loadCities(false);
                         }
+                        this.$watch('subDistrictId', () => this.emitMapFocus());
+                        this.$nextTick(() => this.emitMapFocus());
                     },
                     async onRegionChange() {
                         this.districtId = '';
@@ -113,11 +115,24 @@
                         this.subDistricts = [];
                         this.cities = [];
                         await this.loadDistricts(true);
+                        this.emitMapFocus();
                     },
                     async onDistrictChange() {
                         this.subDistrictId = '';
                         this.city = '';
                         await Promise.all([this.loadSubDistricts(true), this.loadCities(true)]);
+                        this.emitMapFocus();
+                    },
+                    emitMapFocus() {
+                        const sub = this.subDistricts.find((item) => String(item.id) === String(this.subDistrictId));
+                        const district = this.districts.find((item) => String(item.id) === String(this.districtId));
+                        const bounds = (sub && sub.bounds) || (district && district.bounds) || null;
+                        window.dispatchEvent(new CustomEvent('geography-map-focus', {
+                            detail: {
+                                bounds,
+                                maxZoom: sub && sub.bounds ? 14 : 12,
+                            },
+                        }));
                     },
                     async loadDistricts(clearSelection) {
                         if (! this.regionId) {

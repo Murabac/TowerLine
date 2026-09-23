@@ -27,6 +27,8 @@ class Role extends Model
 
     public const KEY_DIRECTOR_GENERAL = 'director_general';
 
+    public const KEY_COMPLAINTS_OFFICER = 'complaints_officer';
+
     protected $fillable = [
         'key',
         'name',
@@ -49,7 +51,7 @@ class Role extends Model
 
     public function scopeAssignable(Builder $query): Builder
     {
-        return $query->where('key', '!=', self::KEY_OPERATOR_VIEWER);
+        return $query;
     }
 
     public function isSystem(): bool
@@ -59,7 +61,7 @@ class Role extends Model
 
     public function isAssignable(): bool
     {
-        return $this->key !== self::KEY_OPERATOR_VIEWER;
+        return true;
     }
 
     public function displayName(): string

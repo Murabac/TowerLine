@@ -35,6 +35,12 @@
             </a>
         @endif
 
+        @if (! empty($pendingComplaintCount))
+            <a href="{{ route('complaints.index') }}" class="block rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                {{ __('app.dashboard.pending_complaints_banner', ['count' => $pendingComplaintCount]) }}
+            </a>
+        @endif
+
         @if ($frequencyExpiringCount)
             <a href="{{ route('frequencies.dashboard') }}" class="block rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
                 {{ __('app.dashboard.frequency_renewal_banner', ['count' => $frequencyExpiringCount]) }}

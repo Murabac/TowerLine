@@ -26,12 +26,14 @@ class GeographyController extends Controller
         }
 
         $districts = District::query()
+            ->with('subDistricts')
             ->where('region_id', $request->integer('region_id'))
             ->orderBy('name')
             ->get()
             ->map(fn (District $district) => [
                 'id' => $district->id,
                 'name' => $district->name,
+                'bounds' => $district->mapBounds(),
             ]);
 
         return response()->json(['districts' => $districts]);
@@ -59,6 +61,7 @@ class GeographyController extends Controller
             ->map(fn (SubDistrict $subDistrict) => [
                 'id' => $subDistrict->id,
                 'name' => $subDistrict->name,
+                'bounds' => $subDistrict->mapBounds(),
             ]);
 
         return response()->json(['sub_districts' => $subDistricts]);

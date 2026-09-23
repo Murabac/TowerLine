@@ -6,6 +6,7 @@ use App\Http\Requests\StoreSiteApplicationRequest;
 use App\Models\Operator;
 use App\Models\Region;
 use App\Models\SiteApplication;
+use App\Support\GeographyReference;
 use App\Support\SiteApplicationNumberGenerator;
 use App\Support\TowerFenceDistance;
 use App\Support\TowerLandArea;
@@ -23,18 +24,29 @@ class SiteApplicationController extends Controller
         $operators = Operator::query()->orderBy('name')->get();
         $regions = Region::query()->with(['districts.subDistricts'])->orderBy('name_en')->get();
 
-        $geography = $regions->map(fn (Region $region) => [
-            'id' => $region->id,
-            'name' => $region->name_en,
-            'districts' => $region->districts->map(fn ($district) => [
-                'id' => $district->id,
-                'name' => $district->name,
-                'sub_districts' => $district->subDistricts->map(fn ($sub) => [
+        $geography = $regions->map(function (Region $region) {
+            $districts = $region->districts->map(function ($district) {
+                $subDistricts = $district->subDistricts->map(fn ($sub) => [
                     'id' => $sub->id,
                     'name' => $sub->name,
-                ])->values(),
-            ])->values(),
-        ])->values();
+                    'bounds' => $sub->mapBounds(),
+                ])->values();
+
+                return [
+                    'id' => $district->id,
+                    'name' => $district->name,
+                    'bounds' => GeographyReference::unionBounds($subDistricts->pluck('bounds')),
+                    'sub_districts' => $subDistricts,
+                ];
+            })->values();
+
+            return [
+                'id' => $region->id,
+                'name' => $region->name_en,
+                'bounds' => GeographyReference::unionBounds($districts->pluck('bounds')),
+                'districts' => $districts,
+            ];
+        })->values();
 
         return view('apply.create', [
             'operators' => $operators,

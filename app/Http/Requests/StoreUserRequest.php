@@ -28,9 +28,10 @@ class StoreUserRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($managed?->id)],
             'password' => [$creating ? 'required' : 'nullable', 'string', 'min:8'],
-            'role' => ['required', 'string', Rule::exists('roles', 'key')->where(fn ($query) => $query->where('key', '!=', Role::KEY_OPERATOR_VIEWER))],
+            'role' => ['required', 'string', Rule::exists('roles', 'key')],
             'region_ids' => ['nullable', 'array'],
             'region_ids.*' => ['integer', 'exists:regions,id'],
+            'operator_id' => ['nullable', 'integer', 'exists:operators,id'],
         ];
     }
 
@@ -42,6 +43,10 @@ class StoreUserRequest extends FormRequest
             if ($role?->requires_regions && empty($this->input('region_ids'))) {
                 $validator->errors()->add('region_ids', __('app.users.regions_required'));
             }
+
+            if ($role?->key === Role::KEY_OPERATOR_VIEWER && ! $this->filled('operator_id')) {
+                $validator->errors()->add('operator_id', __('app.users.operator_required'));
+            }
         });
     }
 
@@ -51,6 +56,10 @@ class StoreUserRequest extends FormRequest
 
         if (! $role?->requires_regions) {
             $this->merge(['region_ids' => []]);
+        }
+
+        if ($role?->key !== Role::KEY_OPERATOR_VIEWER) {
+            $this->merge(['operator_id' => null]);
         }
     }
 }

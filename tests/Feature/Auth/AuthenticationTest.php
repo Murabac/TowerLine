@@ -24,10 +24,11 @@ class AuthenticationTest extends TestCase
         $response->assertSee(__('app.demo.director'), false);
         $response->assertSee(__('app.demo.dg'), false);
         $response->assertDontSee('inspector.west@mocit.local', false);
-        $response->assertDontSee('viewer.telesom@mocit.local', false);
+        $response->assertSee('viewer.telesom@mocit.local', false);
+        $response->assertSee(__('app.demo.complaints_officer'), false);
     }
 
-    public function test_operator_viewers_cannot_log_in_while_the_role_is_disabled(): void
+    public function test_operator_viewers_can_log_in(): void
     {
         $operator = \App\Models\Operator::query()->create([
             'name' => 'Telesom',
@@ -39,12 +40,23 @@ class AuthenticationTest extends TestCase
             'operator_id' => $operator->id,
         ]);
 
-        $this->from('/login')->post('/login', [
+        $this->post('/login', [
             'email' => $viewer->email,
             'password' => 'password',
-        ])->assertRedirect('/login')->assertSessionHasErrors('email');
+        ])->assertRedirect(route('complaints.index', absolute: false));
 
-        $this->assertGuest();
+        $this->assertAuthenticated();
+    }
+
+    public function test_demo_quick_login_signs_in_the_complaints_officer(): void
+    {
+        $this->post('/login', [
+            'email' => 'complaints@mocit.local',
+            'password' => 'password',
+        ])->assertRedirect(route('complaints.index', absolute: false));
+
+        $this->assertAuthenticated();
+        $this->assertSame('complaints_officer', auth()->user()->role);
     }
 
     public function test_demo_quick_login_signs_in_an_admin(): void

@@ -7,6 +7,7 @@ use App\Models\Operator;
 use App\Models\Region;
 use App\Models\SiteApplication;
 use App\Models\SubDistrict;
+use App\Models\Tower;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -38,6 +39,13 @@ class SiteApplicationTest extends TestCase
             ->assertSee('Nearest school', false)
             ->assertSee('Power source', false)
             ->assertSee('Save current location', false)
+            ->assertSee('+252', false)
+            ->assertSee('Somaliland numbers only', false)
+            ->assertSee('Select the district to zoom the map there', false)
+            ->assertSee('focusArea', false)
+            ->assertSee('9.5504', false)
+            ->assertSee('18 × 24 m', false)
+            ->assertSee('New towers in inhabited areas must be at least 30 m', false)
             ->assertDontSee('Latitude', false)
             ->assertDontSee('Longitude', false)
             ->assertDontSee('name="locale"', false)
@@ -129,10 +137,10 @@ class SiteApplicationTest extends TestCase
 
         $this->assertSame("MoCIT/APP/{$year}/0001", $application->reference_number);
         $this->assertSame(SiteApplication::STATUS_RECEIVED, $application->status);
-        $this->assertSame('New Hargeisa Site', $application->site_name);
+        $this->assertSame('+252634000000', $application->telephone);
         $this->assertSame('monopole', $application->type);
         $this->assertSame('4g', $application->capacity);
-        $this->assertSame('20 × 20 m', $application->land_area);
+        $this->assertSame('18 × 24 m', $application->land_area);
         $this->assertTrue($application->operator->is($operator));
 
         foreach (SiteApplication::DOCUMENT_FIELDS as $pathColumn) {
@@ -205,6 +213,190 @@ class SiteApplicationTest extends TestCase
         $this->assertSame(6, SiteApplication::query()->count());
     }
 
+    public function test_telephone_must_be_252_and_nine_digits(): void
+    {
+        Storage::fake('local');
+        [$region, $district, $subDistrict, $operator] = $this->fixtures();
+
+        $short = $this->payload($region, $district, $subDistrict, $operator);
+        $short['telephone'] = '63400000';
+
+        $this->from(route('apply.create'))
+            ->post(route('apply.store'), $short)
+            ->assertRedirect(route('apply.create'))
+            ->assertSessionHasErrors(['telephone']);
+
+        $foreign = $this->payload($region, $district, $subDistrict, $operator);
+        $foreign['telephone'] = '+254700000000';
+
+        $this->from(route('apply.create'))
+            ->post(route('apply.store'), $foreign)
+            ->assertRedirect(route('apply.create'))
+            ->assertSessionHasErrors(['telephone']);
+
+        $this->assertSame(0, SiteApplication::query()->count());
+    }
+
+    public function test_house_distance_below_six_metres_is_rejected(): void
+    {
+        Storage::fake('local');
+        [$region, $district, $subDistrict, $operator] = $this->fixtures();
+
+        $payload = $this->payload($region, $district, $subDistrict, $operator);
+        $payload['nearest_house_m'] = 5;
+
+        $this->from(route('apply.create'))
+            ->post(route('apply.store'), $payload)
+            ->assertRedirect(route('apply.create'))
+            ->assertSessionHasErrors(['nearest_house_m']);
+
+        $this->assertStringContainsString('6 m', session('errors')->first('nearest_house_m'));
+        $this->assertSame(0, SiteApplication::query()->count());
+    }
+
+    public function test_school_distance_below_thirteen_metres_is_rejected(): void
+    {
+        Storage::fake('local');
+        [$region, $district, $subDistrict, $operator] = $this->fixtures();
+
+        $payload = $this->payload($region, $district, $subDistrict, $operator);
+        $payload['nearest_school_m'] = 12;
+
+        $this->from(route('apply.create'))
+            ->post(route('apply.store'), $payload)
+            ->assertRedirect(route('apply.create'))
+            ->assertSessionHasErrors(['nearest_school_m']);
+
+        $this->assertSame(0, SiteApplication::query()->count());
+    }
+
+    public function test_custom_fence_below_six_metres_is_rejected(): void
+    {
+        Storage::fake('local');
+        [$region, $district, $subDistrict, $operator] = $this->fixtures();
+
+        $payload = $this->payload($region, $district, $subDistrict, $operator);
+        $payload['fence_distance_preset'] = 'custom';
+        $payload['fence_distance_custom'] = 4;
+
+        $this->from(route('apply.create'))
+            ->post(route('apply.store'), $payload)
+            ->assertRedirect(route('apply.create'))
+            ->assertSessionHasErrors(['fence_distance_custom']);
+
+        $this->assertSame(0, SiteApplication::query()->count());
+    }
+
+    public function test_guideline_minimum_distances_are_accepted(): void
+    {
+        Storage::fake('local');
+        [$region, $district, $subDistrict, $operator] = $this->fixtures();
+
+        $payload = $this->payload($region, $district, $subDistrict, $operator);
+        $payload['nearest_house_m'] = 6;
+        $payload['nearest_school_m'] = 13;
+        $payload['nearest_hospital_m'] = 13;
+
+        $this->post(route('apply.store'), $payload)
+            ->assertRedirect(route('apply.received'));
+
+        $this->assertSame(6, SiteApplication::query()->value('nearest_house_m'));
+        $this->assertSame(13, SiteApplication::query()->value('nearest_school_m'));
+    }
+
+    public function test_plot_smaller_than_eighteen_by_twenty_four_is_rejected(): void
+    {
+        Storage::fake('local');
+        [$region, $district, $subDistrict, $operator] = $this->fixtures();
+
+        $payload = $this->payload($region, $district, $subDistrict, $operator);
+        $payload['land_area_preset'] = 'custom';
+        $payload['land_area_custom'] = '15x15';
+
+        $this->from(route('apply.create'))
+            ->post(route('apply.store'), $payload)
+            ->assertRedirect(route('apply.create'))
+            ->assertSessionHasErrors(['land_area_custom']);
+
+        $this->assertSame(0, SiteApplication::query()->count());
+    }
+
+    public function test_tower_below_thirty_metres_in_inhabited_area_is_rejected(): void
+    {
+        Storage::fake('local');
+        [$region, $district, $subDistrict, $operator] = $this->fixtures();
+
+        $payload = $this->payload($region, $district, $subDistrict, $operator);
+        $payload['height_m'] = 29;
+
+        $this->from(route('apply.create'))
+            ->post(route('apply.store'), $payload)
+            ->assertRedirect(route('apply.create'))
+            ->assertSessionHasErrors(['height_m']);
+
+        $this->assertSame(0, SiteApplication::query()->count());
+    }
+
+    public function test_rooftop_below_thirty_metres_is_accepted(): void
+    {
+        Storage::fake('local');
+        [$region, $district, $subDistrict, $operator] = $this->fixtures();
+
+        $payload = $this->payload($region, $district, $subDistrict, $operator);
+        $payload['type'] = 'rooftop';
+        $payload['height_m'] = 12;
+
+        $this->post(route('apply.store'), $payload)
+            ->assertRedirect(route('apply.received'));
+
+        $this->assertSame(12, (int) SiteApplication::query()->value('height_m'));
+    }
+
+    public function test_decimal_tower_height_is_rejected(): void
+    {
+        Storage::fake('local');
+        [$region, $district, $subDistrict, $operator] = $this->fixtures();
+
+        $payload = $this->payload($region, $district, $subDistrict, $operator);
+        $payload['height_m'] = '45.5';
+
+        $this->from(route('apply.create'))
+            ->post(route('apply.store'), $payload)
+            ->assertRedirect(route('apply.create'))
+            ->assertSessionHasErrors(['height_m']);
+
+        $this->assertSame(0, SiteApplication::query()->count());
+    }
+
+    public function test_site_within_five_hundred_metres_of_same_operator_is_rejected(): void
+    {
+        Storage::fake('local');
+        [$region, $district, $subDistrict, $operator] = $this->fixtures();
+
+        Tower::query()->create([
+            'name' => 'Existing Telesom Site',
+            'latitude' => 9.562,
+            'longitude' => 44.077,
+            'region_id' => $region->id,
+            'district_id' => $district->id,
+            'sub_district_id' => $subDistrict->id,
+            'operator_id' => $operator->id,
+            'type' => 'guyed',
+            'height_m' => 40,
+            'capacity' => '4g',
+            'signal_radius_m' => 5000,
+            'status' => 'active',
+            'health_status' => 'good',
+        ]);
+
+        $this->from(route('apply.create'))
+            ->post(route('apply.store'), $this->payload($region, $district, $subDistrict, $operator))
+            ->assertRedirect(route('apply.create'))
+            ->assertSessionHasErrors(['location']);
+
+        $this->assertSame(0, SiteApplication::query()->count());
+    }
+
     /**
      * @return array{0: Region, 1: District, 2: SubDistrict, 3: Operator}
      */
@@ -212,7 +404,12 @@ class SiteApplicationTest extends TestCase
     {
         $region = Region::query()->create(['name_en' => 'Maroodi Jeex', 'name_so' => 'Maroodi Jeex']);
         $district = District::query()->create(['region_id' => $region->id, 'name' => 'Hargeisa']);
-        $subDistrict = SubDistrict::query()->create(['district_id' => $district->id, 'name' => 'Ahmed Dhagah']);
+        $subDistrict = SubDistrict::query()->create([
+            'district_id' => $district->id,
+            'name' => 'Ahmed Dhagah',
+            'latitude' => 9.5624,
+            'longitude' => 44.077,
+        ]);
         $operator = Operator::query()->create([
             'name' => 'Telesom',
             'category' => 'telecom',
@@ -243,7 +440,7 @@ class SiteApplicationTest extends TestCase
             'type' => 'monopole',
             'height_m' => 45,
             'capacity' => '4g',
-            'land_area_preset' => '20x20',
+            'land_area_preset' => '18x24',
             'fence_distance_preset' => '6',
         ];
 

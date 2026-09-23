@@ -3,7 +3,7 @@
         $control = '!mt-0 !block h-[3.25rem] !w-full !rounded-t-none !rounded-b-xl !border-2 !border-[#1B4D3E]/40 !bg-white !px-3.5 !text-[15px] !text-gray-900 !shadow-sm placeholder:!text-gray-500 focus:!border-brand focus:!bg-white focus:!ring-2 focus:!ring-brand/25';
         $invalid = '!border-red-500 focus:!border-red-500 focus:!ring-red-200';
         $label = '!block !w-full rounded-t-xl bg-gradient-to-r from-[#1B4D3E] via-[#246352] to-[#14382C] px-3.5 py-2 !text-[11px] font-semibold uppercase tracking-[0.12em] !text-white';
-        $landAreaPreset = old('land_area_preset', '20x20');
+        $landAreaPreset = old('land_area_preset', '18x24');
         $fencePreset = old('fence_distance_preset', '6');
         $signalRadii = \App\Support\TowerSignalRadius::BY_CAPACITY;
         $fieldLabels = [
@@ -25,6 +25,9 @@
             'land_area_custom' => __('app.towers.land_area_custom', [], 'en'),
             'fence_distance_preset' => __('app.towers.form_fields.fence_distance_m', [], 'en'),
             'fence_distance_custom' => __('app.towers.form_fields.fence_distance_m', [], 'en'),
+            'nearest_school_m' => __('app.towers.form_fields.nearest_school', [], 'en'),
+            'nearest_hospital_m' => __('app.towers.form_fields.nearest_hospital', [], 'en'),
+            'nearest_house_m' => __('app.towers.form_fields.nearest_house', [], 'en'),
             'letter' => __('app.apply.letter', [], 'en'),
             'layout' => __('app.apply.layout', [], 'en'),
             'radio' => __('app.apply.radio', [], 'en'),
@@ -54,11 +57,18 @@
             subDistrictId: @js(old('sub_district_id', '')),
             landPreset: @js($landAreaPreset),
             fencePreset: @js($fencePreset),
+            phoneLocal: @js(\App\Support\SomalilandPhone::localDigits(old('telephone'))),
             lat: @js(old('latitude', '')),
             lng: @js(old('longitude', '')),
             showBanner: @js($errors->any()),
             fieldMessages: {{ Js::from($fieldMessages) }},
             labels: {{ Js::from($fieldLabels) }},
+            mins: {{ Js::from(\App\Support\SiteRegistrationGuidelines::distanceMins() + [
+                'fence_distance_custom' => \App\Support\SiteRegistrationGuidelines::MIN_FENCE_M,
+                'height_m' => \App\Support\SiteRegistrationGuidelines::MIN_HEIGHT_INHABITED_M,
+            ]) }},
+            plotShort: {{ \App\Support\SiteRegistrationGuidelines::MIN_PLOT_SHORT_M }},
+            plotLong: {{ \App\Support\SiteRegistrationGuidelines::MIN_PLOT_LONG_M }},
             messages: {
                 saving: @js(__('app.apply.location_saving', [], 'en')),
                 saved: @js(__('app.apply.location_saved', [], 'en')),
@@ -67,9 +77,12 @@
                 needed: @js(__('app.apply.location_needed', [], 'en')),
                 required: @js(__('app.apply.required', [], 'en')),
                 namedRequired: @js(__('app.apply.named_required', [], 'en')),
+                telephoneInvalid: @js(__('app.apply.telephone_invalid', [], 'en')),
                 email: @js(__('app.apply.email_invalid', [], 'en')),
                 fileTypes: @js(__('app.apply.file_types', [], 'en')),
                 fileTooLarge: @js(__('app.apply.file_too_large', [], 'en')),
+                belowGuideline: @js(__('app.apply.below_guideline', [], 'en')),
+                plotTooSmall: @js(__('app.apply.plot_too_small', [], 'en')),
                 fix: @js(__('app.apply.fix_fields', [], 'en')),
             },
         })">
@@ -115,7 +128,17 @@
                 </div>
                 <div>
                     <x-input-label for="telephone" class="!block !w-full rounded-t-xl bg-gradient-to-r from-[#1B4D3E] via-[#246352] to-[#14382C] px-3.5 py-2 !text-[11px] font-semibold uppercase tracking-[0.12em] !text-white" :value="__('app.apply.telephone', [], 'en')" />
-                    <x-text-input id="telephone" name="telephone" class="{{ $control }}" x-bind:class="isInvalid('telephone') && '{{ $invalid }}'" :value="old('telephone')" :placeholder="__('app.apply.placeholder_telephone', [], 'en')" autocomplete="tel" required x-on:input="clearField('telephone')" />
+                    <div class="flex overflow-hidden rounded-b-xl border-2 border-t-0 border-[#1B4D3E]/40 bg-white" :class="isInvalid('telephone') && 'border-red-500 ring-2 ring-red-200'">
+                        <span class="inline-flex items-center bg-[#F4F8F6] px-3.5 text-[15px] font-semibold tabular-nums text-brand">+252</span>
+                        <input id="telephone" type="text" inputmode="numeric" autocomplete="tel" maxlength="9" required
+                            class="!mt-0 !block h-[3.25rem] min-w-0 flex-1 !border-0 !bg-white !px-3.5 !text-[15px] !text-gray-900 !shadow-none placeholder:!text-gray-500 focus:!ring-0"
+                            placeholder="{{ __('app.apply.placeholder_telephone', [], 'en') }}"
+                            x-model="phoneLocal"
+                            x-on:keydown="blockNonInteger($event)"
+                            x-on:input="phoneLocal = String(phoneLocal || '').replace(/\D/g, '').slice(0, 9); clearField('telephone')">
+                    </div>
+                    <input type="hidden" name="telephone" :value="'+252' + phoneLocal">
+                    <p class="mt-1 text-xs text-gray-500">{{ __('app.apply.telephone_hint', [], 'en') }}</p>
                     <x-apply-field-error name="telephone" />
                 </div>
                 <div>
@@ -162,7 +185,7 @@
                 </div>
                 <div>
                     <x-input-label for="region_id" class="!block !w-full rounded-t-xl bg-gradient-to-r from-[#1B4D3E] via-[#246352] to-[#14382C] px-3.5 py-2 !text-[11px] font-semibold uppercase tracking-[0.12em] !text-white" :value="__('app.apply.region', [], 'en')" />
-                    <select id="region_id" name="region_id" class="{{ $control }}" :class="isInvalid('region_id') && '{{ $invalid }}'" required x-model="regionId" @change="districtId = ''; subDistrictId = ''; clearField('region_id')">
+                    <select id="region_id" name="region_id" class="{{ $control }}" :class="isInvalid('region_id') && '{{ $invalid }}'" required x-model="regionId" @change="districtId = ''; subDistrictId = ''; clearField('region_id'); $nextTick(() => focusArea())">
                         <option value="">{{ __('app.apply.select_region', [], 'en') }}</option>
                         @foreach ($geography as $region)
                             <option value="{{ $region['id'] }}" @selected((string) old('region_id') === (string) $region['id'])>{{ $region['name'] }}</option>
@@ -172,7 +195,7 @@
                 </div>
                 <div>
                     <x-input-label for="district_id" class="!block !w-full rounded-t-xl bg-gradient-to-r from-[#1B4D3E] via-[#246352] to-[#14382C] px-3.5 py-2 !text-[11px] font-semibold uppercase tracking-[0.12em] !text-white" :value="__('app.apply.district', [], 'en')" />
-                    <select id="district_id" name="district_id" class="{{ $control }}" :class="isInvalid('district_id') && '{{ $invalid }}'" required x-model="districtId" @change="subDistrictId = ''; clearField('district_id')">
+                    <select id="district_id" name="district_id" class="{{ $control }}" :class="isInvalid('district_id') && '{{ $invalid }}'" required x-model="districtId" @change="subDistrictId = ''; clearField('district_id'); $nextTick(() => focusArea())">
                         <option value="">{{ __('app.apply.select_district', [], 'en') }}</option>
                         <template x-for="district in districts" :key="district.id">
                             <option :value="district.id" x-text="district.name"></option>
@@ -182,7 +205,7 @@
                 </div>
                 <div class="sm:col-span-2">
                     <x-input-label for="sub_district_id" class="!block !w-full rounded-t-xl bg-gradient-to-r from-[#1B4D3E] via-[#246352] to-[#14382C] px-3.5 py-2 !text-[11px] font-semibold uppercase tracking-[0.12em] !text-white" :value="__('app.apply.sub_district', [], 'en')" />
-                    <select id="sub_district_id" name="sub_district_id" class="{{ $control }}" :class="isInvalid('sub_district_id') && '{{ $invalid }}'" required x-model="subDistrictId" @change="clearField('sub_district_id')">
+                    <select id="sub_district_id" name="sub_district_id" class="{{ $control }}" :class="isInvalid('sub_district_id') && '{{ $invalid }}'" required x-model="subDistrictId" @change="clearField('sub_district_id'); $nextTick(() => focusArea())">
                         <option value="">{{ __('app.apply.select_sub_district', [], 'en') }}</option>
                         <template x-for="sub in subDistricts" :key="sub.id">
                             <option :value="sub.id" x-text="sub.name"></option>
@@ -237,7 +260,8 @@
                 </div>
                 <div>
                     <x-input-label for="height_m" class="{{ $label }}" :value="__('app.towers.form_fields.tower_height', [], 'en')" />
-                    <x-text-input id="height_m" name="height_m" type="number" step="0.1" min="1" class="{{ $control }}" x-bind:class="isInvalid('height_m') && '{{ $invalid }}'" :value="old('height_m')" required x-on:input="clearField('height_m')" />
+                    <x-text-input id="height_m" name="height_m" type="number" inputmode="numeric" pattern="[0-9]*" step="1" min="1" class="{{ $control }}" x-bind:class="isInvalid('height_m') && '{{ $invalid }}'" :value="old('height_m')" required x-on:keydown="blockNonInteger($event)" x-on:input="sanitizeInteger($event); clearField('height_m')" x-on:paste="sanitizeInteger($event)" />
+                    <p class="mt-1 text-xs text-gray-500">{{ __('app.apply.height_hint', [], 'en') }}</p>
                     <x-apply-field-error name="height_m" />
                 </div>
                 <div>
@@ -255,7 +279,7 @@
                 <div>
                     <x-input-label for="land_area_preset" class="{{ $label }}" :value="__('app.towers.form_fields.land_area', [], 'en')" />
                     <select id="land_area_preset" name="land_area_preset" class="{{ $control }}" x-model="landPreset" @change="clearField('land_area_preset')">
-                        @foreach (\App\Support\TowerLandArea::PRESETS as $key => $text)
+                        @foreach (\App\Support\TowerLandArea::APPLY_PRESETS as $key => $text)
                             <option value="{{ $key }}">{{ $text }}</option>
                         @endforeach
                         <option value="custom">{{ __('app.towers.custom', [], 'en') }}</option>
@@ -279,7 +303,7 @@
                 </div>
                 <div x-show="fencePreset === 'custom'" x-cloak>
                     <x-input-label for="fence_distance_custom" class="{{ $label }}" :value="__('app.towers.form_fields.fence_distance_m', [], 'en')" />
-                    <x-text-input id="fence_distance_custom" name="fence_distance_custom" type="number" step="0.1" min="0" class="{{ $control }}" x-bind:class="isInvalid('fence_distance_custom') && '{{ $invalid }}'" :value="old('fence_distance_custom')" x-on:input="clearField('fence_distance_custom')" />
+                    <x-text-input id="fence_distance_custom" name="fence_distance_custom" type="number" inputmode="numeric" pattern="[0-9]*" step="1" min="{{ \App\Support\SiteRegistrationGuidelines::MIN_FENCE_M }}" class="{{ $control }}" x-bind:class="isInvalid('fence_distance_custom') && '{{ $invalid }}'" :value="old('fence_distance_custom')" x-on:keydown="blockNonInteger($event)" x-on:input="sanitizeInteger($event); clearField('fence_distance_custom')" x-on:paste="sanitizeInteger($event)" />
                     <x-apply-field-error name="fence_distance_custom" />
                 </div>
                 <div class="sm:col-span-2">
@@ -310,14 +334,17 @@
             </div>
             <div class="grid gap-5 px-6 py-6 sm:grid-cols-2 sm:px-8 sm:py-8">
                 @foreach ([
-                    ['school', 'nearest_school_name', 'nearest_school_m', __('app.towers.form_fields.nearest_school', [], 'en')],
-                    ['hospital', 'nearest_hospital_name', 'nearest_hospital_m', __('app.towers.form_fields.nearest_hospital', [], 'en')],
-                    ['house', 'nearest_house_name', 'nearest_house_m', __('app.towers.form_fields.nearest_house', [], 'en')],
-                ] as [$key, $nameField, $distanceField, $proximityLabel])
+                    ['school', 'nearest_school_name', 'nearest_school_m', __('app.towers.form_fields.nearest_school', [], 'en'), \App\Support\SiteRegistrationGuidelines::MIN_SENSITIVE_M],
+                    ['hospital', 'nearest_hospital_name', 'nearest_hospital_m', __('app.towers.form_fields.nearest_hospital', [], 'en'), \App\Support\SiteRegistrationGuidelines::MIN_SENSITIVE_M],
+                    ['house', 'nearest_house_name', 'nearest_house_m', __('app.towers.form_fields.nearest_house', [], 'en'), \App\Support\SiteRegistrationGuidelines::MIN_PUBLIC_M],
+                ] as [$key, $nameField, $distanceField, $proximityLabel, $minMetres])
                     <div>
                         <x-input-label for="{{ $nameField }}" class="{{ $label }}" :value="$proximityLabel" />
-                        <x-text-input id="{{ $nameField }}" name="{{ $nameField }}" class="{{ $control }}" :value="old($nameField)" :placeholder="__('app.towers.proximity_name_placeholder', [], 'en')" />
-                        <x-text-input id="{{ $distanceField }}" name="{{ $distanceField }}" type="number" min="0" class="{{ $control }} !rounded-xl !mt-2" :value="old($distanceField)" :placeholder="__('app.towers.proximity_distance_placeholder', [], 'en')" />
+                        <x-text-input id="{{ $nameField }}" name="{{ $nameField }}" class="{{ $control }}" x-bind:class="isInvalid('{{ $nameField }}') && '{{ $invalid }}'" :value="old($nameField)" :placeholder="__('app.towers.proximity_name_placeholder', [], 'en')" x-on:input="clearField('{{ $nameField }}')" />
+                        <x-apply-field-error name="{{ $nameField }}" />
+                        <x-text-input id="{{ $distanceField }}" name="{{ $distanceField }}" type="number" inputmode="numeric" pattern="[0-9]*" step="1" min="{{ $minMetres }}" class="{{ $control }} !rounded-xl !mt-2" x-bind:class="isInvalid('{{ $distanceField }}') && '{{ $invalid }}'" :value="old($distanceField)" :placeholder="__('app.towers.proximity_distance_placeholder', [], 'en')" x-on:keydown="blockNonInteger($event)" x-on:input="sanitizeInteger($event); clearField('{{ $distanceField }}')" x-on:paste="sanitizeInteger($event)" />
+                        <p class="mt-1 text-xs text-gray-500">{{ __('app.apply.min_metres', ['min' => $minMetres], 'en') }}</p>
+                        <x-apply-field-error name="{{ $distanceField }}" />
                     </div>
                 @endforeach
                 <div class="sm:col-span-2">
@@ -380,7 +407,8 @@
                     regionId: String(config.regionId || ''),
                     districtId: String(config.districtId || ''),
                     subDistrictId: String(config.subDistrictId || ''),
-                    landPreset: config.landPreset || '20x20',
+                    phoneLocal: String(config.phoneLocal || ''),
+                    landPreset: config.landPreset || '18x24',
                     fencePreset: config.fencePreset || '6',
                     lat: config.lat ? String(config.lat) : '',
                     lng: config.lng ? String(config.lng) : '',
@@ -389,6 +417,9 @@
                     showBanner: Boolean(config.showBanner),
                     fieldMessages: config.fieldMessages || {},
                     labels: config.labels || {},
+                    mins: config.mins || {},
+                    plotShort: Number(config.plotShort || 18),
+                    plotLong: Number(config.plotLong || 24),
                     fileNames: { letter: '', layout: '', radio: '', icnirp: '' },
                     messages: config.messages,
                     map: null,
@@ -415,6 +446,42 @@
                     },
                     namedMessage(template, name) {
                         return (template || '').replace(':field', this.labelFor(name));
+                    },
+                    blockNonInteger(event) {
+                        if (event.ctrlKey || event.metaKey || event.altKey) {
+                            return;
+                        }
+                        if (['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) {
+                            return;
+                        }
+                        if (/^\d$/.test(event.key)) {
+                            return;
+                        }
+                        event.preventDefault();
+                    },
+                    sanitizeInteger(event) {
+                        const el = event.target;
+                        const next = String(el.value || '').replace(/\D/g, '');
+                        if (el.value !== next) {
+                            el.value = next;
+                        }
+                    },
+                    belowGuidelineMessage(name, min) {
+                        return (this.messages.belowGuideline || ':field cannot be below :min m (guideline minimum).')
+                            .replace(':field', this.labelFor(name))
+                            .replace(':min', String(min));
+                    },
+                    plotMeetsGuideline() {
+                        const text = this.landPreset === 'custom'
+                            ? String(this.$root.querySelector('[name="land_area_custom"]')?.value || '')
+                            : String(this.landPreset || '');
+                        const match = text.match(/(\d+(?:\.\d+)?)\s*[x×]\s*(\d+(?:\.\d+)?)/i);
+                        if (! match) {
+                            return this.landPreset !== 'custom';
+                        }
+                        const a = Number(match[1]);
+                        const b = Number(match[2]);
+                        return Math.min(a, b) + 0.001 >= this.plotShort && Math.max(a, b) + 0.001 >= this.plotLong;
                     },
                     fileProblem(file) {
                         const ext = String(file.name || '').split('.').pop().toLowerCase();
@@ -482,6 +549,43 @@
                     init() {
                         this.$nextTick(() => this.initMap());
                     },
+                    leafletBounds(bounds) {
+                        if (! bounds || bounds.south == null || bounds.west == null || bounds.north == null || bounds.east == null) {
+                            return null;
+                        }
+                        return [[bounds.south, bounds.west], [bounds.north, bounds.east]];
+                    },
+                    selectedBounds() {
+                        const sub = this.subDistricts.find((item) => String(item.id) === String(this.subDistrictId));
+                        if (sub && sub.bounds) {
+                            return { bounds: sub.bounds, maxZoom: 14 };
+                        }
+                        const district = this.districts.find((item) => String(item.id) === String(this.districtId));
+                        if (district && district.bounds) {
+                            return { bounds: district.bounds, maxZoom: 12 };
+                        }
+                        const region = this.tree.find((item) => String(item.id) === String(this.regionId));
+                        if (region && region.bounds) {
+                            return { bounds: region.bounds, maxZoom: 9 };
+                        }
+                        return null;
+                    },
+                    focusArea() {
+                        if (! this.map) {
+                            return;
+                        }
+                        const selection = this.selectedBounds();
+                        const box = selection ? this.leafletBounds(selection.bounds) : null;
+                        if (! box) {
+                            return;
+                        }
+                        this.map.fitBounds(box, {
+                            padding: [28, 28],
+                            maxZoom: selection.maxZoom,
+                            animate: true,
+                        });
+                        setTimeout(() => this.map.invalidateSize(), 150);
+                    },
                     initMap() {
                         if (typeof L === 'undefined' || ! this.$refs.map) {
                             return;
@@ -495,6 +599,8 @@
                         }).addTo(this.map);
                         if (this.hasLocation) {
                             this.placeMarker(parseFloat(this.lat), parseFloat(this.lng));
+                        } else {
+                            this.focusArea();
                         }
                         this.map.on('click', (event) => {
                             this.setLocation(event.latlng.lat, event.latlng.lng);
@@ -549,11 +655,17 @@
                             'type', 'height_m', 'capacity',
                         ];
                         required.forEach((name) => {
+                            if (name === 'telephone') {
+                                return;
+                            }
                             const el = this.$root.querySelector(`[name="${name}"]`);
                             if (! el || String(el.value || '').trim() === '') {
                                 next[name] = this.requiredFor(name);
                             }
                         });
+                        if (! /^\d{9}$/.test(String(this.phoneLocal || ''))) {
+                            next.telephone = this.messages.telephoneInvalid || this.requiredFor('telephone');
+                        }
                         const email = this.$root.querySelector('[name="email"]');
                         if (email && email.value && ! /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
                             next.email = `${this.labelFor('email')}: ${this.messages.email}`;
@@ -570,6 +682,32 @@
                                 next[name] = this.fileMessage(name, problem);
                             }
                         });
+                        Object.keys(this.mins).forEach((name) => {
+                            if (name === 'fence_distance_custom' && this.fencePreset !== 'custom') {
+                                return;
+                            }
+                            if (name === 'height_m') {
+                                const type = this.$root.querySelector('[name="type"]')?.value;
+                                if (type === 'rooftop') {
+                                    return;
+                                }
+                            }
+                            const el = this.$root.querySelector(`[name="${name}"]`);
+                            const raw = el ? String(el.value || '').trim() : '';
+                            if (raw === '') {
+                                return;
+                            }
+                            const min = Number(this.mins[name]);
+                            if (Number(raw) < min) {
+                                next[name] = this.belowGuidelineMessage(name, min);
+                            }
+                        });
+                        if (this.landPreset && ! this.plotMeetsGuideline()) {
+                            const field = this.landPreset === 'custom' ? 'land_area_custom' : 'land_area_preset';
+                            next[field] = (this.messages.plotTooSmall || 'Land area cannot be below :short × :long m (guideline minimum).')
+                                .replace(':short', String(this.plotShort))
+                                .replace(':long', String(this.plotLong));
+                        }
                         if (! this.hasLocation) {
                             next.location = `${this.labelFor('location')}: ${this.messages.needed}`;
                             this.locationError = this.messages.needed;

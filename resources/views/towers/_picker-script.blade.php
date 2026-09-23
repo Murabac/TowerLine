@@ -222,6 +222,22 @@
             });
 
             scheduleLocationPreview();
+
+            window.addEventListener('geography-map-focus', (event) => {
+                const bounds = event.detail && event.detail.bounds;
+                if (! bounds || bounds.south == null || bounds.west == null || bounds.north == null || bounds.east == null) {
+                    return;
+                }
+                map.fitBounds(
+                    [[bounds.south, bounds.west], [bounds.north, bounds.east]],
+                    {
+                        padding: [28, 28],
+                        maxZoom: event.detail.maxZoom || 12,
+                        animate: true,
+                    }
+                );
+                setTimeout(() => map.invalidateSize(), 150);
+            });
         })();
     </script>
 @endpush

@@ -16,7 +16,7 @@
         <section class="mt-8">
             <h2 class="text-sm font-semibold uppercase tracking-[0.12em] text-gray-400">{{ __('app.help.daily.title') }}</h2>
             <div class="mt-3 grid gap-3 sm:grid-cols-2">
-                @foreach (['one', 'two', 'three', 'four', 'five'] as $i => $step)
+                @foreach (['one', 'two', 'three', 'four', 'five', 'six'] as $i => $step)
                     <article class="rounded-2xl border border-gray-200/90 bg-white p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
                         <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-brand/10 text-sm font-semibold text-brand">{{ $i + 1 }}</span>
                         <p class="mt-3 text-sm leading-6 text-gray-700">{{ __('app.help.daily.'.$step) }}</p>
@@ -36,10 +36,11 @@
                     'regional_coordinator' => ['bg' => 'bg-teal-50', 'ring' => 'ring-teal-200', 'badge' => 'bg-teal-100 text-teal-800'],
                     'department_director' => ['bg' => 'bg-indigo-50', 'ring' => 'ring-indigo-200', 'badge' => 'bg-indigo-100 text-indigo-800'],
                     'director_general' => ['bg' => 'bg-slate-50', 'ring' => 'ring-slate-200', 'badge' => 'bg-slate-100 text-slate-800'],
+                    'complaints_officer' => ['bg' => 'bg-orange-50', 'ring' => 'ring-orange-200', 'badge' => 'bg-orange-100 text-orange-800'],
                     'custom' => ['bg' => 'bg-gray-50', 'ring' => 'ring-gray-200', 'badge' => 'bg-gray-100 text-gray-800'],
                 ] as $role => $tone)
                     @php
-                        $namedRoles = ['admin', 'operations_manager', 'inspector', 'section_head', 'regional_coordinator', 'department_director', 'director_general'];
+                        $namedRoles = ['admin', 'operations_manager', 'inspector', 'section_head', 'regional_coordinator', 'department_director', 'director_general', 'complaints_officer'];
                         $isYours = $role === 'custom'
                             ? ! in_array(Auth::user()->role, $namedRoles, true)
                             : Auth::user()->role === $role;
@@ -85,6 +86,12 @@
                     <p class="text-sm leading-6 text-gray-700">{{ __('app.help.modules.applications') }}</p>
                     @if (Auth::user()->canTask('applications.view'))
                         <a href="{{ route('applications.index') }}" class="mt-4 inline-flex text-sm font-semibold text-brand hover:underline">{{ __('app.help.modules.open_applications') }}</a>
+                    @endif
+                </article>
+                <article class="rounded-2xl border border-gray-200/90 bg-white p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+                    <p class="text-sm leading-6 text-gray-700">{{ __('app.help.modules.complaints') }}</p>
+                    @if (Auth::user()->canTask('complaints.view'))
+                        <a href="{{ route('complaints.index') }}" class="mt-4 inline-flex text-sm font-semibold text-brand hover:underline">{{ __('app.help.modules.open_complaints') }}</a>
                     @endif
                 </article>
             </div>

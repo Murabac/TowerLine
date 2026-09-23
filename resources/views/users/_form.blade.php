@@ -8,7 +8,9 @@
     x-data="{
         role: @js(old('role', $managedUser?->role ?? 'inspector')),
         regionalRoles: @js($regionalRoleKeys),
-        get needsRegions() { return this.regionalRoles.includes(this.role) }
+        operatorRole: @js(\App\Models\Role::KEY_OPERATOR_VIEWER),
+        get needsRegions() { return this.regionalRoles.includes(this.role) },
+        get needsOperator() { return this.role === this.operatorRole }
     }"
 >
     <div class="grid sm:grid-cols-2 gap-4">
@@ -44,6 +46,18 @@
         </select>
         @error('role') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
         <p class="text-sm text-gray-500 leading-relaxed">{{ __('app.users.role_help') }}</p>
+    </div>
+
+    <div x-show="needsOperator" x-cloak>
+        <label for="operator_id" class="text-sm font-semibold text-gray-900">{{ __('app.users.operator') }}</label>
+        <p class="mt-1 text-sm text-gray-500">{{ __('app.users.operator_help') }}</p>
+        <select id="operator_id" name="operator_id" class="field mt-2">
+            <option value="">{{ __('app.towers.operator') }}</option>
+            @foreach ($operators as $operator)
+                <option value="{{ $operator->id }}" @selected((string) old('operator_id', $managedUser?->operator_id) === (string) $operator->id)>{{ $operator->name }}</option>
+            @endforeach
+        </select>
+        @error('operator_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
     </div>
 
     <div x-show="needsRegions" x-cloak>

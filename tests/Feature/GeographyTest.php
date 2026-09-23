@@ -8,6 +8,7 @@ use App\Models\Region;
 use App\Models\SubDistrict;
 use App\Models\Tower;
 use App\Models\User;
+use App\Support\GeographyReference;
 use Database\Seeders\GeographySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -15,6 +16,22 @@ use Tests\TestCase;
 class GeographyTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_union_bounds_covers_all_boxes(): void
+    {
+        $union = GeographyReference::unionBounds([
+            ['south' => 9.5, 'west' => 44.0, 'north' => 9.6, 'east' => 44.1],
+            ['south' => 9.4, 'west' => 44.05, 'north' => 9.55, 'east' => 44.2],
+            null,
+        ]);
+
+        $this->assertSame([
+            'south' => 9.4,
+            'west' => 44.0,
+            'north' => 9.6,
+            'east' => 44.2,
+        ], $union);
+    }
 
     public function test_geography_seeder_loads_districts_and_sub_districts(): void
     {
@@ -65,13 +82,16 @@ class GeographyTest extends TestCase
 
         $admin = User::factory()->create(['role' => 'admin']);
 
+        $district->load('subDistricts');
+        $expected = $district->mapBounds();
+
         $this->actingAs($admin)
             ->getJson(route('map.towers', ['sub_district_id' => $subB->id]))
             ->assertOk()
             ->assertJsonCount(1, 'towers')
             ->assertJsonPath('towers.0.name', 'East site')
-            ->assertJsonPath('bounds.south', 10.5)
-            ->assertJsonPath('bounds.east', 45.2);
+            ->assertJsonPath('bounds.south', $expected['south'])
+            ->assertJsonPath('bounds.east', $expected['east']);
     }
 
     public function test_map_json_returns_geography_bounds_when_filters_exclude_all_towers(): void
@@ -117,6 +137,47 @@ class GeographyTest extends TestCase
             ->assertJsonCount(0, 'towers')
             ->assertJsonPath('bounds.south', 9.52)
             ->assertJsonPath('bounds.east', 44.04);
+    }
+
+    public function test_districts_json_includes_map_bounds_for_hargeisa(): void
+    {
+        $this->seedAllRegions();
+        $this->seed(GeographySeeder::class);
+
+        $hargeisa = District::query()->where('name', 'Hargeisa')->firstOrFail();
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $response = $this->actingAs($admin)
+            ->getJson(route('geography.districts', ['region_id' => $hargeisa->region_id]))
+            ->assertOk();
+
+        $district = collect($response->json('districts'))->firstWhere('id', $hargeisa->id);
+
+        $this->assertIsArray($district['bounds']);
+        $this->assertEqualsWithDelta(9.5504, $district['bounds']['south'], 0.05);
+    }
+
+    public function test_map_json_prefers_district_reference_bounds_over_tower_spread(): void
+    {
+        $this->seedAllRegions();
+        $this->seed(GeographySeeder::class);
+
+        $hargeisa = District::query()->where('name', 'Hargeisa')->firstOrFail();
+        $operator = Operator::query()->create([
+            'name' => 'Telesom',
+            'category' => 'telecom',
+            'color' => '#0F766E',
+        ]);
+        $this->tower('Far site', $hargeisa->region, $hargeisa, $operator, null, 10.50, 45.20);
+
+        $expected = $hargeisa->fresh()->load('subDistricts')->mapBounds();
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $this->actingAs($admin)
+            ->getJson(route('map.towers', ['district_id' => $hargeisa->id]))
+            ->assertOk()
+            ->assertJsonPath('bounds.south', $expected['south'])
+            ->assertJsonPath('bounds.east', $expected['east']);
     }
 
     public function test_backfill_assigns_hargeisa_towers_to_nearest_ward(): void

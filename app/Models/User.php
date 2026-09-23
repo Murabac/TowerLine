@@ -193,6 +193,14 @@ class User extends Authenticatable
             return 'applications.index';
         }
 
+        if ($this->role === Role::KEY_COMPLAINTS_OFFICER) {
+            return 'complaints.index';
+        }
+
+        if ($this->isOperatorViewer()) {
+            return $this->canTask('complaints.view') ? 'complaints.index' : 'map';
+        }
+
         return $this->hasFullRegionAccess() ? 'dashboard' : 'map';
     }
 

@@ -7,7 +7,14 @@ class TowerLandArea
     /** @var array<string, string> */
     public const PRESETS = [
         '15x15' => '15 × 15 m',
+        '18x24' => '18 × 24 m',
         '20x20' => '20 × 20 m',
+        '25x30' => '25 × 30 m',
+    ];
+
+    /** Qodobka 10.2 plot sizes offered on the public application form. */
+    public const APPLY_PRESETS = [
+        '18x24' => '18 × 24 m',
         '25x30' => '25 × 30 m',
     ];
 

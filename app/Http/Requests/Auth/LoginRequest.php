@@ -50,14 +50,6 @@ class LoginRequest extends FormRequest
             ]);
         }
 
-        if (Auth::user()?->isOperatorViewer()) {
-            Auth::logout();
-
-            throw ValidationException::withMessages([
-                'email' => __('app.demo.viewer_disabled'),
-            ]);
-        }
-
         RateLimiter::clear($this->throttleKey());
     }
 

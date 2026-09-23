@@ -3,6 +3,7 @@
         class="h-full min-h-0 flex"
         x-data="towerMap(@js([
             'endpoint' => route('map.towers'),
+            'complaintsEndpoint' => $complaintsEndpoint,
             'districtsUrl' => route('geography.districts'),
             'subDistrictsUrl' => route('geography.sub-districts'),
             'operators' => $operatorOptions,
@@ -20,6 +21,7 @@
                 'no_license' => __('app.map.no_license'),
                 'shown' => __('app.map.shown'),
                 'overdue' => __('app.inspections.stale', ['days' => \App\Models\Tower::INSPECTION_STALE_DAYS]),
+                'view_complaint' => __('app.complaints.notify.open'),
             ],
         ]))"
         x-init="init()"
@@ -124,6 +126,12 @@
                 <input type="checkbox" x-model="showCoverage" class="rounded border-gray-300 text-brand focus:ring-brand/30">
                 {{ __('app.map.coverage') }}
             </label>
+            @if ($canViewComplaints)
+                <label class="flex items-center gap-2 text-sm text-gray-700 px-4 pb-3">
+                    <input type="checkbox" x-model="showComplaints" class="rounded border-gray-300 text-brand focus:ring-brand/30">
+                    {{ __('app.map.complaints_layer') }}
+                </label>
+            @endif
             <div class="px-4 pb-4 space-y-2">
                 <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400">{{ __('app.map.layers') }}</p>
                 <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400 pt-1">{{ __('app.map.color_pins_by') }}</p>
@@ -363,6 +371,7 @@
             function towerMap(config) {
                 return {
                     endpoint: config.endpoint,
+                    complaintsEndpoint: config.complaintsEndpoint,
                     districtsUrl: config.districtsUrl,
                     subDistrictsUrl: config.subDistrictsUrl,
                     labels: config.labels,
@@ -382,6 +391,7 @@
                     subDistrictOptions: config.subDistricts || [],
                     operatorOptions: config.operators || [],
                     showCoverage: true,
+                    showComplaints: Boolean(config.complaintsEndpoint),
                     pinColorMode: localStorage.getItem('towerline-pin-color') || 'operator',
                     onlyFlagged: false,
                     onlyLicenseAlert: false,
@@ -393,6 +403,7 @@
                     map: null,
                     markers: null,
                     circles: null,
+                    complaintLayer: null,
                     get countLabel() {
                         return this.labels.shown.replace(':count', this.count);
                     },
@@ -445,6 +456,10 @@
                             disableClusteringAtZoom: 12,
                         });
                         this.map.addLayer(this.markers);
+                        this.complaintLayer = L.layerGroup();
+                        if (this.showComplaints && this.complaintsEndpoint) {
+                            this.map.addLayer(this.complaintLayer);
+                        }
                         this.$watch('showCoverage', (on) => {
                             if (on) {
                                 this.map.addLayer(this.circles);
@@ -458,7 +473,21 @@
                         });
                         this.$watch('onlyFlagged', () => this.draw(false));
                         this.$watch('onlyLicenseAlert', () => this.draw(false));
+                        this.$watch('showComplaints', (on) => {
+                            if (! this.complaintLayer) {
+                                return;
+                            }
+                            if (on && this.complaintsEndpoint) {
+                                this.map.addLayer(this.complaintLayer);
+                                this.loadComplaints();
+                            } else {
+                                this.map.removeLayer(this.complaintLayer);
+                            }
+                        });
                         this.loadTowers();
+                        if (this.showComplaints && this.complaintsEndpoint) {
+                            this.loadComplaints();
+                        }
                         this.$nextTick(() => this.map.invalidateSize());
                         window.addEventListener('resize', () => this.map.invalidateSize());
                     },
@@ -528,6 +557,31 @@
                         this.allTowers = data.towers || [];
                         this.mapBounds = data.bounds || null;
                         this.draw(true);
+                    },
+                    async loadComplaints() {
+                        if (! this.complaintsEndpoint || ! this.complaintLayer) {
+                            return;
+                        }
+                        const response = await fetch(this.complaintsEndpoint, { headers: { Accept: 'application/json' } });
+                        const data = await response.json();
+                        this.complaintLayer.clearLayers();
+                        (data.complaints || []).forEach((complaint) => {
+                            const size = complaint.priority === 'critical' ? 18 : 14;
+                            const icon = L.divIcon({
+                                className: '',
+                                html: `<span style="display:block;width:${size}px;height:${size}px;background:${complaint.color};transform:rotate(45deg);border:2px solid white;box-shadow:0 1px 5px rgba(0,0,0,.35)"></span>`,
+                                iconSize: [size, size],
+                                iconAnchor: [size / 2, size / 2],
+                            });
+                            L.marker([complaint.lat, complaint.lng], { icon })
+                                .bindPopup(
+                                    `<div class="text-sm"><p class="font-mono font-semibold">${complaint.reference_number}</p>`
+                                    + `<p>${complaint.type_label} · ${complaint.status_label}</p>`
+                                    + `<p class="text-xs text-gray-500">${complaint.priority_label}</p>`
+                                    + `<a class="font-semibold text-brand" href="${complaint.url}">${this.labels.view_complaint}</a></div>`
+                                )
+                                .addTo(this.complaintLayer);
+                        });
                     },
                     visibleTowers() {
                         return this.allTowers.filter((tower) => {

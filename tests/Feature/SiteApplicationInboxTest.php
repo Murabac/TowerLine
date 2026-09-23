@@ -104,6 +104,25 @@ class SiteApplicationInboxTest extends TestCase
             ->assertRedirect(route('applications.show', $application));
 
         $this->assertSame($officer->id, $application->fresh()->assigned_to);
+
+        $this->actingAs($head)
+            ->get(route('applications.index', ['status' => 'assigned']))
+            ->assertOk()
+            ->assertSee($application->site_name, false)
+            ->assertSee(__('app.applications.status.assigned'), false)
+            ->assertSee(SiteApplication::stamp($application->created_at), false)
+            ->assertSee(SiteApplication::stamp($application->assigned_at), false);
+
+        $this->actingAs($head)
+            ->get(route('applications.show', $application))
+            ->assertOk()
+            ->assertSee(__('app.applications.status.assigned'), false)
+            ->assertSee(__('app.applications.reassign'), false)
+            ->assertSee(__('app.applications.reassign_hint'), false)
+            ->assertSee(__('app.applications.timeline'), false)
+            ->assertSee(__('app.applications.received_at'), false)
+            ->assertSee(SiteApplication::stamp($application->created_at), false)
+            ->assertSee(SiteApplication::stamp($application->assigned_at), false);
     }
 
     public function test_coordinator_sees_only_files_assigned_to_them(): void

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ApprovalRequest;
+use App\Models\Complaint;
 use App\Models\FrequencyAllocation;
 use App\Models\License;
 use App\Models\SiteApplication;
@@ -49,10 +50,16 @@ class DashboardController extends Controller
                 ? SiteApplication::query()->visibleTo($user)->where('status', SiteApplication::STATUS_ASSIGNED)->count()
                 : 0,
             'pendingDirectorReviewCount' => $user->canTask('applications.concur') && ! $user->canTask('applications.assign')
-                ? SiteApplication::query()->where('status', SiteApplication::STATUS_DIRECTOR_REVIEW)->count()
+                ? SiteApplication::query()->whereIn('status', [
+                    SiteApplication::STATUS_DIRECTOR_REVIEW,
+                    SiteApplication::STATUS_RETURNED_TO_DIRECTOR,
+                ])->count()
                 : 0,
             'pendingDgReviewCount' => $user->canTask('applications.grant') && ! $user->canTask('applications.assign')
                 ? SiteApplication::query()->where('status', SiteApplication::STATUS_DG_REVIEW)->count()
+                : 0,
+            'pendingComplaintCount' => $user->canTask('complaints.view')
+                ? Complaint::query()->needingStaffAction($user)->count()
                 : 0,
             'alerts' => Tower::query()
                 ->visibleTo($user)

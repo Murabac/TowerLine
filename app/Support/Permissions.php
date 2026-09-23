@@ -48,6 +48,10 @@ class Permissions
         'reports.print' => 'Print reports',
         'reports.export_excel' => 'Export reports to Excel',
         'reports.audit' => 'Export the audit log report',
+        'complaints.view' => 'View complaints',
+        'complaints.create' => 'Log a complaint',
+        'complaints.triage' => 'Assign, prioritise, and close complaints',
+        'complaints.respond' => 'Add notes and mark a complaint resolved',
     ];
 
     /**
@@ -58,6 +62,7 @@ class Permissions
         'inspections' => ['inspections.create', 'inspections.delete', 'inspections.approve'],
         'approvals' => ['approvals.review'],
         'applications' => ['applications.view', 'applications.assign', 'applications.review', 'applications.concur', 'applications.grant'],
+        'complaints' => ['complaints.view', 'complaints.create', 'complaints.triage', 'complaints.respond'],
         'map' => ['map.view'],
         'letters' => ['letters.create'],
         'licenses' => ['licenses.create', 'licenses.update', 'licenses.delete'],
@@ -82,6 +87,7 @@ class Permissions
         'regional_coordinator' => ['name' => 'Regional coordinator', 'requires_regions' => true],
         'department_director' => ['name' => 'Department Director', 'requires_regions' => false],
         'director_general' => ['name' => 'Director General', 'requires_regions' => false],
+        'complaints_officer' => ['name' => 'Complaints officer', 'requires_regions' => false],
     ];
 
     /**
@@ -122,6 +128,10 @@ class Permissions
             'reports.print',
             'reports.export_excel',
             'reports.audit',
+            'complaints.view',
+            'complaints.create',
+            'complaints.triage',
+            'complaints.respond',
         ],
         'operations_manager' => [
             'geography.view',
@@ -159,12 +169,16 @@ class Permissions
             'frequencies.renew',
             'reports.view',
             'reports.print',
+            'complaints.view',
+            'complaints.respond',
         ],
         'operator_viewer' => [
             'map.view',
             'towers.view',
             'reports.view',
             'reports.print',
+            'complaints.view',
+            'complaints.respond',
         ],
         'section_head' => [
             'geography.view',
@@ -200,6 +214,15 @@ class Permissions
             'towers.view',
             'applications.view',
             'applications.grant',
+        ],
+        'complaints_officer' => [
+            'geography.view',
+            'map.view',
+            'towers.view',
+            'complaints.view',
+            'complaints.create',
+            'complaints.triage',
+            'complaints.respond',
         ],
     ];
 

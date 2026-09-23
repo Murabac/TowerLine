@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ApplicationInboxController;
+use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\ApprovalRequestController;
 use App\Http\Controllers\BuildApprovalLetterController;
 use App\Http\Controllers\AuditLogController;
@@ -43,6 +44,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/help', HelpController::class)->name('help');
     Route::get('/map', [MapController::class, 'index'])->name('map');
     Route::get('/map/towers', [MapController::class, 'towers'])->name('map.towers');
+    Route::get('/map/complaints', [MapController::class, 'complaints'])->name('map.complaints');
     Route::get('/geography/districts', [GeographyController::class, 'districts'])->name('geography.districts');
     Route::get('/geography/sub-districts', [GeographyController::class, 'subDistricts'])->name('geography.sub-districts');
     Route::get('/geography/cities', [GeographyController::class, 'cities'])->name('geography.cities');
@@ -71,6 +73,15 @@ Route::middleware('auth')->group(function () {
     Route::get('frequencies/{frequency}/letter/print', [FrequencyAllocationLetterController::class, 'print'])->name('frequencies.letter.print');
     Route::get('frequencies/{frequency}/receipt', [FrequencyRenewalReceiptController::class, 'show'])->name('frequencies.receipt.show');
     Route::get('frequencies/{frequency}/receipt/print', [FrequencyRenewalReceiptController::class, 'print'])->name('frequencies.receipt.print');
+    Route::get('complaints', [ComplaintController::class, 'index'])->name('complaints.index');
+    Route::get('complaints/create', [ComplaintController::class, 'create'])->name('complaints.create');
+    Route::post('complaints', [ComplaintController::class, 'store'])->name('complaints.store');
+    Route::post('complaints/bulk-assign', [ComplaintController::class, 'bulkAssign'])->name('complaints.bulk-assign');
+    Route::get('complaints/{complaint}', [ComplaintController::class, 'show'])->name('complaints.show');
+    Route::put('complaints/{complaint}', [ComplaintController::class, 'update'])->name('complaints.update');
+    Route::post('complaints/{complaint}/assign', [ComplaintController::class, 'assign'])->name('complaints.assign');
+    Route::post('complaints/{complaint}/respond', [ComplaintController::class, 'respond'])->name('complaints.respond');
+    Route::get('complaints/{complaint}/photo', [ComplaintController::class, 'photo'])->name('complaints.photo');
     Route::get('applications', [ApplicationInboxController::class, 'index'])->name('applications.index');
     Route::get('applications/{application}', [ApplicationInboxController::class, 'show'])->name('applications.show');
     Route::post('applications/{application}/assign', [ApplicationInboxController::class, 'assign'])->name('applications.assign');

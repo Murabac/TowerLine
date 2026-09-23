@@ -74,8 +74,6 @@ class DatabaseSeeder extends Seeder
             ],
         ];
 
-        User::query()->where('role', 'operator_viewer')->delete();
-
         foreach ($users as $user) {
             $record = User::query()->updateOrCreate(
                 ['email' => $user['email']],
@@ -121,6 +119,12 @@ class DatabaseSeeder extends Seeder
                 'role' => Role::KEY_DIRECTOR_GENERAL,
                 'region_ids' => [],
             ],
+            [
+                'email' => 'complaints@mocit.local',
+                'name' => 'Complaints Officer',
+                'role' => Role::KEY_COMPLAINTS_OFFICER,
+                'region_ids' => [],
+            ],
         ];
 
         foreach ($hqUsers as $user) {
@@ -138,6 +142,24 @@ class DatabaseSeeder extends Seeder
             );
 
             $record->syncInspectorRegions($user['region_ids']);
+        }
+
+        $telesom = Operator::query()->where('name', 'Telesom')->first();
+
+        if ($telesom) {
+            $viewer = User::query()->updateOrCreate(
+                ['email' => 'viewer.telesom@mocit.local'],
+                [
+                    'name' => 'Telesom Viewer',
+                    'password' => Hash::make('password'),
+                    'role' => Role::KEY_OPERATOR_VIEWER,
+                    'role_id' => $roleIds[Role::KEY_OPERATOR_VIEWER] ?? null,
+                    'region_id' => null,
+                    'operator_id' => $telesom->id,
+                    'email_verified_at' => now(),
+                ]
+            );
+            $viewer->syncInspectorRegions([]);
         }
 
         User::query()->whereIn('email', [

@@ -42,7 +42,8 @@ class UserController extends Controller
         $data = $request->validated();
         $role = Role::query()->where('key', $data['role'])->firstOrFail();
         $regionIds = $role->requires_regions ? ($data['region_ids'] ?? []) : [];
-        unset($data['region_ids']);
+        $operatorId = $role->key === Role::KEY_OPERATOR_VIEWER ? ($data['operator_id'] ?? null) : null;
+        unset($data['region_ids'], $data['operator_id']);
 
         $user = User::query()->create([
             'name' => $data['name'],
@@ -51,7 +52,7 @@ class UserController extends Controller
             'role' => $role->key,
             'role_id' => $role->id,
             'region_id' => $regionIds[0] ?? null,
-            'operator_id' => null,
+            'operator_id' => $operatorId,
             'email_verified_at' => now(),
         ]);
         $user->setRelation('roleRecord', $role);
@@ -75,7 +76,8 @@ class UserController extends Controller
         $data = $request->validated();
         $role = Role::query()->where('key', $data['role'])->firstOrFail();
         $regionIds = $role->requires_regions ? ($data['region_ids'] ?? []) : [];
-        unset($data['region_ids']);
+        $operatorId = $role->key === Role::KEY_OPERATOR_VIEWER ? ($data['operator_id'] ?? null) : null;
+        unset($data['region_ids'], $data['operator_id']);
 
         $payload = [
             'name' => $data['name'],
@@ -83,7 +85,7 @@ class UserController extends Controller
             'role' => $role->key,
             'role_id' => $role->id,
             'region_id' => $regionIds[0] ?? null,
-            'operator_id' => null,
+            'operator_id' => $operatorId,
         ];
 
         if (! empty($data['password'])) {

@@ -23,6 +23,8 @@ class SiteApplication extends Model
 
     public const STATUS_RETURNED = 'returned';
 
+    public const STATUS_RETURNED_TO_DIRECTOR = 'returned_to_director';
+
     public const DECISION_APPROVE = 'approve';
 
     public const DECISION_REJECT = 'reject';
@@ -151,6 +153,74 @@ class SiteApplication extends Model
         return $this->belongsTo(User::class, 'assigned_by');
     }
 
+    public static function stamp(mixed $at): ?string
+    {
+        if ($at === null || $at === '') {
+            return null;
+        }
+
+        $carbon = $at instanceof \Illuminate\Support\Carbon
+            ? $at
+            : \Illuminate\Support\Carbon::parse($at);
+
+        return $carbon->timezone(config('app.timezone'))->format('d M Y H:i');
+    }
+
+    /**
+     * @return list<array{key: string, label: string, at: string, who: string|null}>
+     */
+    public function timeline(): array
+    {
+        $rows = [[
+            'key' => 'received',
+            'label' => __('app.applications.received_at'),
+            'at' => self::stamp($this->created_at) ?: '—',
+            'who' => $this->contact_name,
+        ]];
+
+        if ($this->assigned_at) {
+            $who = $this->assignee?->name;
+            if ($this->assigner?->name) {
+                $who = trim((string) $who.' · '.__('app.applications.assigned_by', ['name' => $this->assigner->name]));
+            }
+            $rows[] = [
+                'key' => 'assigned',
+                'label' => __('app.applications.assigned_at'),
+                'at' => self::stamp($this->assigned_at) ?: '—',
+                'who' => $who,
+            ];
+        }
+
+        if ($this->officer_reviewed_at) {
+            $rows[] = [
+                'key' => 'officer',
+                'label' => __('app.applications.visit_recorded_at'),
+                'at' => self::stamp($this->officer_reviewed_at) ?: '—',
+                'who' => $this->officerReviewer?->name ?: $this->visitor?->name,
+            ];
+        }
+
+        if ($this->director_reviewed_at) {
+            $rows[] = [
+                'key' => 'director',
+                'label' => __('app.applications.director_at'),
+                'at' => self::stamp($this->director_reviewed_at) ?: '—',
+                'who' => $this->director_name ?: $this->directorReviewer?->name,
+            ];
+        }
+
+        if ($this->dg_reviewed_at) {
+            $rows[] = [
+                'key' => 'dg',
+                'label' => __('app.applications.dg_at'),
+                'at' => self::stamp($this->dg_reviewed_at) ?: '—',
+                'who' => $this->dg_name ?: $this->dgReviewer?->name,
+            ];
+        }
+
+        return $rows;
+    }
+
     public function visitor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'site_visited_by');
@@ -211,6 +281,11 @@ class SiteApplication extends Model
         return $this->status === self::STATUS_RETURNED;
     }
 
+    public function isReturnedToDirector(): bool
+    {
+        return $this->status === self::STATUS_RETURNED_TO_DIRECTOR;
+    }
+
     public function canBeAssigned(): bool
     {
         return in_array($this->status, [self::STATUS_RECEIVED, self::STATUS_ASSIGNED, self::STATUS_RETURNED], true);
@@ -223,7 +298,7 @@ class SiteApplication extends Model
 
     public function canReceiveDirectorDecision(): bool
     {
-        return $this->status === self::STATUS_DIRECTOR_REVIEW;
+        return in_array($this->status, [self::STATUS_DIRECTOR_REVIEW, self::STATUS_RETURNED_TO_DIRECTOR], true);
     }
 
     public function canReceiveDgDecision(): bool
@@ -330,7 +405,7 @@ class SiteApplication extends Model
             'dg_signature_path' => $signaturePath,
             'status' => $decision === self::DECISION_GRANT
                 ? self::STATUS_GRANTED
-                : self::STATUS_DIRECTOR_REVIEW,
+                : self::STATUS_RETURNED_TO_DIRECTOR,
         ])->save();
     }
 

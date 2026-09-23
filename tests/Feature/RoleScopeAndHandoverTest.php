@@ -190,6 +190,7 @@ class RoleScopeAndHandoverTest extends TestCase
             ->assertSee(__('app.help.roles.regional_coordinator'), false)
             ->assertSee(__('app.help.roles.department_director'), false)
             ->assertSee(__('app.help.roles.director_general'), false)
+            ->assertSee(__('app.help.roles.complaints_officer'), false)
             ->assertSee(__('app.help.your_role'), false);
     }
 
@@ -211,6 +212,7 @@ class RoleScopeAndHandoverTest extends TestCase
         $this->actingAs($admin)->get(route('users.index'))->assertOk();
         $this->actingAs($admin)->get(route('audit-logs.index'))->assertOk();
         $this->actingAs($admin)->get(route('applications.index'))->assertOk();
+        $this->actingAs($admin)->get(route('complaints.index'))->assertOk();
         $this->actingAs($admin)->get(route('help'))->assertOk();
         $this->actingAs($admin)->get(route('reports.index'))->assertOk();
         $this->actingAs($admin)->get(route('frequencies.dashboard'))->assertOk();
@@ -233,6 +235,9 @@ class RoleScopeAndHandoverTest extends TestCase
         $this->assertNull(User::query()->where('email', 'inspector.west@mocit.local')->first());
         $this->assertNotNull(User::query()->where('email', 'director@mocit.local')->first());
         $this->assertNotNull(User::query()->where('email', 'dg@mocit.local')->first());
+        $this->assertNotNull(User::query()->where('email', 'complaints@mocit.local')->first());
+        $this->assertNotNull(User::query()->where('email', 'viewer.telesom@mocit.local')->first());
+        $this->assertSame(5, \App\Models\Complaint::query()->count());
         $this->assertTrue($head->canTask('applications.assign'));
         $this->assertTrue($coordinator->requiresRegions());
         $this->assertTrue($coordinator->canTask('applications.review'));

@@ -26,23 +26,27 @@ class ApplicationInboxController extends Controller
 
         $user = $request->user();
         $status = $request->string('status')->toString();
-        $allowed = ['pending', 'received', 'assigned', 'returned', 'director_review', 'dg_review', 'granted', 'refused', 'all'];
         $canAssign = $user->canTask('applications.assign');
         $canReview = $user->canTask('applications.review');
         $canConcur = $user->canTask('applications.concur');
         $canGrant = $user->canTask('applications.grant');
         $seesAll = $user->managesSiteApplications();
+        $dgInbox = $canGrant && ! $canAssign;
 
         $query = SiteApplication::query()
             ->visibleTo($user)
             ->with(['operator', 'region', 'district', 'assignee'])
             ->latest();
 
+        $allowed = $dgInbox
+            ? ['received', 'returned', 'assigned', 'refused', 'granted', 'all']
+            : ['pending', 'received', 'assigned', 'returned', 'director_review', 'dg_review', 'granted', 'refused', 'all'];
+
         if (! in_array($status, $allowed, true)) {
             $status = $canAssign
                 ? 'pending'
-                : ($canGrant
-                    ? SiteApplication::STATUS_DG_REVIEW
+                : ($dgInbox
+                    ? 'received'
                     : ($canConcur || $seesAll
                         ? SiteApplication::STATUS_DIRECTOR_REVIEW
                         : SiteApplication::STATUS_ASSIGNED));
@@ -50,6 +54,19 @@ class ApplicationInboxController extends Controller
 
         if ($status === 'pending') {
             $query->whereIn('status', [SiteApplication::STATUS_RECEIVED, SiteApplication::STATUS_RETURNED]);
+        } elseif ($status === 'received' && $dgInbox) {
+            $query->whereIn('status', [SiteApplication::STATUS_RECEIVED, SiteApplication::STATUS_DG_REVIEW]);
+        } elseif ($status === 'returned') {
+            if ($dgInbox || ($canConcur && ! $canAssign)) {
+                $query->where('status', SiteApplication::STATUS_RETURNED_TO_DIRECTOR);
+            } elseif ($canAssign && ! $canConcur) {
+                $query->where('status', SiteApplication::STATUS_RETURNED);
+            } else {
+                $query->whereIn('status', [
+                    SiteApplication::STATUS_RETURNED,
+                    SiteApplication::STATUS_RETURNED_TO_DIRECTOR,
+                ]);
+            }
         } elseif ($status !== 'all') {
             $query->where('status', $status);
         }
@@ -66,6 +83,7 @@ class ApplicationInboxController extends Controller
             'canConcur' => $canConcur,
             'canGrant' => $canGrant,
             'seesAll' => $seesAll,
+            'dgInbox' => $dgInbox,
         ]);
     }
 

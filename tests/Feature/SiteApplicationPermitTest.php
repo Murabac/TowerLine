@@ -163,9 +163,33 @@ class SiteApplicationPermitTest extends TestCase
             ->assertRedirect(route('applications.show', $application));
 
         $application->refresh();
-        $this->assertSame(SiteApplication::STATUS_DIRECTOR_REVIEW, $application->status);
+        $this->assertSame(SiteApplication::STATUS_RETURNED_TO_DIRECTOR, $application->status);
         $this->assertNull($application->tower_id);
         $this->assertTrue($application->canReceiveDirectorDecision());
+        $this->assertSame(__('app.applications.status.returned'), $application->statusLabel());
+
+        $this->actingAs($director)
+            ->get(route('applications.index', ['status' => 'returned']))
+            ->assertOk()
+            ->assertSee($application->site_name, false)
+            ->assertSee(__('app.applications.status.returned'), false);
+
+        $this->actingAs($director)
+            ->get(route('applications.index', ['status' => 'director_review']))
+            ->assertOk()
+            ->assertDontSee($application->site_name, false);
+
+        $this->actingAs($dg)
+            ->get(route('applications.index', ['status' => 'returned']))
+            ->assertOk()
+            ->assertSee($application->site_name, false)
+            ->assertSee(__('app.applications.status.returned'), false)
+            ->assertSee(__('app.applications.status.received'), false)
+            ->assertSee(__('app.applications.status.assigned'), false)
+            ->assertSee(__('app.applications.status.refused'), false)
+            ->assertSee(__('app.applications.status.granted'), false)
+            ->assertDontSee(__('app.applications.status.director_review'), false)
+            ->assertDontSee(__('app.applications.status.dg_review'), false);
 
         $this->actingAs($director)
             ->get(route('applications.show', $application))

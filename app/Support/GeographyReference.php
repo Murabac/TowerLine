@@ -170,6 +170,38 @@ class GeographyReference
     }
 
     /**
+     * @param  iterable<array{south: float, west: float, north: float, east: float}|null>  $boundsList
+     * @return array{south: float, west: float, north: float, east: float}|null
+     */
+    public static function unionBounds(iterable $boundsList): ?array
+    {
+        $south = $west = $north = $east = null;
+
+        foreach ($boundsList as $bounds) {
+            if (! is_array($bounds)
+                || ! isset($bounds['south'], $bounds['west'], $bounds['north'], $bounds['east'])) {
+                continue;
+            }
+
+            $south = $south === null ? (float) $bounds['south'] : min($south, (float) $bounds['south']);
+            $west = $west === null ? (float) $bounds['west'] : min($west, (float) $bounds['west']);
+            $north = $north === null ? (float) $bounds['north'] : max($north, (float) $bounds['north']);
+            $east = $east === null ? (float) $bounds['east'] : max($east, (float) $bounds['east']);
+        }
+
+        if ($south === null || $west === null || $north === null || $east === null) {
+            return null;
+        }
+
+        return [
+            'south' => $south,
+            'west' => $west,
+            'north' => $north,
+            'east' => $east,
+        ];
+    }
+
+    /**
      * @return array{south: float, west: float, north: float, east: float}
      */
     public static function boundsAroundPoint(float $latitude, float $longitude, ?float $pad = null): array

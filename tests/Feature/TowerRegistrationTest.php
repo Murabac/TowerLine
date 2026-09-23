@@ -18,6 +18,18 @@ class TowerRegistrationTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_create_form_map_zooms_to_selected_district(): void
+    {
+        $this->fixtures();
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $this->actingAs($admin)
+            ->get(route('towers.create'))
+            ->assertOk()
+            ->assertSee('geography-map-focus', false)
+            ->assertSee('emitMapFocus', false);
+    }
+
     public function test_admin_can_save_ministry_registration_fields_on_tower(): void
     {
         [$region, $district, $subDistrict, $operator] = $this->fixtures();

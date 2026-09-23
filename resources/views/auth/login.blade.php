@@ -47,6 +47,8 @@
                         ['email' => 'coordinator.maroodi@mocit.local', 'label' => __('app.demo.coordinator_maroodi'), 'class' => 'border-violet-200 bg-violet-50 text-violet-900 hover:bg-violet-100'],
                         ['email' => 'director@mocit.local', 'label' => __('app.demo.director'), 'class' => 'border-violet-200 bg-violet-50 text-violet-900 hover:bg-violet-100'],
                         ['email' => 'dg@mocit.local', 'label' => __('app.demo.dg'), 'class' => 'border-violet-200 bg-violet-50 text-violet-900 hover:bg-violet-100'],
+                        ['email' => 'complaints@mocit.local', 'label' => __('app.demo.complaints_officer'), 'class' => 'border-orange-200 bg-orange-50 text-orange-900 hover:bg-orange-100'],
+                        ['email' => 'viewer.telesom@mocit.local', 'label' => __('app.demo.operator_telesom'), 'class' => 'border-teal-200 bg-teal-50 text-teal-900 hover:bg-teal-100'],
                     ] as $account)
                         <form method="POST" action="{{ route('login') }}">
                             @csrf
