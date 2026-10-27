@@ -20,18 +20,19 @@ RUN npm run build
 FROM dunglas/frankenphp:1-php8.3
 WORKDIR /app
 
-RUN apt-get update \
+RUN install-php-extensions \
+    pdo_mysql \
+    gd \
+    intl \
+    zip \
+    bcmath \
+    exif \
+    pcntl \
+    opcache \
+    # install-php-extensions purges build packages; install curl after it
+    && apt-get update \
     && apt-get install -y --no-install-recommends curl \
-    && rm -rf /var/lib/apt/lists/* \
-    && install-php-extensions \
-        pdo_mysql \
-        gd \
-        intl \
-        zip \
-        bcmath \
-        exif \
-        pcntl \
-        opcache
+    && rm -rf /var/lib/apt/lists/*
 
 ENV SERVER_NAME=":80"
 ENV PHP_OPCACHE_ENABLE=1
@@ -44,8 +45,8 @@ RUN chmod +x /usr/local/bin/towerline-entrypoint \
     && chown -R www-data:www-data storage bootstrap/cache
 
 EXPOSE 80
-# First boot runs many migrations; give Coolify time before marking unhealthy.
+# Coolify requires curl/wget in the image. First boot may migrate for a while.
 HEALTHCHECK --interval=15s --timeout=5s --start-period=180s --retries=5 \
-    CMD curl -fsS http://127.0.0.1/up || exit 1
+    CMD curl -fsS http://127.0.0.1:80/up || exit 1
 
 ENTRYPOINT ["/usr/local/bin/towerline-entrypoint"]
