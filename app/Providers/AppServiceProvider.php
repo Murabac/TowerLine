@@ -21,7 +21,7 @@ class AppServiceProvider extends ServiceProvider
             storage_path('app/private'),
         ] as $directory) {
             if (! is_dir($directory)) {
-                mkdir($directory, 0755, true);
+                @mkdir($directory, 0775, true);
             }
         }
     }

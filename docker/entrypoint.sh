@@ -13,6 +13,10 @@ mkdir -p \
   storage/logs \
   bootstrap/cache
 
+# Coolify mounts /app/storage and may run the container as a non-root uid.
+# Make sure the runtime user can write compiled views, sessions, and logs.
+chmod -R a+rwX storage bootstrap/cache || true
+
 php artisan storage:link --force >/dev/null 2>&1 || true
 
 if [ -n "${APP_KEY:-}" ]; then
@@ -20,6 +24,9 @@ if [ -n "${APP_KEY:-}" ]; then
   php artisan route:cache --no-interaction
   php artisan view:cache --no-interaction
 fi
+
+# Re-apply after artisan (caches create root-owned files).
+chmod -R a+rwX storage bootstrap/cache || true
 
 if [ "${RUN_MIGRATIONS:-true}" = "true" ]; then
   php artisan migrate --force --no-interaction

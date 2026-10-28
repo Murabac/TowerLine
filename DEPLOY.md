@@ -22,7 +22,7 @@ Also:
 3. **MySQL** — add a **MySQL 8** database in Coolify, then **link it** to this app so `DB_HOST` / `DB_PORT` / `DB_DATABASE` / `DB_USERNAME` / `DB_PASSWORD` are injected. Do not reuse Nova’s database.
 4. **Persistent storage** — mount a volume to `/app/storage` (complaint photos, letters, logs survive deploys).
 5. **Domain** — assign the Coolify URL or `towerline.…` hostname.
-6. **Healthcheck** — leave Coolify healthcheck enabled; the image includes `curl` and checks `/up` (180s start period for first migrate).
+6. **Healthcheck** — leave Coolify healthcheck enabled; the image includes `curl` and checks `/healthz` (180s start period for first migrate).
 
 ## Environment tab
 
@@ -59,7 +59,7 @@ Set `APP_URL` to the **https** URL Coolify shows (including the domain). Do not 
 
 1. Save the Coolify app, link MySQL, paste env, add the `/app/storage` volume.
 2. Deploy. First build installs Composer + `npm run build` (a few minutes).
-3. Open `/up` — should return OK (healthcheck).
+3. Open `/healthz` — should return `ok` (healthcheck). `/up` should show Laravel’s up page once storage is writable.
 4. Open `/login`.
 
 **Empty Coolify database (new site):** after the first migrate, run once from Coolify **Execute command**:

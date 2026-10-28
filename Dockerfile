@@ -45,8 +45,9 @@ RUN chmod +x /usr/local/bin/towerline-entrypoint \
     && chown -R www-data:www-data storage bootstrap/cache
 
 EXPOSE 80
+# Static file — avoids Laravel /up Blade compile (needs writable storage on first hit).
 # Coolify requires curl/wget in the image. First boot may migrate for a while.
 HEALTHCHECK --interval=15s --timeout=5s --start-period=180s --retries=5 \
-    CMD curl -fsS http://127.0.0.1:80/up || exit 1
+    CMD curl -fsS http://127.0.0.1:80/healthz || exit 1
 
 ENTRYPOINT ["/usr/local/bin/towerline-entrypoint"]
