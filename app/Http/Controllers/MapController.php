@@ -52,7 +52,7 @@ class MapController extends Controller
             'districts' => $districts,
             'subDistricts' => $subDistricts,
             'operators' => $operatorCollection,
-            'operatorOptions' => Operator::query()->orderBy('name')->get()->map->toFormOption()->values(),
+            'operatorOptions' => $operatorCollection->map->toFormOption()->values(),
             'legendOperators' => $operatorCollection
                 ->map(fn (Operator $operator) => [
                     'id' => $operator->id,

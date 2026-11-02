@@ -10,7 +10,6 @@ use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class InspectorApprovals
@@ -73,7 +72,7 @@ class InspectorApprovals
 
             foreach ($files as $file) {
                 if ($file instanceof UploadedFile) {
-                    $stored[] = $file->store("approvals/{$token}/photos/{$slot}", 'public');
+                    $stored[] = PrivateStorage::store($file, "approvals/{$token}/photos/{$slot}");
                 }
             }
 
@@ -136,7 +135,7 @@ class InspectorApprovals
 
             foreach ($files as $file) {
                 if ($file instanceof UploadedFile) {
-                    $stored[] = $file->store("approvals/{$token}/photos/{$slot}", 'public');
+                    $stored[] = PrivateStorage::store($file, "approvals/{$token}/photos/{$slot}");
                 }
             }
 
@@ -272,7 +271,7 @@ class InspectorApprovals
             $moved = [];
 
             foreach ($paths as $path) {
-                $moved[] = self::movePublicFile($path, "inspections/{$tower->id}/".basename($path));
+                $moved[] = PrivateStorage::move($path, "inspections/{$tower->id}/".basename($path));
             }
 
             if ($moved !== []) {
@@ -303,14 +302,14 @@ class InspectorApprovals
         }
 
         if ($tower->site_map_path) {
-            Storage::disk('public')->delete($tower->site_map_path);
+            PrivateStorage::delete($tower->site_map_path);
         }
 
         $extension = pathinfo($path, PATHINFO_EXTENSION);
         $destination = "towers/{$tower->id}/site-map".($extension ? '.'.$extension : '');
 
         $tower->update([
-            'site_map_path' => self::movePublicFile($path, $destination),
+            'site_map_path' => PrivateStorage::move($path, $destination),
         ]);
     }
 
@@ -320,21 +319,7 @@ class InspectorApprovals
             return null;
         }
 
-        return $file->store($directory, 'public');
-    }
-
-    private static function movePublicFile(string $from, string $to): string
-    {
-        $disk = Storage::disk('public');
-
-        if (! $disk->exists($from)) {
-            return $from;
-        }
-
-        $disk->delete($to);
-        $disk->move($from, $to);
-
-        return $to;
+        return PrivateStorage::store($file, $directory);
     }
 
     /**

@@ -138,4 +138,46 @@ class ApprovalRequest extends Model
 
         return is_array($photos) ? $photos : [];
     }
+
+    /**
+     * @return list<string>
+     */
+    public function photoUrls(): array
+    {
+        return collect($this->photoUrlsBySlot())
+            ->flatten()
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return array<string, list<string>>
+     */
+    public function photoUrlsBySlot(): array
+    {
+        $index = 0;
+        $urls = [];
+
+        foreach ($this->photos() as $slot => $paths) {
+            $urls[$slot] = [];
+
+            foreach ((array) $paths as $path) {
+                if (! is_string($path) || $path === '') {
+                    continue;
+                }
+
+                $urls[$slot][] = route('approvals.photos.show', [$this, $index]);
+                $index++;
+            }
+        }
+
+        return $urls;
+    }
+
+    public function siteMapUrl(): ?string
+    {
+        return $this->siteMapPath()
+            ? route('approvals.site-map', $this)
+            : null;
+    }
 }

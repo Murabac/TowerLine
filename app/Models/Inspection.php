@@ -106,8 +106,8 @@ class Inspection extends Model
         return collect($this->photos ?? [])
             ->flatMap(fn ($path) => is_array($path) ? $path : [$path])
             ->filter(fn ($path) => is_string($path) && $path !== '')
-            ->map(fn (string $path) => asset('storage/'.$path))
             ->values()
+            ->map(fn (string $path, int $index) => route('inspections.photos.show', [$this, $index]))
             ->all();
     }
 

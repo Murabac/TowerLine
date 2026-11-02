@@ -121,7 +121,7 @@ class InspectionTest extends TestCase
 
     public function test_inspector_can_upload_multiple_photos_per_type(): void
     {
-        Storage::fake('public');
+        Storage::fake('local');
 
         [$region, $operator] = $this->seedBasics();
         $tower = $this->makeTower($region, $operator);
@@ -154,7 +154,11 @@ class InspectionTest extends TestCase
         $this->assertCount(2, $inspection->photos['wide']);
         $this->assertCount(1, $inspection->photos['power']);
         $this->assertCount(3, $inspection->photoUrls());
-        Storage::disk('public')->assertExists($inspection->photos['wide'][0]);
+        Storage::disk('local')->assertExists($inspection->photos['wide'][0]);
+
+        $this->actingAs($inspector)
+            ->get(route('inspections.photos.show', [$inspection, 0]))
+            ->assertOk();
     }
 
     public function test_operator_viewer_cannot_submit_an_inspection(): void

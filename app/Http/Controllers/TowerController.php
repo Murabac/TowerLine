@@ -14,12 +14,12 @@ use App\Support\TowerFenceDistance;
 use App\Support\TowerLandArea;
 use App\Support\TowerNameGenerator;
 use App\Support\TowerPowerSource;
+use App\Support\PrivateStorage;
 use App\Support\TowerProximity;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class TowerController extends Controller
@@ -185,7 +185,7 @@ class TowerController extends Controller
         $this->authorize('delete', $tower);
 
         if ($tower->site_map_path) {
-            Storage::disk('public')->delete($tower->site_map_path);
+            PrivateStorage::delete($tower->site_map_path);
         }
 
         Audits::log('deleted', $tower, ['name' => $tower->name]);
@@ -199,9 +199,14 @@ class TowerController extends Controller
         $user = request()->user();
         $districtId = old('district_id', $tower?->district_id);
 
+        $operators = Operator::query()->orderBy('name');
+        if ($user->isOperatorViewer()) {
+            $operators->whereKey($user->operator_id ?: 0);
+        }
+
         return [
             'regions' => $this->scopedRegions(),
-            'operators' => Operator::query()->orderBy('name')->get(),
+            'operators' => $operators->get(),
             'powerSources' => TowerPowerSource::OPTIONS,
             'initialDistricts' => $this->districtOptionsForRegion(
                 old('region_id', $tower?->region_id ?? $user->regionIds()[0] ?? null)
@@ -352,11 +357,11 @@ class TowerController extends Controller
         }
 
         if ($tower->site_map_path) {
-            Storage::disk('public')->delete($tower->site_map_path);
+            PrivateStorage::delete($tower->site_map_path);
         }
 
         $tower->update([
-            'site_map_path' => $file->store("towers/{$tower->id}", 'public'),
+            'site_map_path' => PrivateStorage::store($file, "towers/{$tower->id}"),
         ]);
     }
 }

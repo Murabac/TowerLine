@@ -67,9 +67,9 @@
                     </div>
                 </dl>
                 @php
-                    $photoUrls = collect($approval->photos())->flatMap(fn ($paths) => $paths)->map(fn ($path) => asset('storage/'.$path));
+                    $photoUrls = $approval->photoUrls();
                 @endphp
-                @if ($photoUrls->isNotEmpty())
+                @if ($photoUrls !== [])
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                         @foreach ($photoUrls as $url)
                             <a href="{{ $url }}" target="_blank" class="block overflow-hidden rounded-lg border border-gray-200">
@@ -101,7 +101,7 @@
 
             @if ($approval->siteMapPath())
                 <p class="text-sm">
-                    <a href="{{ asset('storage/'.$approval->siteMapPath()) }}" target="_blank" class="font-semibold text-brand hover:underline">{{ __('app.approvals.site_map') }}</a>
+                    <a href="{{ $approval->siteMapUrl() }}" target="_blank" class="font-semibold text-brand hover:underline">{{ __('app.approvals.site_map') }}</a>
                 </p>
             @endif
         </section>

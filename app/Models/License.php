@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Support\PrivateStorage;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 
 class License extends Model
 {
@@ -33,7 +33,7 @@ class License extends Model
     {
         static::deleting(function (License $license) {
             foreach ($license->documentRecords() as $document) {
-                Storage::disk('public')->delete($document['path']);
+                PrivateStorage::delete($document['path']);
             }
         });
     }
@@ -128,9 +128,10 @@ class License extends Model
     public function documentList(): array
     {
         return collect($this->documentRecords())
-            ->map(fn (array $document) => [
+            ->values()
+            ->map(fn (array $document, int $index) => [
                 ...$document,
-                'url' => asset('storage/'.$document['path']),
+                'url' => route('licenses.documents.show', [$this, $index]),
             ])
             ->all();
     }
@@ -145,7 +146,7 @@ class License extends Model
 
         foreach ($removePaths as $path) {
             if ($documents->contains(fn (array $document) => $document['path'] === $path)) {
-                Storage::disk('public')->delete($path);
+                PrivateStorage::delete($path);
             }
         }
 
@@ -159,7 +160,7 @@ class License extends Model
             }
 
             $documents->push([
-                'path' => $file->store('licenses/'.$this->tower_id, 'public'),
+                'path' => PrivateStorage::store($file, 'licenses/'.$this->tower_id),
                 'name' => $file->getClientOriginalName(),
                 'size' => $file->getSize(),
             ]);

@@ -169,7 +169,9 @@ return [
     |
     */
 
-    'secure' => env('SESSION_SECURE_COOKIE'),
+    'secure' => ($sessionSecure = env('SESSION_SECURE_COOKIE')) === null
+        ? str_starts_with((string) env('APP_URL', ''), 'https://')
+        : filter_var($sessionSecure, FILTER_VALIDATE_BOOLEAN),
 
     /*
     |--------------------------------------------------------------------------

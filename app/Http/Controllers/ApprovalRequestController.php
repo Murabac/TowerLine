@@ -64,8 +64,9 @@ class ApprovalRequestController extends Controller
         if ($approval->type === ApprovalRequest::TYPE_INSPECTION) {
             return view('inspections.create', [
                 'tower' => $approval->tower,
+                'approval' => $approval,
                 'defaults' => $approval->attributes(),
-                'existingPhotos' => $approval->photos(),
+                'existingPhotos' => $approval->photoUrlsBySlot(),
                 'formAction' => route('approvals.update', $approval),
                 'formMethod' => 'PUT',
                 'submitLabel' => __('app.approvals.save_corrections'),

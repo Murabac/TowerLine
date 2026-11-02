@@ -102,8 +102,13 @@ class GeographyController extends Controller
             abort(403);
         }
 
-        $operators = Operator::query()
-            ->orderBy('name')
+        $query = Operator::query()->orderBy('name');
+
+        if ($user->isOperatorViewer()) {
+            $query->whereKey($user->operator_id ?: 0);
+        }
+
+        $operators = $query
             ->get()
             ->map(fn (Operator $operator) => $operator->toFormOption())
             ->values();

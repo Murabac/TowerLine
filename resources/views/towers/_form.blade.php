@@ -183,7 +183,7 @@
                 <input id="site_map" name="site_map" type="file" accept=".pdf,.jpg,.jpeg,.png" class="mt-1 block w-full text-sm text-gray-600 file:mr-4 file:rounded-md file:border-0 file:bg-brand file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-brand-dark" />
                 @if ($tower?->site_map_path)
                     <p class="mt-2 text-sm">
-                        <a href="{{ Storage::disk('public')->url($tower->site_map_path) }}" class="text-brand hover:underline" target="_blank" rel="noopener">{{ __('app.towers.view_site_map') }}</a>
+                        <a href="{{ route('towers.site-map', $tower) }}" class="text-brand hover:underline" target="_blank" rel="noopener">{{ __('app.towers.view_site_map') }}</a>
                     </p>
                 @endif
                 <x-input-error :messages="$errors->get('site_map')" class="mt-1" />

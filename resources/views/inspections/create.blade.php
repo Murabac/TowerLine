@@ -179,9 +179,9 @@
 
                             @if (! empty($existingPhotos[$slot]))
                                 <div class="mt-2 grid grid-cols-4 gap-1.5">
-                                    @foreach ($existingPhotos[$slot] as $path)
-                                        <a href="{{ asset('storage/'.$path) }}" target="_blank" class="block h-16 overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
-                                            <img src="{{ asset('storage/'.$path) }}" alt="" class="h-full w-full object-cover">
+                                    @foreach ($existingPhotos[$slot] as $url)
+                                        <a href="{{ $url }}" target="_blank" class="block h-16 overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
+                                            <img src="{{ $url }}" alt="" class="h-full w-full object-cover">
                                         </a>
                                     @endforeach
                                 </div>

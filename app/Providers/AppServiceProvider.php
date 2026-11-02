@@ -31,7 +31,7 @@ class AppServiceProvider extends ServiceProvider
         Paginator::useTailwind();
 
         RateLimiter::for('site-applications', function (Request $request) {
-            return Limit::perHour(6)
+            return Limit::perHour(3)
                 ->by((string) $request->ip())
                 ->response(function () {
                     return redirect()

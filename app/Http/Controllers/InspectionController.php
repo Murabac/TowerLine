@@ -7,6 +7,7 @@ use App\Models\Inspection;
 use App\Models\Tower;
 use App\Support\Audits;
 use App\Support\InspectorApprovals;
+use App\Support\PrivateStorage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -58,7 +59,7 @@ class InspectionController extends Controller
         foreach ($paths as $slot => $files) {
             $stored = [];
             foreach ($files as $file) {
-                $stored[] = $file->store('inspections/'.$tower->id, 'public');
+                $stored[] = PrivateStorage::store($file, 'inspections/'.$tower->id);
             }
             $storedPaths[$slot] = $stored;
         }

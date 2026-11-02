@@ -209,6 +209,6 @@ class StoreSiteApplicationRequest extends FormRequest
 
     private function documentFile(): File
     {
-        return File::types(['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'])->max(10 * 1024);
+        return File::types(['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'])->max(5 * 1024);
     }
 }

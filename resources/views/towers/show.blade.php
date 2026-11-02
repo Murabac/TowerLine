@@ -183,7 +183,7 @@
                                     @endif
                                 @elseif ($value === 'file')
                                     @if ($tower->site_map_path)
-                                        <a href="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($tower->site_map_path) }}" class="text-brand hover:underline" target="_blank" rel="noopener">{{ __('app.towers.view_site_map') }}</a>
+                                        <a href="{{ route('towers.site-map', $tower) }}" class="text-brand hover:underline" target="_blank" rel="noopener">{{ __('app.towers.view_site_map') }}</a>
                                     @else
                                         —
                                     @endif

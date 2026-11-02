@@ -75,7 +75,7 @@ class DashboardAndLicenseTest extends TestCase
 
     public function test_admin_can_upload_and_replace_license_documents(): void
     {
-        Storage::fake('public');
+        Storage::fake('local');
 
         [$region, $operator] = $this->basics();
         $tower = $this->tower($region, $operator);
@@ -96,7 +96,7 @@ class DashboardAndLicenseTest extends TestCase
 
         $license = License::query()->first();
         $this->assertCount(2, $license->documentRecords());
-        Storage::disk('public')->assertExists($license->documentRecords()[0]['path']);
+        Storage::disk('local')->assertExists($license->documentRecords()[0]['path']);
 
         $keep = $license->documentRecords()[1]['path'];
         $remove = $license->documentRecords()[0]['path'];
@@ -118,7 +118,24 @@ class DashboardAndLicenseTest extends TestCase
         $this->assertTrue($paths->contains($keep));
         $this->assertFalse($paths->contains($remove));
         $this->assertCount(2, $license->documentRecords());
-        Storage::disk('public')->assertMissing($remove);
+        Storage::disk('local')->assertMissing($remove);
+
+        $this->actingAs($admin)
+            ->get(route('licenses.documents.show', [$license, 0]))
+            ->assertOk();
+
+        $outsider = User::factory()->create([
+            'role' => 'operator_viewer',
+            'operator_id' => Operator::query()->create([
+                'name' => 'OtherCo',
+                'category' => 'telecom',
+                'color' => '#111111',
+            ])->id,
+        ]);
+
+        $this->actingAs($outsider)
+            ->get(route('licenses.documents.show', [$license, 0]))
+            ->assertForbidden();
     }
 
     public function test_license_list_is_visible_to_operator_viewers_for_their_operator(): void

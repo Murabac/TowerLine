@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use App\Support\PrivateStorage;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 
 class FrequencyAllocation extends Model
 {
@@ -39,7 +39,7 @@ class FrequencyAllocation extends Model
     {
         static::deleting(function (FrequencyAllocation $allocation) {
             foreach ($allocation->documentRecords() as $document) {
-                Storage::disk('public')->delete($document['path']);
+                PrivateStorage::delete($document['path']);
             }
         });
     }
@@ -243,9 +243,10 @@ class FrequencyAllocation extends Model
     public function documentList(): array
     {
         return collect($this->documentRecords())
-            ->map(fn (array $document) => [
+            ->values()
+            ->map(fn (array $document, int $index) => [
                 ...$document,
-                'url' => asset('storage/'.$document['path']),
+                'url' => route('frequencies.documents.show', [$this, $index]),
             ])
             ->all();
     }
@@ -260,7 +261,7 @@ class FrequencyAllocation extends Model
 
         foreach ($removePaths as $path) {
             if ($documents->contains(fn (array $document) => $document['path'] === $path)) {
-                Storage::disk('public')->delete($path);
+                PrivateStorage::delete($path);
             }
         }
 
@@ -274,7 +275,7 @@ class FrequencyAllocation extends Model
             }
 
             $documents->push([
-                'path' => $file->store('frequencies/'.$this->id, 'public'),
+                'path' => PrivateStorage::store($file, 'frequencies/'.$this->id),
                 'name' => $file->getClientOriginalName(),
                 'size' => $file->getSize(),
             ]);
