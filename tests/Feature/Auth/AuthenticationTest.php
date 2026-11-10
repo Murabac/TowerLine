@@ -16,16 +16,10 @@ class AuthenticationTest extends TestCase
 
         $response->assertStatus(200);
         $this->assertGuest();
-        $response->assertSee(__('app.demo.quick_login'), false);
-        $response->assertSee(__('app.demo.admin'), false);
-        $response->assertSee(__('app.demo.section_head'), false);
-        $response->assertSee(__('app.demo.coordinator_maroodi'), false);
-        $response->assertSee(__('app.demo.inspector_maroodi'), false);
-        $response->assertSee(__('app.demo.director'), false);
-        $response->assertSee(__('app.demo.dg'), false);
-        $response->assertDontSee('inspector.west@mocit.local', false);
-        $response->assertSee('viewer.telesom@mocit.local', false);
-        $response->assertSee(__('app.demo.complaints_officer'), false);
+        $response->assertSee(__('app.log_in'), false);
+        $response->assertDontSee('admin@mocit.local', false);
+        $response->assertDontSee('complaints@mocit.local', false);
+        $response->assertDontSee('viewer.telesom@mocit.local', false);
     }
 
     public function test_operator_viewers_can_log_in(): void
@@ -48,7 +42,7 @@ class AuthenticationTest extends TestCase
         $this->assertAuthenticated();
     }
 
-    public function test_demo_quick_login_signs_in_the_complaints_officer(): void
+    public function test_seeded_complaints_officer_can_authenticate(): void
     {
         $this->post('/login', [
             'email' => 'complaints@mocit.local',
@@ -59,7 +53,7 @@ class AuthenticationTest extends TestCase
         $this->assertSame('complaints_officer', auth()->user()->role);
     }
 
-    public function test_demo_quick_login_signs_in_an_admin(): void
+    public function test_seeded_admin_can_authenticate(): void
     {
         $this->seed(\Database\Seeders\DatabaseSeeder::class);
 

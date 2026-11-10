@@ -33,34 +33,5 @@
         <p class="mt-2 text-center">
             <a href="{{ route('apply.create') }}" class="text-sm font-medium text-gray-600 hover:text-brand hover:underline">{{ __('app.apply.open', [], 'en') }}</a>
         </p>
-
-        @unless (app()->isProduction())
-            <div class="mt-6 border-t border-gray-100 pt-5">
-                <p class="text-[11px] font-semibold uppercase tracking-[0.12em] text-gray-400">{{ __('app.demo.quick_login') }}</p>
-                <p class="mt-1 text-xs text-gray-500">{{ __('app.demo.quick_login_hint') }}</p>
-                <div class="mt-3 grid gap-2">
-                    @foreach ([
-                        ['email' => 'admin@mocit.local', 'label' => __('app.demo.admin'), 'class' => 'border-emerald-200 bg-emerald-50 text-emerald-900 hover:bg-emerald-100'],
-                        ['email' => 'ops@mocit.local', 'label' => __('app.demo.operations_manager'), 'class' => 'border-amber-200 bg-amber-50 text-amber-900 hover:bg-amber-100'],
-                        ['email' => 'inspector.maroodi@mocit.local', 'label' => __('app.demo.inspector_maroodi'), 'class' => 'border-sky-200 bg-sky-50 text-sky-900 hover:bg-sky-100'],
-                        ['email' => 'section.head@mocit.local', 'label' => __('app.demo.section_head'), 'class' => 'border-violet-200 bg-violet-50 text-violet-900 hover:bg-violet-100'],
-                        ['email' => 'coordinator.maroodi@mocit.local', 'label' => __('app.demo.coordinator_maroodi'), 'class' => 'border-violet-200 bg-violet-50 text-violet-900 hover:bg-violet-100'],
-                        ['email' => 'director@mocit.local', 'label' => __('app.demo.director'), 'class' => 'border-violet-200 bg-violet-50 text-violet-900 hover:bg-violet-100'],
-                        ['email' => 'dg@mocit.local', 'label' => __('app.demo.dg'), 'class' => 'border-violet-200 bg-violet-50 text-violet-900 hover:bg-violet-100'],
-                        ['email' => 'complaints@mocit.local', 'label' => __('app.demo.complaints_officer'), 'class' => 'border-orange-200 bg-orange-50 text-orange-900 hover:bg-orange-100'],
-                        ['email' => 'viewer.telesom@mocit.local', 'label' => __('app.demo.operator_telesom'), 'class' => 'border-teal-200 bg-teal-50 text-teal-900 hover:bg-teal-100'],
-                    ] as $account)
-                        <form method="POST" action="{{ route('login') }}">
-                            @csrf
-                            <input type="hidden" name="email" value="{{ $account['email'] }}">
-                            <input type="hidden" name="password" value="password">
-                            <button type="submit" class="w-full rounded-xl border px-3 py-2.5 text-sm font-semibold text-left {{ $account['class'] }}">
-                                {{ $account['label'] }}
-                            </button>
-                        </form>
-                    @endforeach
-                </div>
-            </div>
-        @endunless
     </div>
 </x-guest-layout>

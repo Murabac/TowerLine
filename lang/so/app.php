@@ -10,20 +10,6 @@ return [
     'password' => 'Furaha sirta',
     'remember' => 'I xasuuso',
     'log_in' => 'Gal',
-    'demo' => [
-        'quick_login' => 'Gal degdeg ah (demo)',
-        'quick_login_hint' => 'Hal taabasho. Furaha waa la buuxiyay.',
-        'admin' => 'Maamulaha wasaaradda',
-        'operations_manager' => 'Maamulaha hawlgalka',
-        'inspector_maroodi' => 'Kormeere · Maroodi Jeex',
-        'section_head' => 'Madaxa Qaybta',
-        'coordinator_maroodi' => 'Isku-duwaha · Maroodi Jeex',
-        'director' => 'Agaasimaha Waaxda',
-        'dg' => 'Agaasimaha Guud',
-        'complaints_officer' => 'Sarkaalka cabashooyinka',
-        'operator_telesom' => 'Shirkad · Telesom',
-        'viewer_disabled' => 'Gelitaanka daawadaha shirkadda waa la damiyay hadda.',
-    ],
 
     'signatures' => [
         'label' => 'Saxeexa',

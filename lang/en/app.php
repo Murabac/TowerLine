@@ -10,20 +10,6 @@ return [
     'password' => 'Password',
     'remember' => 'Remember me',
     'log_in' => 'Log in',
-        'demo' => [
-        'quick_login' => 'Quick demo login',
-        'quick_login_hint' => 'One tap. Password is filled for you.',
-        'admin' => 'Ministry admin',
-        'operations_manager' => 'Operations manager',
-        'inspector_maroodi' => 'Inspector · Maroodi Jeex',
-        'section_head' => 'Section Head',
-        'coordinator_maroodi' => 'Coordinator · Maroodi Jeex',
-        'director' => 'Department Director',
-        'dg' => 'Director General',
-        'complaints_officer' => 'Complaints officer',
-        'operator_telesom' => 'Operator · Telesom',
-        'viewer_disabled' => 'Operator viewer access is switched off for now.',
-    ],
 
     'signatures' => [
         'label' => 'Signature',
