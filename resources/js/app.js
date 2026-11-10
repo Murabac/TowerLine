@@ -55,28 +55,9 @@ function showPageSkeleton() {
     const cover = document.createElement('div');
     cover.setAttribute('data-page-skeleton', '');
     cover.setAttribute('aria-hidden', 'true');
-    cover.className = 'absolute inset-0 z-20 overflow-auto bg-surface';
+    cover.className = 'absolute inset-0 z-[800] flex items-center justify-center bg-surface';
     cover.innerHTML = `
-        <div class="p-4 lg:p-8 space-y-5">
-            <div class="h-8 w-48 animate-pulse rounded-lg bg-gray-200"></div>
-            <div class="h-3 w-72 max-w-full animate-pulse rounded bg-gray-200"></div>
-            <div class="space-y-3 rounded-2xl border border-gray-200/90 bg-white p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_rgba(16,24,40,0.04)]">
-                <div class="h-4 w-1/3 animate-pulse rounded bg-gray-200"></div>
-                <div class="h-3 w-full animate-pulse rounded bg-gray-100"></div>
-                <div class="h-3 w-5/6 animate-pulse rounded bg-gray-100"></div>
-                <div class="h-3 w-2/3 animate-pulse rounded bg-gray-100"></div>
-            </div>
-            <div class="space-y-3 rounded-2xl border border-gray-200/90 bg-white p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_rgba(16,24,40,0.04)]">
-                <div class="h-4 w-1/4 animate-pulse rounded bg-gray-200"></div>
-                <div class="h-3 w-full animate-pulse rounded bg-gray-100"></div>
-                <div class="h-3 w-4/5 animate-pulse rounded bg-gray-100"></div>
-            </div>
-            <div class="space-y-3 rounded-2xl border border-gray-200/90 bg-white p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_rgba(16,24,40,0.04)]">
-                <div class="h-4 w-2/5 animate-pulse rounded bg-gray-200"></div>
-                <div class="h-3 w-full animate-pulse rounded bg-gray-100"></div>
-                <div class="h-3 w-3/4 animate-pulse rounded bg-gray-100"></div>
-            </div>
-        </div>
+        <span class="h-10 w-10 animate-spin rounded-full border-[3px] border-brand/15 border-t-brand"></span>
     `;
 
     main.appendChild(cover);
