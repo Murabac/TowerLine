@@ -23,7 +23,7 @@
                 <span class="hidden sm:inline-flex rounded-full bg-white/10 px-3 py-1 text-[11px] font-medium tracking-wide text-white/90 ring-1 ring-white/15">MoCIT</span>
             </div>
         </header>
-        <main class="flex-1 px-4 py-10 sm:px-6 sm:py-12">
+        <main data-page-content class="relative flex-1 px-4 py-10 sm:px-6 sm:py-12">
             <div class="mx-auto w-full max-w-4xl">
                 {{ $slot }}
             </div>

@@ -17,7 +17,7 @@
                 <p class="text-xs text-brand-light">{{ __('app.ministry_en') }}</p>
             </div>
         </div>
-        <div class="flex-1 flex items-center justify-center p-6">
+        <div data-page-content class="relative flex-1 flex items-center justify-center p-6">
             <div class="w-full max-w-md">
                 {{ $slot }}
             </div>

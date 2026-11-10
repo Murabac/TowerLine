@@ -10,6 +10,7 @@ return [
     'password' => 'Furaha sirta',
     'remember' => 'I xasuuso',
     'log_in' => 'Gal',
+    'signing_in' => 'Waa la galayaa…',
 
     'signatures' => [
         'label' => 'Saxeexa',
@@ -34,6 +35,10 @@ return [
         'missing' => 'Magaca oo keliya',
     ],
     'log_out' => 'Ka bax',
+    'signing_out' => 'Waa laga baxayaa…',
+    'apply' => [
+        'submitting' => 'Codsiga waa la gudbinayaa…',
+    ],
     'profile' => 'Profile',
     'language' => 'Luuqadda',
     'english' => 'Ingiriisi',

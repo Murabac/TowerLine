@@ -10,6 +10,7 @@ return [
     'password' => 'Password',
     'remember' => 'Remember me',
     'log_in' => 'Log in',
+    'signing_in' => 'Signing in…',
 
     'signatures' => [
         'label' => 'Signature',
@@ -34,6 +35,7 @@ return [
         'missing' => 'Name only',
     ],
     'log_out' => 'Log out',
+    'signing_out' => 'Signing out…',
     'profile' => 'Profile',
     'language' => 'Language',
     'english' => 'English',
@@ -161,6 +163,7 @@ return [
         'radio' => 'Description of planned radio apparatus',
         'icnirp' => 'ICNIRP compliance declaration',
         'submit' => 'Submit application',
+        'submitting' => 'Submitting application…',
         'fix_fields' => 'Please correct the highlighted fields.',
         'required' => 'This field is required.',
         'named_required' => ':field is required.',

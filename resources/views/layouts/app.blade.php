@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="{{ asset('css/report-print.css') }}?v={{ filemtime(public_path('css/report-print.css')) }}">
     @stack('head')
 </head>
-<body class="font-sans antialiased text-gray-900 bg-surface {{ $map ? 'h-screen overflow-hidden' : 'min-h-screen' }}"
+<body data-app-shell class="font-sans antialiased text-gray-900 bg-surface {{ $map ? 'h-screen overflow-hidden' : 'min-h-screen' }}"
       x-data="{
           collapsed: localStorage.getItem('towerline-sidebar') === 'collapsed',
           mobileOpen: false,
@@ -31,7 +31,7 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                    <form method="POST" action="{{ route('locale.update') }}" class="flex rounded overflow-hidden border border-white/20 text-xs">
+                    <form method="POST" action="{{ route('locale.update') }}" data-no-loading class="flex rounded overflow-hidden border border-white/20 text-xs">
                         @csrf
                         <button name="locale" value="en" class="px-2 py-1 {{ app()->getLocale() === 'en' ? 'bg-white text-brand' : 'text-white/80 hover:bg-white/10' }}">EN</button>
                         <button name="locale" value="so" class="px-2 py-1 {{ app()->getLocale() === 'so' ? 'bg-white text-brand' : 'text-white/80 hover:bg-white/10' }}">SO</button>
@@ -70,7 +70,7 @@
                             </x-dropdown-link>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
-                                <x-dropdown-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();">
+                                <x-dropdown-link :href="route('logout')" data-wait-label="{{ __('app.signing_out') }}" onclick="event.preventDefault(); event.stopPropagation(); this.closest('form').requestSubmit();">
                                     {{ __('app.log_out') }}
                                 </x-dropdown-link>
                             </form>
@@ -161,19 +161,13 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="{{ $icon }}"/>
                             </svg>
                             <span class="truncate" :class="collapsed ? 'lg:hidden' : ''">{{ __($label) }}</span>
-                            @if ($route === 'approvals.index' && ($pendingNavCount = \App\Models\ApprovalRequest::query()->visibleTo(Auth::user())->pending()->count()))
+                            @if ($route === 'approvals.index' && ($pendingNavCount = \App\Support\NavCounts::approvals(Auth::user())))
                                 <span class="ml-auto rounded-full bg-amber-400/90 px-1.5 py-0.5 text-[10px] font-bold text-brand-dark" :class="collapsed ? 'lg:hidden' : ''">{{ $pendingNavCount }}</span>
                             @endif
-                            @if ($route === 'applications.index' && Auth::user()->canTask('applications.assign') && ($applicationNavCount = \App\Models\SiteApplication::query()->whereIn('status', ['received', 'returned'])->count()))
-                                <span class="ml-auto rounded-full bg-amber-400/90 px-1.5 py-0.5 text-[10px] font-bold text-brand-dark" :class="collapsed ? 'lg:hidden' : ''">{{ $applicationNavCount }}</span>
-                            @elseif ($route === 'applications.index' && Auth::user()->canTask('applications.review') && ! Auth::user()->canTask('applications.assign') && ($applicationNavCount = \App\Models\SiteApplication::query()->visibleTo(Auth::user())->where('status', 'assigned')->count()))
-                                <span class="ml-auto rounded-full bg-amber-400/90 px-1.5 py-0.5 text-[10px] font-bold text-brand-dark" :class="collapsed ? 'lg:hidden' : ''">{{ $applicationNavCount }}</span>
-                            @elseif ($route === 'applications.index' && Auth::user()->canTask('applications.concur') && ! Auth::user()->canTask('applications.assign') && ($applicationNavCount = \App\Models\SiteApplication::query()->whereIn('status', ['director_review', 'returned_to_director'])->count()))
-                                <span class="ml-auto rounded-full bg-amber-400/90 px-1.5 py-0.5 text-[10px] font-bold text-brand-dark" :class="collapsed ? 'lg:hidden' : ''">{{ $applicationNavCount }}</span>
-                            @elseif ($route === 'applications.index' && Auth::user()->canTask('applications.grant') && ! Auth::user()->canTask('applications.assign') && ($applicationNavCount = \App\Models\SiteApplication::query()->where('status', 'dg_review')->count()))
+                            @if ($route === 'applications.index' && ($applicationNavCount = \App\Support\NavCounts::applications(Auth::user())))
                                 <span class="ml-auto rounded-full bg-amber-400/90 px-1.5 py-0.5 text-[10px] font-bold text-brand-dark" :class="collapsed ? 'lg:hidden' : ''">{{ $applicationNavCount }}</span>
                             @endif
-                            @if ($route === 'complaints.index' && ($complaintNavCount = \App\Models\Complaint::query()->needingStaffAction(Auth::user())->count()))
+                            @if ($route === 'complaints.index' && ($complaintNavCount = \App\Support\NavCounts::complaints(Auth::user())))
                                 <span class="ml-auto rounded-full bg-amber-400/90 px-1.5 py-0.5 text-[10px] font-bold text-brand-dark" :class="collapsed ? 'lg:hidden' : ''">{{ $complaintNavCount }}</span>
                             @endif
                         </a>
@@ -182,7 +176,7 @@
                 <p class="mt-auto p-3 text-[11px] text-white/50" :class="collapsed ? 'lg:hidden' : ''">{{ __('app.demo_notice') }}</p>
             </aside>
 
-            <main class="flex-1 min-w-0 {{ $map ? 'overflow-hidden min-h-0' : 'overflow-auto' }}">
+            <main data-page-content class="relative flex-1 min-w-0 {{ $map ? 'overflow-hidden min-h-0' : 'overflow-auto' }}">
                 @if (session('status') && ! $map)
                     <div class="mx-4 mt-4 rounded border border-health-good/30 bg-green-50 px-4 py-2 text-sm text-green-800">{{ session('status') }}</div>
                 @endif

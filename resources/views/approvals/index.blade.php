@@ -58,7 +58,7 @@
                                 @endif
                                 <td>
                                     <span @class([
-                                        'inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold',
+                                        'inline-flex items-center whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-semibold',
                                         'bg-amber-100 text-amber-900' => $item->status === 'pending',
                                         'bg-emerald-100 text-emerald-800' => $item->status === 'approved',
                                         'bg-red-100 text-red-800' => $item->status === 'rejected',

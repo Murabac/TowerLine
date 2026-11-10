@@ -43,8 +43,8 @@
                             @csrf
 
                             <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault();
-                                                this.closest('form').submit();">
+                                    data-wait-label="{{ __('app.signing_out') }}"
+                                    onclick="event.preventDefault(); event.stopPropagation(); this.closest('form').requestSubmit();">
                                 {{ __('Log Out') }}
                             </x-dropdown-link>
                         </form>
@@ -89,8 +89,8 @@
                     @csrf
 
                     <x-responsive-nav-link :href="route('logout')"
-                            onclick="event.preventDefault();
-                                        this.closest('form').submit();">
+                            data-wait-label="{{ __('app.signing_out') }}"
+                            onclick="event.preventDefault(); event.stopPropagation(); this.closest('form').requestSubmit();">
                         {{ __('Log Out') }}
                     </x-responsive-nav-link>
                 </form>

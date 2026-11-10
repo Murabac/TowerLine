@@ -386,7 +386,7 @@
                     <p class="text-sm leading-6 text-gray-600">{{ __('app.guidelines.compulsory', [], 'en') }}</p>
                     <div class="flex flex-wrap items-center gap-3">
                         <a href="{{ route('guidelines') }}" class="text-sm font-medium text-brand hover:underline">{{ __('app.apply.guidelines_link', [], 'en') }}</a>
-                        <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-brand px-6 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-dark">{{ __('app.apply.submit', [], 'en') }}</button>
+                        <button type="submit" data-wait-label="{{ __('app.apply.submitting', [], 'en') }}" class="inline-flex items-center justify-center rounded-xl bg-brand px-6 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-dark">{{ __('app.apply.submit', [], 'en') }}</button>
                     </div>
                 </div>
             </div>

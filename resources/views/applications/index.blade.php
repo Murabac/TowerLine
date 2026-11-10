@@ -77,7 +77,7 @@
                                 <td class="text-gray-600">{{ $item->region?->name_en }}</td>
                                 <td>
                                     <span @class([
-                                        'inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold',
+                                        'inline-flex items-center whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-semibold',
                                         'bg-amber-100 text-amber-900' => $item->isReceived(),
                                         'bg-sky-100 text-sky-900' => $item->isAssigned(),
                                         'bg-violet-100 text-violet-900' => $item->isDirectorReview(),

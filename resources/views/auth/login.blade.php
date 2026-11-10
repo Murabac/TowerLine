@@ -24,7 +24,7 @@
                 <input type="checkbox" name="remember" class="rounded border-gray-300 text-brand focus:ring-brand">
                 {{ __('app.remember') }}
             </label>
-            <x-primary-button class="w-full justify-center">{{ __('app.log_in') }}</x-primary-button>
+            <x-primary-button class="w-full justify-center" data-wait-label="{{ __('app.signing_in') }}">{{ __('app.log_in') }}</x-primary-button>
         </form>
 
         <p class="mt-5 text-center">
