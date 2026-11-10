@@ -20,9 +20,8 @@ chmod -R a+rwX storage bootstrap/cache || true
 php artisan storage:link --force >/dev/null 2>&1 || true
 
 if [ -n "${APP_KEY:-}" ]; then
-  php artisan config:cache --no-interaction
-  php artisan route:cache --no-interaction
-  php artisan view:cache --no-interaction
+  php artisan optimize --no-interaction
+  php artisan event:cache --no-interaction >/dev/null 2>&1 || true
 fi
 
 # Re-apply after artisan (caches create root-owned files).

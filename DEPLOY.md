@@ -41,10 +41,12 @@ LOG_LEVEL=error
 SESSION_DRIVER=database
 SESSION_ENCRYPT=true
 SESSION_SECURE_COOKIE=true
-CACHE_STORE=database
+# File cache avoids an extra MySQL round-trip on every request
+CACHE_STORE=file
 QUEUE_CONNECTION=database
 FILESYSTEM_DISK=local
 RUN_MIGRATIONS=true
+LOG_LEVEL=error
 ```
 
 Generate `APP_KEY` with Coolify’s generator, or locally:

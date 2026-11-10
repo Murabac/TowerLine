@@ -1,0 +1,20 @@
+{
+	{$FRANKENPHP_CONFIG}
+}
+
+{$SERVER_NAME:localhost} {
+	root * /app/public
+	encode zstd br gzip
+
+	# Hashed Vite assets and static files — cache hard at the edge/browser.
+	@immutable path /build/* /images/*
+	header @immutable Cache-Control "public, max-age=31536000, immutable"
+
+	@health path /healthz /favicon.ico /robots.txt
+	header @health Cache-Control "public, max-age=60"
+
+	php_server {
+		try_files {path} index.php
+		resolve_root_symlink false
+	}
+}

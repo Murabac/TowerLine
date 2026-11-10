@@ -36,9 +36,12 @@ RUN install-php-extensions \
 
 ENV SERVER_NAME=":80"
 ENV PHP_OPCACHE_ENABLE=1
+ENV GODEBUG=cgocheck=0
 
 COPY --from=vendor /app /app
 COPY --from=assets /app/public/build /app/public/build
+COPY docker/Caddyfile /etc/caddy/Caddyfile
+COPY docker/php/conf.d/99-towerline.ini /usr/local/etc/php/conf.d/99-towerline.ini
 COPY docker/entrypoint.sh /usr/local/bin/towerline-entrypoint
 RUN chmod +x /usr/local/bin/towerline-entrypoint \
     && mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache \
