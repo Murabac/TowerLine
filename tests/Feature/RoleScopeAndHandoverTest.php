@@ -198,7 +198,7 @@ class RoleScopeAndHandoverTest extends TestCase
     {
         $this->seed(\Database\Seeders\DatabaseSeeder::class);
 
-        $admin = User::query()->where('email', 'admin@mocit.local')->first();
+        $admin = User::query()->where('email', 'superadmin@mocit.local')->first();
         $inspector = User::query()->where('email', 'inspector.maroodi@mocit.local')->first();
         $ops = User::query()->where('email', 'ops@mocit.local')->first();
         $head = User::query()->where('email', 'section.head@mocit.local')->first();

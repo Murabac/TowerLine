@@ -299,7 +299,7 @@ class ApprovalWorkflowTest extends TestCase
     {
         $this->seed(\Database\Seeders\DatabaseSeeder::class);
 
-        $admin = User::query()->where('email', 'admin@mocit.local')->firstOrFail();
+        $admin = User::query()->where('email', 'superadmin@mocit.local')->firstOrFail();
         $ops = User::query()->where('email', 'ops@mocit.local')->firstOrFail();
         $pending = ApprovalRequest::query()->pending()->count();
 

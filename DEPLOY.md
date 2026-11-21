@@ -70,7 +70,7 @@ Set `APP_URL` to the **https** URL Coolify shows (including the domain). Do not 
 php artisan db:seed --force
 ```
 
-That creates regions, operators, demo staff (`admin@mocit.local` / `password`). Change passwords immediately.
+That creates regions, operators, demo staff (`superadmin@mocit.local` / `password`). Change passwords immediately.
 
 **Keep Bluehost / ministry data:** do **not** seed. Import your `towerline.sql` into the Coolify MySQL (phpMyAdmin or `mysql` client), then deploy with `RUN_MIGRATIONS=true` so new tables (complaints, etc.) still apply.
 

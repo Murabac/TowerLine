@@ -15,7 +15,7 @@ class AuditLogSeeder extends Seeder
     {
         AuditLog::query()->delete();
 
-        $admin = User::query()->where('email', 'admin@mocit.local')->first();
+        $admin = User::query()->where('email', 'superadmin@mocit.local')->first();
         $maroodi = User::query()->where('email', 'inspector.maroodi@mocit.local')->first();
 
         if (! $admin) {

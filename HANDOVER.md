@@ -16,7 +16,7 @@ Password for every demo account: `password`
 
 | Email | Role | Sees |
 |---|---|---|
-| `admin@mocit.local` | Ministry admin | Everything, including the audit log and user admin |
+| `superadmin@mocit.local` | Ministry admin | Everything, including the audit log and user admin |
 | `ops@mocit.local` | Operations manager | Registry, letters, frequencies, reports, and approvals. No users, audit log, or settings |
 | `inspector.maroodi@mocit.local` | Inspector | Maroodi Jeex only. Submissions wait for approval |
 | `section.head@mocit.local` | Section Head | Public site applications. Assigns a file to the regional coordinator |

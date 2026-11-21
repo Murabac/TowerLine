@@ -17,7 +17,7 @@ class AuthenticationTest extends TestCase
         $response->assertStatus(200);
         $this->assertGuest();
         $response->assertSee(__('app.log_in'), false);
-        $response->assertDontSee('admin@mocit.local', false);
+        $response->assertDontSee('superadmin@mocit.local', false);
         $response->assertDontSee('complaints@mocit.local', false);
         $response->assertDontSee('viewer.telesom@mocit.local', false);
     }
@@ -58,7 +58,7 @@ class AuthenticationTest extends TestCase
         $this->seed(\Database\Seeders\DatabaseSeeder::class);
 
         $this->post('/login', [
-            'email' => 'admin@mocit.local',
+            'email' => 'superadmin@mocit.local',
             'password' => 'password',
         ])->assertRedirect(route('dashboard', absolute: false));
 

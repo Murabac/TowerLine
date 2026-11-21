@@ -157,7 +157,7 @@ class UserAdminAndAuditTest extends TestCase
 
         $this->assertGreaterThan(10, \App\Models\AuditLog::query()->count());
 
-        $admin = \App\Models\User::query()->where('email', 'admin@mocit.local')->first();
+        $admin = \App\Models\User::query()->where('email', 'superadmin@mocit.local')->first();
 
         $this->actingAs($admin)
             ->get(route('audit-logs.index'))

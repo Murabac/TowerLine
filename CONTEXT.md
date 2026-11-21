@@ -349,7 +349,7 @@ Password for all: `password`
 
 | Email | Role | Scope |
 |---|---|---|
-| `admin@mocit.local` | admin | all |
+| `superadmin@mocit.local` | admin | all |
 | `ops@mocit.local` | operations_manager | all except users, audit, settings |
 | `inspector.maroodi@mocit.local` | inspector | Maroodi Jeex |
 | `section.head@mocit.local` | section_head | all site applications; can assign |

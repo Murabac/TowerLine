@@ -53,9 +53,13 @@ class DatabaseSeeder extends Seeder
 
         $maroodi = Region::query()->where('name_en', 'Maroodi Jeex')->first();
 
+        if (! User::query()->where('email', 'superadmin@mocit.local')->exists()) {
+            User::query()->where('email', 'admin@mocit.local')->update(['email' => 'superadmin@mocit.local']);
+        }
+
         $users = [
             [
-                'email' => 'admin@mocit.local',
+                'email' => 'superadmin@mocit.local',
                 'name' => 'MoCIT Admin',
                 'role' => 'admin',
                 'region_ids' => [],
