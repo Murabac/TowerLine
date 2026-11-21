@@ -131,11 +131,11 @@ return [
         'complaints' => 'Cabashooyinka',
         'my_submissions' => 'Soo-gudbintayda',
         'roles' => 'Doorarka',
-        'users' => 'Isticmaalayaasha',
+        'users' => 'Users',
         'reports' => 'Warbixinnada',
         'audit' => 'Diiwaanka falalka',
         'geography' => 'Degmooyinka',
-        'help' => 'Caawimo',
+        'help' => 'Help',
         'settings' => 'Dejinta',
         'collapse' => 'Yaree liiska',
         'expand' => 'Balaadhi liiska',
@@ -532,7 +532,7 @@ return [
 
     'frequency_receipts' => [
         'title' => 'Rasiidka cusboonaysiinta',
-        'title_short' => 'Rasiid',
+        'title_short' => 'Rasiidh',
         'title_so' => 'Rasiidka Cusboonaysiinta Frequenci',
         'title_en' => 'Frequency Renewal Receipt',
         'subtitle' => 'Rasiid lacag bixin oo rasmi ah oo cusboonaysiinta frequenci sanadlaha ah.',
@@ -602,7 +602,7 @@ return [
     ],
 
     'users' => [
-        'title' => 'Isticmaalayaasha',
+        'title' => 'Users',
         'create' => 'Kudar isticmaale',
         'created' => 'Isticmaale waa la sameeyay.',
         'updated' => 'Isticmaale waa la cusboonaysiiyay.',
