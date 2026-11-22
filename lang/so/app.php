@@ -133,10 +133,10 @@ return [
         'roles' => 'Doorarka',
         'users' => 'Users',
         'reports' => 'Warbixinnada',
-        'audit' => 'Diiwaanka falalka',
+        'audit' => 'Audit log',
         'geography' => 'Degmooyinka',
         'help' => 'Help',
-        'settings' => 'Dejinta',
+        'settings' => 'Settings',
         'collapse' => 'Yaree liiska',
         'expand' => 'Balaadhi liiska',
     ],
@@ -407,7 +407,7 @@ return [
     ],
 
     'settings' => [
-        'title' => 'Dejinta',
+        'title' => 'Settings',
         'ministry_title' => 'Dejinta wasaaradda',
         'ministry_subtitle' => 'Deji magaca iyo xilka agaasimaha warqadaha oggolaanshaha.',
         'approval_letter_section' => 'Saxeexaha warqadda oggolaanshaha',
@@ -576,8 +576,8 @@ return [
         'type' => 'Nooca',
         'type_help' => 'Dooro nooca ku qoran ruqsadda waraaqda.',
         'type_label' => [
-            'A' => 'Nooca A',
-            'B' => 'Nooca B',
+            'A' => 'Category A',
+            'B' => 'Category B',
             'C' => 'Nooca C',
         ],
         'issued' => 'La bixiyay',
@@ -856,7 +856,7 @@ return [
     ],
 
     'audit' => [
-        'title' => 'Diiwaanka falalka',
+        'title' => 'Audit log',
         'subtitle' => 'Taariikh fudud: cidda ku dartay, beddeshay, ama ka saartay wax TowerLine.',
         'user' => 'Isticmaale',
         'action' => 'Falka',
@@ -1101,7 +1101,7 @@ return [
         'open_map' => 'Fur khariidadda',
         'your_role' => 'Adiga',
         'daily' => [
-            'title' => 'Shaqada maalinlaha',
+            'title' => 'Shaqada maalinlaha ah',
             'one' => 'Fur khariidadda si aad u aragto tawarrada ku jira xadkaaga. Midabka calaamadaha: shirkad ama xaaladda tower.',
             'two' => 'Isticmaal Daabac / sawir marka aad u baahan tahay bog warbixin.',
             'three' => 'Kormeeruhu wuxuu ka diiwaangeliyaa booqashada bogga tower-ka. Inta badan goobaha waa ikhtiyaari; faallo ayaa ku filan haddii aadan dhammayn karin. Towers cusub, wax ka bedel, iyo kormeer waxay sugaan oggolaanshaha wasaaradda.',
