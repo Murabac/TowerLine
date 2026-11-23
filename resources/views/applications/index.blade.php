@@ -49,8 +49,19 @@
                         <option value="all" @selected($status === 'all')>{{ __('app.all') }}</option>
                     @endif
                 </select>
+                <input
+                    type="search"
+                    name="q"
+                    value="{{ $search }}"
+                    placeholder="{{ __('app.applications.search_placeholder') }}"
+                    aria-label="{{ __('app.applications.search_placeholder') }}"
+                    class="field font-mono lg:w-72"
+                >
                 <div class="flex items-center gap-2">
                     <button class="inline-flex items-center px-4 py-2 bg-brand text-white text-sm font-semibold rounded-lg hover:bg-brand-dark">{{ __('app.filter') }}</button>
+                    @if ($search !== '')
+                        <a href="{{ route('applications.index') }}" class="px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900">{{ __('app.reset') }}</a>
+                    @endif
                 </div>
             </form>
 
@@ -114,7 +125,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="!py-16 text-center text-sm text-gray-500">{{ $canAssign ? __('app.applications.empty') : __('app.applications.empty_assigned') }}</td>
+                                <td colspan="8" class="!py-16 text-center text-sm text-gray-500">{{ $search !== '' ? __('app.applications.empty_search', ['q' => $search]) : ($canAssign ? __('app.applications.empty') : __('app.applications.empty_assigned')) }}</td>
                             </tr>
                         @endforelse
                     </tbody>

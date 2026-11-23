@@ -997,6 +997,10 @@ return [
         'decision_grant' => 'La oggolaaday',
         'decision_return' => 'Lagu celiyay agaasimaha',
         'empty' => 'Ma jiraan codsiyo shaandhadan.',
+        // TODO(somali): review
+        'search_placeholder' => 'Lambarka raadraaca, tusaale 0042',
+        // TODO(somali): review
+        'empty_search' => 'Codsi kuma jiro lambarka raadraaca “:q”.',
         'empty_assigned' => 'Waxba laguma xilsaarin shaandhadan.',
         'status' => [
             'pending' => 'U baahan xilsaarid',

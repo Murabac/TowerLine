@@ -241,6 +241,54 @@ class SiteApplicationInboxTest extends TestCase
     /**
      * @return array{0: Region, 1: District, 2: SubDistrict, 3: Operator}
      */
+    public function test_staff_can_search_applications_by_tracking_number_within_their_regions(): void
+    {
+        [$maroodi, $district, $subDistrict, $operator] = $this->geography();
+        $sahil = Region::query()->create(['name_en' => 'Sahil', 'name_so' => 'Saaxil']);
+        $sahilDistrict = District::query()->create(['region_id' => $sahil->id, 'name' => 'Berbera']);
+        $sahilSub = SubDistrict::query()->create(['district_id' => $sahilDistrict->id, 'name' => 'Berbera Town']);
+
+        $granted = $this->application($maroodi, $district, $subDistrict, $operator, [
+            'site_name' => 'Granted Maroodi Site',
+            'status' => SiteApplication::STATUS_GRANTED,
+        ]);
+        $other = $this->application($maroodi, $district, $subDistrict, $operator, ['site_name' => 'Other Maroodi Site']);
+        $sahilFile = $this->application($sahil, $sahilDistrict, $sahilSub, $operator, ['site_name' => 'Sahil Site']);
+
+        $head = User::factory()->create(['role' => Role::KEY_SECTION_HEAD]);
+        $suffix = substr($granted->reference_number, -4);
+
+        // Partial match on the last digits finds it even though it is not in the default "pending" tab.
+        $this->actingAs($head)
+            ->get(route('applications.index', ['q' => $suffix]))
+            ->assertOk()
+            ->assertSee('Granted Maroodi Site', false)
+            ->assertDontSee('Other Maroodi Site', false);
+
+        $this->actingAs($head)
+            ->get(route('applications.index', ['q' => 'NOPE-999']))
+            ->assertOk()
+            ->assertSee(__('app.applications.empty_search', ['q' => 'NOPE-999']), false);
+
+        // "%" is treated as text, not a wildcard.
+        $this->actingAs($head)
+            ->get(route('applications.index', ['q' => '%']))
+            ->assertOk()
+            ->assertDontSee('Other Maroodi Site', false);
+
+        // A Maroodi coordinator cannot find a Sahil file by its number.
+        $coordinator = User::factory()->create([
+            'role' => Role::KEY_REGIONAL_COORDINATOR,
+            'region_id' => $maroodi->id,
+        ]);
+        $sahilFile->forceFill(['status' => SiteApplication::STATUS_ASSIGNED, 'assigned_to' => $coordinator->id])->save();
+
+        $this->actingAs($coordinator)
+            ->get(route('applications.index', ['q' => $sahilFile->reference_number]))
+            ->assertOk()
+            ->assertDontSee('Sahil Site', false);
+    }
+
     private function geography(): array
     {
         $region = Region::query()->create(['name_en' => 'Maroodi Jeex', 'name_so' => 'Maroodi Jeex']);

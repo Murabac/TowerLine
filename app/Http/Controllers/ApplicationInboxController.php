@@ -26,6 +26,7 @@ class ApplicationInboxController extends Controller
 
         $user = $request->user();
         $status = $request->string('status')->toString();
+        $search = trim($request->string('q')->toString());
         $canAssign = $user->canTask('applications.assign');
         $canReview = $user->canTask('applications.review');
         $canConcur = $user->canTask('applications.concur');
@@ -52,6 +53,12 @@ class ApplicationInboxController extends Controller
                         : SiteApplication::STATUS_ASSIGNED));
         }
 
+        if ($search !== '') {
+            // A tracking-number search looks across every status this user may see.
+            $status = 'all';
+            $query->where('reference_number', 'like', '%'.addcslashes($search, '%_\\').'%');
+        }
+
         if ($status === 'pending') {
             $query->whereIn('status', [SiteApplication::STATUS_RECEIVED, SiteApplication::STATUS_RETURNED]);
         } elseif ($status === 'received' && $dgInbox) {
@@ -74,6 +81,7 @@ class ApplicationInboxController extends Controller
         return view('applications.index', [
             'applications' => $query->paginate(20)->withQueryString(),
             'status' => $status,
+            'search' => $search,
             'pendingCount' => SiteApplication::query()
                 ->visibleTo($user)
                 ->whereIn('status', [SiteApplication::STATUS_RECEIVED, SiteApplication::STATUS_RETURNED])

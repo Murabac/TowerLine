@@ -249,6 +249,8 @@ return [
         'decision_grant' => 'Granted',
         'decision_return' => 'Returned to Director',
         'empty' => 'No applications in this filter.',
+        'search_placeholder' => 'Tracking number, e.g. 0042',
+        'empty_search' => 'No application matches tracking number “:q”.',
         'empty_assigned' => 'Nothing is assigned to you in this filter.',
         'status' => [
             'pending' => 'Needs assignment',
