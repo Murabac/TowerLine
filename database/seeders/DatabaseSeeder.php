@@ -7,6 +7,7 @@ use App\Models\Region;
 use App\Models\Role;
 use App\Models\User;
 use App\Support\OperatorPalette;
+use App\Support\Permissions;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -50,6 +51,16 @@ class DatabaseSeeder extends Seeder
         }
 
         Operator::query()->each(fn (Operator $operator) => $operator->regions()->sync([]));
+
+        // Everything below creates demo logins (password "password") and demo records.
+        // Outside local and testing, only reference data (regions, geography, operators, permissions) is seeded.
+        if (! app()->environment(['local', 'testing'])) {
+            // Not PermissionSeeder: it also creates the demo "regional_analyst" custom role.
+            Permissions::syncToDatabase();
+            $this->command?->warn('Skipped demo users and demo records: they are only seeded in local and testing.');
+
+            return;
+        }
 
         $maroodi = Region::query()->where('name_en', 'Maroodi Jeex')->first();
 

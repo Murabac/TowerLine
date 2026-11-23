@@ -11,6 +11,12 @@ return new class extends Migration
     {
         Permissions::syncToDatabase();
 
+        // Demo login (password "password"): never create it outside local development and tests,
+        // so a fresh migrate on the live server cannot bring it back.
+        if (! app()->environment(['local', 'testing'])) {
+            return;
+        }
+
         $roleId = DB::table('roles')->where('key', 'complaints_officer')->value('id');
 
         if (! $roleId || User::query()->where('email', 'complaints@mocit.local')->exists()) {

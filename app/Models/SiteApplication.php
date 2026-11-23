@@ -344,6 +344,7 @@ class SiteApplication extends Model
     public static function assigneesForRegion(int $regionId): Collection
     {
         return User::query()
+            ->active()
             ->with('regions')
             ->whereIn('role', [Role::KEY_REGIONAL_COORDINATOR, Role::KEY_ASSIGNED_OFFICER])
             ->orderBy('name')

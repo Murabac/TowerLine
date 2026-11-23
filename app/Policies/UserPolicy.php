@@ -32,7 +32,7 @@ class UserPolicy
             return false;
         }
 
-        if ($model->isAdmin() && User::query()->where('role', 'admin')->count() <= 1) {
+        if ($model->isAdmin() && User::query()->active()->where('role', 'admin')->count() <= 1) {
             return false;
         }
 

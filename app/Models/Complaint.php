@@ -233,6 +233,7 @@ class Complaint extends Model
     public function assignableUsers(): Collection
     {
         $inspectors = User::query()
+            ->active()
             ->where('role', Role::KEY_INSPECTOR)
             ->with('regions')
             ->get()
@@ -240,6 +241,7 @@ class Complaint extends Model
             ->values();
 
         $operators = User::query()
+            ->active()
             ->where('role', Role::KEY_OPERATOR_VIEWER)
             ->when(
                 $this->tower?->operator_id,

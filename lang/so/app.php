@@ -607,6 +607,8 @@ return [
         'created' => 'Isticmaale waa la sameeyay.',
         'updated' => 'Isticmaale waa la cusboonaysiiyay.',
         'deleted' => 'Isticmaale waa la tirtiray.',
+        // TODO(somali): review
+        'deactivated' => 'La joojiyay',
         'name' => 'Magaca',
         'role' => 'Doorka',
         'region' => 'Gobolka',
@@ -875,6 +877,8 @@ return [
             'created' => ':user wuxuu ku daray :record',
             'updated' => ':user wuxuu beddelay :record',
             'deleted' => ':user wuxuu ka saaray :record',
+            // TODO(somali): review
+            'deactivated' => ':user wuxuu joojiyay :record',
             'approved' => ':user wuxuu oggolaaday :record',
             'rejected' => ':user wuxuu diiday :record',
         ],
@@ -882,6 +886,8 @@ return [
             'created' => 'Lagu daray',
             'updated' => 'La beddelay',
             'deleted' => 'Laga saaray',
+            // TODO(somali): review
+            'deactivated' => 'La joojiyay',
             'approved' => 'La oggolaaday',
             'rejected' => 'La diiday',
         ],

@@ -74,7 +74,7 @@ class ComplaintController extends Controller
             'regions' => $regions->get(),
             'filters' => $request->only(['status', 'complaint_type', 'region_id', 'priority', 'from', 'to', 'sort', 'dir']),
             'bulkAssignees' => $user->canTask('complaints.triage')
-                ? User::query()->whereIn('role', [Role::KEY_INSPECTOR, Role::KEY_OPERATOR_VIEWER])->orderBy('name')->get()
+                ? User::query()->active()->whereIn('role', [Role::KEY_INSPECTOR, Role::KEY_OPERATOR_VIEWER])->orderBy('name')->get()
                 : collect(),
         ]);
     }
@@ -281,6 +281,7 @@ class ComplaintController extends Controller
             $complaint->logUpdate($request->user(), $data['note'], Complaint::STATUS_RESOLVED);
 
             $officers = User::query()
+                ->active()
                 ->whereIn('role', Complaint::triageRoleKeys())
                 ->whereKeyNot($request->user()->id)
                 ->get();

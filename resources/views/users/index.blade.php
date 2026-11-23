@@ -43,7 +43,12 @@
                     <tbody>
                         @forelse ($users as $managed)
                             <tr>
-                                <td class="font-semibold text-gray-900">{{ $managed->name }}</td>
+                                <td class="font-semibold text-gray-900">
+                                    {{ $managed->name }}
+                                    @if ($managed->isDeactivated())
+                                        <span class="ml-1 rounded bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-500">{{ __('app.users.deactivated') }}</span>
+                                    @endif
+                                </td>
                                 <td class="text-gray-600">{{ $managed->email }}</td>
                                 <td>{{ $managed->roleLabel() }}</td>
                                 <td class="text-gray-600">

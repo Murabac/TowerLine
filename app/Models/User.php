@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Support\Permissions;
 use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -37,7 +38,21 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'deactivated_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Accounts that may sign in and be picked for work (not deactivated).
+     */
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->whereNull($query->qualifyColumn('deactivated_at'));
+    }
+
+    public function isDeactivated(): bool
+    {
+        return $this->deactivated_at !== null;
     }
 
     public function region(): BelongsTo
