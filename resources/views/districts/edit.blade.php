@@ -296,7 +296,7 @@
                                     fillColor: '#0F766E',
                                     fillOpacity: 0.85,
                                     weight: 1,
-                                }).bindTooltip(tower.name).addTo(this.towerLayer);
+                                }).bindTooltip(Object.assign(document.createElement('span'), { textContent: tower.name })).addTo(this.towerLayer);
                             });
 
                             this.map.on('click', (event) => this.handleMapClick(event));

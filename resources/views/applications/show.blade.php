@@ -519,7 +519,7 @@
                     iconSize: [18, 18],
                     iconAnchor: [9, 9],
                 });
-                L.marker([lat, lng], { icon }).addTo(map).bindPopup(@json($application->tower?->name ?: $application->site_name));
+                L.marker([lat, lng], { icon }).addTo(map).bindPopup(Object.assign(document.createElement('span'), { textContent: @json($application->tower?->name ?: $application->site_name) }));
 
                 function fitSite() {
                     const size = map.getSize();

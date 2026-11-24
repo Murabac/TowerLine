@@ -116,9 +116,10 @@
                     iconSize: [12, 12],
                     iconAnchor: [6, 6],
                 });
-                L.marker([tower.lat, tower.lng], { icon }).addTo(map).bindPopup(
-                    `<a href="${tower.url}">${tower.name}</a>`
-                );
+                const popupLink = document.createElement('a');
+                popupLink.href = tower.url;
+                popupLink.textContent = tower.name;
+                L.marker([tower.lat, tower.lng], { icon }).addTo(map).bindPopup(popupLink);
             });
             function fitPreview() {
                 map.invalidateSize();

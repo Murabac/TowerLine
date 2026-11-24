@@ -13,7 +13,9 @@ class TowerNameGenerator
     /**
      * Internal code format: "{OP3}-{LOC3}-{NNN}" e.g. "TEL-HAR-001".
      * OP3 / LOC3 are three-letter segments from operator and location labels.
-     * Sequence increments per operator within the same location prefix.
+     * The sequence is shared by every tower with the same prefix, so operators whose names
+     * give the same code (Somtel and Somcable are both "SOM") share one numbering and never
+     * get the same name.
      */
     public static function generate(
         int $operatorId,
@@ -35,7 +37,7 @@ class TowerNameGenerator
             }
         }
 
-        return $prefix.self::nextSequenceSuffix($prefix, $operatorId, $exceptTowerId);
+        return $prefix.self::nextSequenceSuffix($prefix, $exceptTowerId);
     }
 
     public static function previewPrefix(
@@ -100,10 +102,9 @@ class TowerNameGenerator
         return (bool) preg_match('/^'.preg_quote($prefix, '/').'\d{3}$/', $name);
     }
 
-    private static function nextSequenceSuffix(string $prefix, int $operatorId, ?int $exceptTowerId): string
+    private static function nextSequenceSuffix(string $prefix, ?int $exceptTowerId): string
     {
         $used = Tower::query()
-            ->where('operator_id', $operatorId)
             ->when($exceptTowerId, fn ($query) => $query->whereKeyNot($exceptTowerId))
             ->where('name', 'like', $prefix.'%')
             ->pluck('name')

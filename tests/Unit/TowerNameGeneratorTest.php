@@ -92,6 +92,43 @@ class TowerNameGeneratorTest extends TestCase
     /**
      * @return array{0: Region, 1: District, 2: Operator}
      */
+    public function test_somtel_and_somcable_share_one_som_sequence(): void
+    {
+        [$region, $district] = $this->fixtures();
+        $somtel = Operator::query()->create(['name' => 'Somtel', 'category' => 'telecom', 'color' => '#1D4ED8']);
+        $somcable = Operator::query()->create(['name' => 'Somcable', 'category' => 'telecom', 'color' => '#7C3AED']);
+
+        $names = [];
+
+        foreach ([$somcable, $somtel, $somcable] as $operator) {
+            $name = TowerNameGenerator::generate(
+                operatorId: $operator->id,
+                regionId: $region->id,
+                city: 'Hargeisa',
+                districtId: $district->id,
+            );
+            $names[] = $name;
+
+            Tower::query()->create([
+                'name' => $name,
+                'latitude' => 9.56,
+                'longitude' => 44.07,
+                'region_id' => $region->id,
+                'district_id' => $district->id,
+                'operator_id' => $operator->id,
+                'type' => 'monopole',
+                'height_m' => 40,
+                'capacity' => '4g',
+                'signal_radius_m' => 5000,
+                'status' => 'active',
+                'health_status' => 'good',
+                'city' => 'Hargeisa',
+            ]);
+        }
+
+        $this->assertSame(['SOM-HAR-001', 'SOM-HAR-002', 'SOM-HAR-003'], $names);
+    }
+
     private function fixtures(): array
     {
         $region = Region::query()->create([

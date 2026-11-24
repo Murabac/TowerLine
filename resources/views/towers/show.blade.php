@@ -334,7 +334,7 @@
                 iconSize: [18, 18],
                 iconAnchor: [9, 9],
             });
-            L.marker([lat, lng], { icon }).addTo(map).bindPopup(@json($tower->name));
+            L.marker([lat, lng], { icon }).addTo(map).bindPopup(Object.assign(document.createElement('span'), { textContent: @json($tower->name) }));
 
             function fitCoverage() {
                 const size = map.getSize();

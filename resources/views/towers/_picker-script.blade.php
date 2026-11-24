@@ -80,7 +80,15 @@
 
                 towers.forEach((tower) => {
                     const item = document.createElement('li');
-                    item.innerHTML = `<a href="${tower.url}" class="text-brand hover:underline">${tower.name}</a> <span class="text-gray-500">— ${tower.operator} (${Number(tower.distance_m).toLocaleString()} m)</span>`;
+                    // Names are user-entered: build as text nodes, never as HTML.
+                    const link = document.createElement('a');
+                    link.href = tower.url;
+                    link.className = 'text-brand hover:underline';
+                    link.textContent = tower.name;
+                    const meta = document.createElement('span');
+                    meta.className = 'text-gray-500';
+                    meta.textContent = `— ${tower.operator} (${Number(tower.distance_m).toLocaleString()} m)`;
+                    item.append(link, ' ', meta);
                     list.appendChild(item);
                 });
             }
