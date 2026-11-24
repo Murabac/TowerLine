@@ -168,6 +168,92 @@ class ExistingTowerRegistrationTest extends TestCase
         $this->assertSame(2500, (int) Tower::query()->latest('id')->value('signal_radius_m'));
     }
 
+    private function confirmedTower(): Tower
+    {
+        $this->actingAs($this->coordinator())->post(route('towers.existing.store'), $this->form());
+        $approval = ApprovalRequest::query()->where('type', ApprovalRequest::TYPE_TOWER_EXISTING)->latest('id')->firstOrFail();
+        $this->actingAs($this->user('director@mocit.local'))->post(route('approvals.approve', $approval));
+
+        return Tower::query()->latest('id')->firstOrFail();
+    }
+
+    private function completionForm(Tower $tower, array $overrides = []): array
+    {
+        return array_merge([
+            'latitude' => $tower->latitude,
+            'longitude' => $tower->longitude,
+            'region_id' => $tower->region_id,
+            'district_id' => $tower->district_id,
+            'sub_district_id' => $tower->sub_district_id,
+            'city' => $tower->city,
+            'operator_id' => $tower->operator_id,
+            'type' => $tower->type,
+            'height_m' => $tower->height_m,
+            'capacity' => '4g',
+            'power_sources' => ['grid', 'generator'],
+            'signal_radius_m' => 5000,
+            'status' => 'active',
+            'land_area_preset' => '20x20',
+            'fence_distance_preset' => '6',
+        ], $overrides);
+    }
+
+    public function test_director_completes_a_confirmed_existing_tower_directly(): void
+    {
+        $tower = $this->confirmedTower();
+        $director = $this->user('director@mocit.local');
+        $this->assertTrue($tower->registered_existing);
+
+        $this->actingAs($director)->get(route('towers.show', $tower))
+            ->assertSee(__('app.existing_towers.complete_details'));
+        $this->actingAs($director)->get(route('towers.edit', $tower))->assertOk();
+
+        $this->actingAs($director)
+            ->put(route('towers.update', $tower), $this->completionForm($tower))
+            ->assertSessionHasNoErrors()
+            ->assertRedirect(route('towers.show', $tower));
+
+        $tower->refresh();
+        $this->assertSame('4g', $tower->capacity);
+        $this->assertSame(['grid', 'generator'], $tower->power_sources);
+        $this->assertSame(0, ApprovalRequest::query()->where('type', ApprovalRequest::TYPE_TOWER_UPDATE)->where('tower_id', $tower->id)->count(), 'Saved straight away, not queued.');
+        $this->assertTrue($tower->registered_existing);
+
+        $this->actingAs($director)->get(route('towers.show', $tower))
+            ->assertDontSee(__('app.existing_towers.details_needed'));
+    }
+
+    public function test_only_the_director_can_complete_existing_towers(): void
+    {
+        $tower = $this->confirmedTower();
+
+        foreach (['coordinator.maroodi@mocit.local', 'section.head@mocit.local', 'dg@mocit.local'] as $email) {
+            $this->actingAs($this->user($email))->get(route('towers.edit', $tower))->assertForbidden();
+            $this->actingAs($this->user($email))->put(route('towers.update', $tower), $this->completionForm($tower))->assertForbidden();
+        }
+
+        $this->assertNull($tower->fresh()->capacity);
+    }
+
+    public function test_director_cannot_edit_towers_that_were_not_registered_as_existing(): void
+    {
+        $other = Tower::query()->where('registered_existing', false)->firstOrFail();
+        $director = $this->user('director@mocit.local');
+
+        $this->actingAs($director)->get(route('towers.edit', $other))->assertForbidden();
+        $this->actingAs($director)->put(route('towers.update', $other), $this->completionForm($other))->assertForbidden();
+    }
+
+    public function test_registered_existing_flag_cannot_be_set_through_the_tower_form(): void
+    {
+        $other = Tower::query()->where('registered_existing', false)->firstOrFail();
+
+        $this->actingAs($this->user('superadmin@mocit.local'))
+            ->put(route('towers.update', $other), $this->completionForm($other, ['registered_existing' => 1]));
+
+        $this->assertFalse($other->fresh()->registered_existing);
+    }
+
     public function test_director_rejects_with_a_reason(): void
     {
         $this->actingAs($this->coordinator())->post(route('towers.existing.store'), $this->form());

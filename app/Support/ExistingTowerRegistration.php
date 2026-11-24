@@ -115,6 +115,9 @@ class ExistingTowerRegistration
             'status' => 'active',
         ]);
 
+        // Not fillable on purpose: only a confirmed registration may set it.
+        $tower->forceFill(['registered_existing' => true])->save();
+
         Audits::log('created', $tower, $tower->only(['name', 'region_id', 'district_id', 'sub_district_id', 'operator_id', 'status']) + [
             'source' => 'existing_tower_registration',
         ]);

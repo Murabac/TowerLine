@@ -24,6 +24,10 @@ class TowerPolicy
 
     public function update(User $user, Tower $tower): bool
     {
+        if ($user->completesExistingTower($tower)) {
+            return true;
+        }
+
         return $user->canWrite() && $this->inScope($user, $tower);
     }
 

@@ -62,6 +62,7 @@ class Tower extends Model
             'nearest_house_m' => 'integer',
             'fence_distance_m' => 'float',
             'signal_radius_m' => 'integer',
+            'registered_existing' => 'boolean',
             'power_sources' => 'array',
             'commissioned_at' => 'date',
             'application_date' => 'date',

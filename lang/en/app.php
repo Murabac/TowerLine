@@ -824,6 +824,7 @@ return [
             'towers_approve' => 'Approve tower submissions',
             'towers_register_existing' => 'Register existing towers for confirmation',
             'towers_confirm_existing' => 'Confirm or reject registered existing towers',
+            'towers_complete_existing' => 'Complete details of confirmed existing towers',
             'inspections_create' => 'Submit inspections',
             'inspections_delete' => 'Delete inspections',
             'inspections_approve' => 'Approve inspection submissions',
@@ -1242,6 +1243,8 @@ return [
         'submitted' => 'Tower sent. It will appear on the map once the Director of Telecom confirms it.',
         'confirm' => 'Confirm tower',
         'open_map' => 'Open location on the map',
+        'details_needed' => 'This tower was registered as an existing tower. Its other details have not been filled in yet.',
+        'complete_details' => 'Complete details',
     ],
 
     'approvals' => [

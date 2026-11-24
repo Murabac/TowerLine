@@ -166,7 +166,7 @@ class TowerController extends Controller
 
         $attributes = $this->towerAttributes($request, $tower);
 
-        if (! $request->user()->publishesDirectly()) {
+        if (! $request->user()->publishesDirectly() && ! $request->user()->completesExistingTower($tower)) {
             InspectorApprovals::submitTowerUpdate($request->user(), $tower, $attributes, $request->file('site_map'));
 
             return redirect()->route('towers.show', $tower)->with('status', __('app.approvals.submitted_tower_update'));

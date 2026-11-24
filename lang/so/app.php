@@ -680,6 +680,7 @@ return [
             'towers_approve' => 'Oggolow soo-gudbinta tower',
             'towers_register_existing' => 'Diiwaangeli tower-yada jira si loo xaqiijiyo', // TODO(somali): review
             'towers_confirm_existing' => 'Xaqiiji ama diid tower-yada jira ee la diiwaangeliyay', // TODO(somali): review
+            'towers_complete_existing' => 'Buuxi faahfaahinta tower-yada jira ee la xaqiijiyay', // TODO(somali): review
             'inspections_create' => 'Gudbi kormeer',
             'inspections_delete' => 'Tirtir kormeer',
             'inspections_approve' => 'Oggolow soo-gudbinta kormeer',
@@ -1189,6 +1190,8 @@ return [
         'submitted' => 'Tower-ka waa la diray. Khariidadda ayuu ku soo bixi doonaa marka Agaasimaha Isgaarsiinta xaqiijiyo.',
         'confirm' => 'Xaqiiji tower',
         'open_map' => 'Ka fur goobta khariidadda',
+        'details_needed' => 'Tower-kan waxaa loo diiwaangeliyay tower jira. Faahfaahinta kale weli lama buuxin.', // TODO(somali): review
+        'complete_details' => 'Buuxi faahfaahinta', // TODO(somali): review
     ],
 
     'approvals' => [

@@ -29,6 +29,7 @@ class Permissions
         'towers.approve' => 'Approve tower submissions',
         'towers.register_existing' => 'Register existing towers for confirmation',
         'towers.confirm_existing' => 'Confirm or reject registered existing towers',
+        'towers.complete_existing' => 'Complete details of confirmed existing towers',
         'inspections.create' => 'Submit inspections',
         'inspections.delete' => 'Delete inspections',
         'inspections.approve' => 'Approve inspection submissions',
@@ -60,7 +61,7 @@ class Permissions
      * @var array<string, list<string>>
      */
     public const TASK_GROUPS = [
-        'towers' => ['towers.view', 'towers.create', 'towers.update', 'towers.delete', 'towers.approve', 'towers.register_existing', 'towers.confirm_existing'],
+        'towers' => ['towers.view', 'towers.create', 'towers.update', 'towers.delete', 'towers.approve', 'towers.register_existing', 'towers.confirm_existing', 'towers.complete_existing'],
         'inspections' => ['inspections.create', 'inspections.delete', 'inspections.approve'],
         'approvals' => ['approvals.review'],
         'applications' => ['applications.view', 'applications.assign', 'applications.review', 'applications.concur', 'applications.grant'],
@@ -111,6 +112,7 @@ class Permissions
             'towers.approve',
             'towers.register_existing',
             'towers.confirm_existing',
+            'towers.complete_existing',
             'inspections.create',
             'inspections.delete',
             'inspections.approve',
@@ -212,6 +214,7 @@ class Permissions
             'map.view',
             'towers.view',
             'towers.confirm_existing',
+            'towers.complete_existing',
             'applications.view',
             'applications.concur',
         ],

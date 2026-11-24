@@ -75,6 +75,15 @@
                 </div>
             </div>
 
+            @if ($tower->registered_existing && blank($tower->capacity))
+                <div class="mx-5 mt-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                    <p>{{ __('app.existing_towers.details_needed') }}</p>
+                    @if (auth()->user()->completesExistingTower($tower))
+                        <a href="{{ route('towers.edit', $tower) }}" class="font-semibold underline">{{ __('app.existing_towers.complete_details') }}</a>
+                    @endif
+                </div>
+            @endif
+
             <div class="grid sm:grid-cols-2 xl:grid-cols-3 gap-3 p-5">
                 <div class="stat-tile">
                     <p class="stat-label">{{ __('app.towers.type') }}</p>

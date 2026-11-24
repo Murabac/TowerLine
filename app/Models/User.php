@@ -196,6 +196,17 @@ class User extends Authenticatable
         return $this->canTask('approvals.review');
     }
 
+    /**
+     * The Director of Telecom completes the details of towers confirmed from an
+     * existing-tower registration; those edits are saved straight away.
+     */
+    public function completesExistingTower(Tower $tower): bool
+    {
+        return $tower->registered_existing
+            && $this->canTask('towers.complete_existing')
+            && $this->hasFullRegionAccess();
+    }
+
     public function homeRouteName(): string
     {
         if (in_array($this->role, [
