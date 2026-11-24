@@ -7,6 +7,7 @@ use App\Http\Requests\StoreTowerRequest;
 use App\Models\ApprovalRequest;
 use App\Models\Inspection;
 use App\Models\Tower;
+use App\Support\ExistingTowerRegistration;
 use App\Support\InspectorApprovals;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -39,7 +40,7 @@ class ApprovalRequestController extends Controller
         return view('approvals.index', [
             'approvals' => $query->paginate(20)->withQueryString(),
             'pendingCount' => ApprovalRequest::query()->visibleTo($user)->pending()->count(),
-            'isReviewer' => $user->canTask('approvals.review'),
+            'isReviewer' => $user->canAnyTask('approvals.review', 'towers.confirm_existing'),
         ]);
     }
 
@@ -52,12 +53,24 @@ class ApprovalRequestController extends Controller
         return view('approvals.show', [
             'approval' => $approval,
             'diffLines' => InspectorApprovals::diffLines($approval),
+            'existingDetails' => $approval->isExistingTower() ? ExistingTowerRegistration::details($approval) : [],
+            'existingDuplicates' => $approval->isExistingTower() && $approval->isPending()
+                ? ExistingTowerRegistration::possibleDuplicates(
+                    (float) ($approval->attributes()['latitude'] ?? 0),
+                    (float) ($approval->attributes()['longitude'] ?? 0),
+                    $approval->id,
+                )
+                : [],
         ]);
     }
 
-    public function edit(ApprovalRequest $approval): View
+    public function edit(ApprovalRequest $approval): View|RedirectResponse
     {
         $this->authorize('update', $approval);
+
+        if ($approval->isExistingTower()) {
+            return redirect()->route('approvals.existing.edit', $approval);
+        }
 
         $approval->load(['tower.region', 'tower.operator']);
 
@@ -91,6 +104,7 @@ class ApprovalRequestController extends Controller
     public function update(Request $request, ApprovalRequest $approval): RedirectResponse
     {
         $this->authorize('update', $approval);
+        abort_if($approval->isExistingTower(), 404);
 
         if ($approval->type === ApprovalRequest::TYPE_INSPECTION) {
             $inspectionRequest = app(StoreInspectionRequest::class);

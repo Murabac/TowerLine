@@ -9,21 +9,28 @@ class ApprovalRequestPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->canTask('approvals.review') || $user->isInspector();
+        return $user->canAnyTask('approvals.review', 'towers.register_existing', 'towers.confirm_existing')
+            || $user->isInspector();
     }
 
     public function view(User $user, ApprovalRequest $approval): bool
     {
-        return $user->canTask('approvals.review') || $approval->isOwnedBy($user);
+        return $approval->isReviewableBy($user) || $approval->isOwnedBy($user);
     }
 
     public function update(User $user, ApprovalRequest $approval): bool
     {
-        return $approval->isPending() && $approval->isOwnedBy($user);
+        if (! $approval->isPending()) {
+            return false;
+        }
+
+        // The Director may correct an existing-tower registration before confirming it.
+        return $approval->isOwnedBy($user)
+            || ($approval->isExistingTower() && $approval->isReviewableBy($user));
     }
 
     public function review(User $user, ApprovalRequest $approval): bool
     {
-        return $user->canTask('approvals.review') && $approval->isPending();
+        return $approval->isPending() && $approval->isReviewableBy($user);
     }
 }

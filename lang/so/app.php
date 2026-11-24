@@ -678,6 +678,8 @@ return [
             'towers_update' => 'Wax ka beddel towers',
             'towers_delete' => 'Tirtir towers',
             'towers_approve' => 'Oggolow soo-gudbinta tower',
+            'towers_register_existing' => 'Diiwaangeli tower-yada jira si loo xaqiijiyo', // TODO(somali): review
+            'towers_confirm_existing' => 'Xaqiiji ama diid tower-yada jira ee la diiwaangeliyay', // TODO(somali): review
             'inspections_create' => 'Gudbi kormeer',
             'inspections_delete' => 'Tirtir kormeer',
             'inspections_approve' => 'Oggolow soo-gudbinta kormeer',
@@ -1152,6 +1154,39 @@ return [
         ],
     ],
 
+    // TODO(somali): review — new strings for existing-tower registration
+    'existing_towers' => [
+        'title' => 'Diiwaangeli tower jira',
+        'correct_title' => 'Sax diiwaangelinta tower',
+        'subtitle' => 'Waa tower-yada horay u taagnaa. Buuxi waxaad aragto; Agaasimaha Isgaarsiinta ayaa xaqiijinaya ka hor inta aanu khariidadda ku soo bixin.',
+        'operator' => 'Shirkadda',
+        'choose_operator' => 'Dooro shirkadda',
+        'choose_region' => 'Dooro gobolka',
+        'location' => 'Goobta',
+        'location_hint' => 'Tower-ka agtiisa istaag oo riix badhanka, ama dhaqaaji calaamadda khariidadda.',
+        'nearby_title' => 'Tower-yada u dhow',
+        'type' => 'Nooca tower',
+        'height' => 'Dhererka qiyaasta ah (m)',
+        'height_hint' => 'Qiyaas ayaa ku filan.',
+        'site_name' => 'Magaca goobta',
+        'site_name_optional' => 'Magaca goobta (Optional)',
+        'site_name_hint' => 'Ka tag oo bannaan, magac ayaa si toos ah loo samaynayaa.',
+        'name_auto' => 'Si toos ah ayaa loo samaynayaa',
+        'district_from_location' => 'Ma hubo – ka garo goobta',
+        'region_not_yours' => 'Waxaad diiwaangelin kartaa oo keliya tower-yada gobolkaaga.',
+        'duplicate_title' => 'Tower kale ayaa ku jira :meters m gudahood',
+        'duplicate_question' => 'Ma tower kale oo ka duwan baa?',
+        'not_duplicate' => 'Haa, waa tower kale. Kaydi si kastaba.',
+        'duplicate_confirm_required' => 'Eeg tower-yada kor ku qoran. Haddii uu yahay tower kale, calaamadee sanduuqa oo mar kale kaydi.',
+        'waiting_confirmation' => 'wuxuu sugayaa xaqiijin',
+        'meters_away' => ':meters m u jira',
+        'submit' => 'U dir xaqiijin',
+        'submit_hint' => 'Agaasimaha Isgaarsiinta ayaa xaqiijinaya.',
+        'submitted' => 'Tower-ka waa la diray. Khariidadda ayuu ku soo bixi doonaa marka Agaasimaha Isgaarsiinta xaqiijiyo.',
+        'confirm' => 'Xaqiiji tower',
+        'open_map' => 'Ka fur goobta khariidadda',
+    ],
+
     'approvals' => [
         'title' => 'Safka oggolaanshaha',
         'title_own' => 'Soo-gudbintayda',
@@ -1166,6 +1201,7 @@ return [
         'view' => 'Eeg',
         'correct' => 'Sax',
         'correct_this' => 'Sax soo-gudbintan',
+        'back_to_submission' => 'Ku noqo soo-gudbinta', // TODO(somali): review
         'correct_hint' => 'Diiwaanka tooska ahi ma beddelmo ilaa wasaaraddu oggolaato. Sixitaanku wuxuu beddelaa soo-jeedintan sugaysa.',
         'save_corrections' => 'Kaydi sixitaanka',
         'amended' => 'Sixitaanka waa la kaydiyay. Soo-gudbintu weli waxay sugaysaa eegista wasaaradda.',
@@ -1196,6 +1232,7 @@ return [
             'tower_create' => 'Tower cusub',
             'tower_update' => 'Wax ka beddel tower',
             'inspection' => 'Kormeer',
+            'tower_existing' => 'Tower jira', // TODO(somali): review
         ],
         'status' => [
             'pending' => 'Pending',

@@ -2,7 +2,7 @@
     <div class="p-4 lg:p-8 max-w-4xl">
         <a href="{{ route('approvals.index') }}" class="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-brand">
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"/></svg>
-            {{ auth()->user()->canTask('approvals.review') ? __('app.approvals.title') : __('app.approvals.title_own') }}
+            {{ auth()->user()->canAnyTask('approvals.review', 'towers.confirm_existing') ? __('app.approvals.title') : __('app.approvals.title_own') }}
         </a>
 
         <div class="mt-4 rounded-2xl bg-brand text-white px-5 py-5 sm:px-6">
@@ -46,6 +46,38 @@
                         </tbody>
                     </table>
                 </div>
+            @elseif ($approval->isExistingTower())
+                @php $attrs = $approval->attributes(); @endphp
+                <dl class="grid sm:grid-cols-2 gap-3 text-sm">
+                    @foreach ($existingDetails as $label => $value)
+                        <div>
+                            <dt class="text-gray-400">{{ $label }}</dt>
+                            <dd class="mt-0.5 font-medium text-gray-900">{{ $value }}</dd>
+                        </div>
+                    @endforeach
+                </dl>
+                @if (isset($attrs['latitude'], $attrs['longitude']))
+                    <p class="text-sm">
+                        <a href="https://www.openstreetmap.org/?mlat={{ $attrs['latitude'] }}&mlon={{ $attrs['longitude'] }}#map=17/{{ $attrs['latitude'] }}/{{ $attrs['longitude'] }}" target="_blank" rel="noopener" class="font-semibold text-brand hover:underline">{{ __('app.existing_towers.open_map') }}</a>
+                    </p>
+                @endif
+                @if ($existingDuplicates !== [])
+                    <div class="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+                        <p class="font-semibold">{{ __('app.existing_towers.duplicate_title', ['meters' => \App\Support\ExistingTowerRegistration::DUPLICATE_RADIUS_METERS]) }}</p>
+                        <ul class="mt-2 space-y-1">
+                            @foreach ($existingDuplicates as $match)
+                                <li>
+                                    @if ($match['url'])
+                                        <a href="{{ $match['url'] }}" target="_blank" class="font-semibold underline">{{ $match['name'] }}</a>
+                                    @else
+                                        <span class="font-semibold">{{ $match['name'] }}</span> ({{ __('app.existing_towers.waiting_confirmation') }})
+                                    @endif
+                                    — {{ $match['operator'] }}, {{ __('app.existing_towers.meters_away', ['meters' => $match['distance_m']]) }}
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
             @elseif ($approval->type === 'inspection')
                 @php $attrs = $approval->attributes(); @endphp
                 <dl class="grid sm:grid-cols-2 gap-3 text-sm">
@@ -124,7 +156,7 @@
                             <span class="text-sm font-medium text-gray-700">{{ __('app.approvals.comment_optional') }}</span>
                             <textarea name="reviewer_comment" rows="2" class="field mt-1 w-full">{{ old('reviewer_comment') }}</textarea>
                         </label>
-                        <button class="inline-flex items-center px-5 py-2.5 bg-brand text-white text-sm font-semibold rounded-xl hover:bg-brand-dark">{{ __('app.approvals.approve') }}</button>
+                        <button class="inline-flex items-center px-5 py-2.5 bg-brand text-white text-sm font-semibold rounded-xl hover:bg-brand-dark">{{ $approval->isExistingTower() ? __('app.existing_towers.confirm') : __('app.approvals.approve') }}</button>
                     </form>
                     <form method="POST" action="{{ route('approvals.reject', $approval) }}" class="space-y-3 border-t border-gray-100 pt-4">
                         @csrf

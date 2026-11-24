@@ -157,6 +157,7 @@ class InspectorApprovals
                 ApprovalRequest::TYPE_TOWER_CREATE => self::applyTowerCreate($approval),
                 ApprovalRequest::TYPE_TOWER_UPDATE => self::applyTowerUpdate($approval),
                 ApprovalRequest::TYPE_INSPECTION => self::applyInspection($approval),
+                ApprovalRequest::TYPE_TOWER_EXISTING => ExistingTowerRegistration::apply($approval),
                 default => throw new \InvalidArgumentException("Unknown approval type [{$approval->type}]."),
             };
 

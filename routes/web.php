@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ApplicationInboxController;
 use App\Http\Controllers\ComplaintController;
+use App\Http\Controllers\ExistingTowerController;
 use App\Http\Controllers\ApprovalRequestController;
 use App\Http\Controllers\BuildApprovalLetterController;
 use App\Http\Controllers\AuditLogController;
@@ -58,6 +59,8 @@ Route::middleware('auth')->group(function () {
     Route::put('districts/{district}/sub-districts/{subDistrict}', [DistrictController::class, 'updateSubDistrict'])->name('districts.sub-districts.update');
     Route::delete('districts/{district}/sub-districts/{subDistrict}', [DistrictController::class, 'destroySubDistrict'])->name('districts.sub-districts.destroy');
     Route::get('towers/location-preview', [TowerController::class, 'locationPreview'])->name('towers.location-preview');
+    Route::get('towers/register-existing', [ExistingTowerController::class, 'create'])->name('towers.existing.create');
+    Route::post('towers/register-existing', [ExistingTowerController::class, 'store'])->name('towers.existing.store');
     Route::resource('towers', TowerController::class);
     Route::get('towers/{tower}/site-map', [PrivateFileController::class, 'towerSiteMap'])->name('towers.site-map');
     Route::get('towers/{tower}/inspections/create', [InspectionController::class, 'create'])->name('towers.inspections.create');
@@ -98,6 +101,8 @@ Route::middleware('auth')->group(function () {
     Route::get('applications/{application}/documents/{document}', [ApplicationInboxController::class, 'document'])->name('applications.documents.show');
     Route::get('approvals', [ApprovalRequestController::class, 'index'])->name('approvals.index');
     Route::get('approvals/{approval}/edit', [ApprovalRequestController::class, 'edit'])->name('approvals.edit');
+    Route::get('approvals/{approval}/existing-tower', [ExistingTowerController::class, 'edit'])->name('approvals.existing.edit');
+    Route::put('approvals/{approval}/existing-tower', [ExistingTowerController::class, 'update'])->name('approvals.existing.update');
     Route::put('approvals/{approval}', [ApprovalRequestController::class, 'update'])->name('approvals.update');
     Route::get('approvals/{approval}', [ApprovalRequestController::class, 'show'])->name('approvals.show');
     Route::get('approvals/{approval}/site-map', [PrivateFileController::class, 'approvalSiteMap'])->name('approvals.site-map');

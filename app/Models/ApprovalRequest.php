@@ -14,6 +14,9 @@ class ApprovalRequest extends Model
 
     public const TYPE_INSPECTION = 'inspection';
 
+    /** A tower that already stands, registered by Ministry staff and confirmed by the Director. */
+    public const TYPE_TOWER_EXISTING = 'tower_existing';
+
     public const STATUS_PENDING = 'pending';
 
     public const STATUS_APPROVED = 'approved';
@@ -24,6 +27,7 @@ class ApprovalRequest extends Model
         self::TYPE_TOWER_CREATE,
         self::TYPE_TOWER_UPDATE,
         self::TYPE_INSPECTION,
+        self::TYPE_TOWER_EXISTING,
     ];
 
     protected $fillable = [
@@ -68,16 +72,41 @@ class ApprovalRequest extends Model
 
     public function scopeVisibleTo(Builder $query, User $user): Builder
     {
-        if ($user->canTask('approvals.review')) {
+        if ($user->canTask('approvals.review') && $user->canTask('towers.confirm_existing')) {
             return $query;
         }
 
-        return $query->where('submitted_by', $user->id);
+        return $query->where(function (Builder $query) use ($user) {
+            $query->where('submitted_by', $user->id);
+
+            if ($user->canTask('approvals.review')) {
+                $query->orWhere('type', '!=', self::TYPE_TOWER_EXISTING);
+            }
+
+            if ($user->canTask('towers.confirm_existing')) {
+                $query->orWhere('type', self::TYPE_TOWER_EXISTING);
+            }
+        });
     }
 
     public function isPending(): bool
     {
         return $this->status === self::STATUS_PENDING;
+    }
+
+    public function isExistingTower(): bool
+    {
+        return $this->type === self::TYPE_TOWER_EXISTING;
+    }
+
+    /**
+     * Whether this user decides on this kind of submission (approve, reject, correct).
+     */
+    public function isReviewableBy(User $user): bool
+    {
+        return $this->isExistingTower()
+            ? $user->canTask('towers.confirm_existing')
+            : $user->canTask('approvals.review');
     }
 
     public function isOwnedBy(User $user): bool

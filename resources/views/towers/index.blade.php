@@ -6,12 +6,20 @@
                 <h1 class="mt-1 text-2xl font-semibold tracking-tight text-brand">{{ __('app.towers.title') }}</h1>
                 <p class="mt-1 text-sm text-gray-500">{{ number_format($towers->total()) }} {{ strtolower(__('app.towers.title')) }}</p>
             </div>
+            <div class="flex flex-wrap gap-2">
+            @if (auth()->user()->canTask('towers.register_existing'))
+                <a href="{{ route('towers.existing.create') }}" class="inline-flex items-center gap-2 px-4 py-2.5 border border-brand text-brand text-sm font-semibold rounded-xl hover:bg-brand-light/30">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21s7-5.4 7-11a7 7 0 1 0-14 0c0 5.6 7 11 7 11Z"/><circle cx="12" cy="10" r="2.25"/></svg>
+                    {{ __('app.existing_towers.title') }}
+                </a>
+            @endif
             @can('create', App\Models\Tower::class)
                 <a href="{{ route('towers.create') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-brand text-white text-sm font-semibold rounded-xl shadow-sm hover:bg-brand-dark">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
                     {{ __('app.towers.create') }}
                 </a>
             @endcan
+            </div>
         </div>
 
         <div class="data-card">
