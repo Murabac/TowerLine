@@ -39,6 +39,7 @@ class StoreExistingTowerRequest extends FormRequest
             'longitude' => ['required', 'numeric', 'between:-180,180'],
             'type' => ['required', Rule::in(ExistingTowerRegistration::TYPES)],
             'height_m' => ['required', 'numeric', 'min:1', 'max:500'],
+            'signal_radius_m' => ['nullable', 'integer', 'min:100', 'max:100000'],
             'site_name' => ['nullable', 'string', 'max:255'],
             'not_duplicate' => ['nullable', 'boolean'],
         ];

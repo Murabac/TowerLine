@@ -140,12 +140,32 @@ class ExistingTowerRegistrationTest extends TestCase
         $this->assertSame('active', $tower->status);
         $this->assertSame('monopole', $tower->type);
         $this->assertNull($tower->capacity);
+        $this->assertSame(300, (int) $tower->signal_radius_m, 'Blank radius falls back to the default.');
         $this->assertSame($this->coordinatorRegion()->id, (int) $tower->region_id);
         $this->assertNotNull($tower->district_id, 'District is worked out from the location.');
         $this->assertNotSame('', $tower->name);
         $this->assertTrue(AuditLog::query()->where('model_type', Tower::class)->where('model_id', $tower->id)->where('action', 'created')->exists());
 
         $this->actingAs($director)->get(route('towers.show', $tower))->assertOk();
+    }
+
+    public function test_optional_signal_radius_is_kept_and_validated(): void
+    {
+        $this->actingAs($this->coordinator())
+            ->post(route('towers.existing.store'), $this->form(['signal_radius_m' => 50]))
+            ->assertSessionHasErrors('signal_radius_m');
+
+        $this->actingAs($this->coordinator())
+            ->post(route('towers.existing.store'), $this->form(['signal_radius_m' => 2500]))
+            ->assertSessionHasNoErrors();
+        $approval = ApprovalRequest::query()->where('type', ApprovalRequest::TYPE_TOWER_EXISTING)->firstOrFail();
+        $this->assertSame(2500, $approval->attributes()['signal_radius_m']);
+
+        $director = $this->user('director@mocit.local');
+        $this->actingAs($director)->get(route('approvals.show', $approval))->assertSee('2,500 m');
+        $this->actingAs($director)->post(route('approvals.approve', $approval));
+
+        $this->assertSame(2500, (int) Tower::query()->latest('id')->value('signal_radius_m'));
     }
 
     public function test_director_rejects_with_a_reason(): void

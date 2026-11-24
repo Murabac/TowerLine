@@ -160,6 +160,16 @@
                 </div>
 
                 <div>
+                    <x-input-label for="signal_radius_m" :value="__('app.existing_towers.signal_radius_optional')" />
+                    <div class="mt-1 flex items-center gap-2">
+                        <input id="signal_radius_m" name="signal_radius_m" type="number" step="1" min="100" max="100000" inputmode="numeric" value="{{ $value('signal_radius_m') }}" placeholder="{{ \App\Support\ExistingTowerRegistration::DEFAULT_SIGNAL_RADIUS_METERS }}" class="field w-40">
+                        <span class="text-sm text-gray-500">m</span>
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500">{{ __('app.existing_towers.signal_radius_hint', ['meters' => number_format(\App\Support\ExistingTowerRegistration::DEFAULT_SIGNAL_RADIUS_METERS)]) }}</p>
+                    <x-input-error :messages="$errors->get('signal_radius_m')" class="mt-1" />
+                </div>
+
+                <div>
                     <x-input-label for="site_name" :value="__('app.existing_towers.site_name_optional')" />
                     <x-text-input id="site_name" name="site_name" type="text" class="mt-1 block w-full" :value="$value('site_name')" maxlength="255" />
                     <p class="mt-1 text-xs text-gray-500">{{ __('app.existing_towers.site_name_hint') }}</p>

@@ -1168,6 +1168,10 @@ return [
         'type' => 'Nooca tower',
         'height' => 'Dhererka qiyaasta ah (m)',
         'height_hint' => 'Qiyaas ayaa ku filan.',
+        'signal_radius' => 'Baaxadda signal-ka',
+        'signal_radius_optional' => 'Baaxadda signal-ka (Optional)',
+        'signal_radius_hint' => 'Ka tag oo bannaan haddii aadan garanayn. :meters m ayaa la isticmaalayaa.', // TODO(somali): review
+        'signal_radius_default' => 'Lama bixin – :meters m ayaa la isticmaalay', // TODO(somali): review
         'site_name' => 'Magaca goobta',
         'site_name_optional' => 'Magaca goobta (Optional)',
         'site_name_hint' => 'Ka tag oo bannaan, magac ayaa si toos ah loo samaynayaa.',

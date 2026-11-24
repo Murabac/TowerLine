@@ -24,6 +24,9 @@ class ExistingTowerRegistration
 
     public const TYPES = ['guyed', 'monopole', 'rooftop'];
 
+    /** Signal radius used when the form leaves it blank. */
+    public const DEFAULT_SIGNAL_RADIUS_METERS = 300;
+
     /** Quick-pick heights in metres. */
     public const HEIGHT_PRESETS = [15, 30, 45, 60];
 
@@ -106,7 +109,9 @@ class ExistingTowerRegistration
             'type' => $attributes['type'],
             'height_m' => (float) $attributes['height_m'],
             'capacity' => null,
-            'signal_radius_m' => TowerSignalRadius::defaultForCapacity(null),
+            'signal_radius_m' => ! empty($attributes['signal_radius_m'])
+                ? (int) $attributes['signal_radius_m']
+                : self::DEFAULT_SIGNAL_RADIUS_METERS,
             'status' => 'active',
         ]);
 
@@ -188,6 +193,9 @@ class ExistingTowerRegistration
                 : '—',
             __('app.existing_towers.type') => isset($attributes['type']) ? __('app.status.'.$attributes['type']) : '—',
             __('app.existing_towers.height') => isset($attributes['height_m']) ? rtrim(rtrim(number_format((float) $attributes['height_m'], 1), '0'), '.').' m' : '—',
+            __('app.existing_towers.signal_radius') => ! empty($attributes['signal_radius_m'])
+                ? number_format((int) $attributes['signal_radius_m']).' m'
+                : __('app.existing_towers.signal_radius_default', ['meters' => number_format(self::DEFAULT_SIGNAL_RADIUS_METERS)]),
             __('app.existing_towers.site_name') => trim((string) ($attributes['site_name'] ?? '')) ?: __('app.existing_towers.name_auto'),
         ];
     }
@@ -244,6 +252,7 @@ class ExistingTowerRegistration
             'longitude' => round((float) $attributes['longitude'], 7),
             'type' => (string) $attributes['type'],
             'height_m' => round((float) $attributes['height_m'], 1),
+            'signal_radius_m' => ! empty($attributes['signal_radius_m']) ? (int) $attributes['signal_radius_m'] : null,
             'site_name' => trim((string) ($attributes['site_name'] ?? '')) ?: null,
         ];
     }
