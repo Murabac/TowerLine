@@ -8,6 +8,7 @@ use App\Models\District;
 use App\Models\Operator;
 use App\Models\Region;
 use App\Support\ExistingTowerRegistration;
+use App\Support\InspectorApprovals;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -49,9 +50,20 @@ class ExistingTowerController extends Controller
     {
         abort_unless($approval->isExistingTower(), 404);
 
+        $reviewer = $request->user()->can('review', $approval);
+
         ExistingTowerRegistration::amend($approval, $request->validated());
 
-        return redirect()->route('approvals.show', $approval)->with('status', __('app.approvals.amended'));
+        // The Director can correct and confirm in one step, so the tower goes live straight away.
+        if ($reviewer && $request->boolean('confirm')) {
+            $tower = InspectorApprovals::approve($approval->fresh(), $request->user());
+
+            return redirect()->route('towers.show', $tower)->with('status', __('app.existing_towers.confirmed'));
+        }
+
+        return redirect()->route('approvals.show', $approval)->with('status', __(
+            $reviewer ? 'app.existing_towers.amended_by_reviewer' : 'app.approvals.amended'
+        ));
     }
 
     /**

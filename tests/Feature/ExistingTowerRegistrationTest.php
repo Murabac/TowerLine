@@ -291,6 +291,46 @@ class ExistingTowerRegistrationTest extends TestCase
         $this->actingAs($this->user('section.head@mocit.local'))->get(route('approvals.existing.edit', $approval))->assertForbidden();
     }
 
+    public function test_director_can_save_corrections_and_confirm_in_one_step(): void
+    {
+        $this->actingAs($this->coordinator())->post(route('towers.existing.store'), $this->form());
+        $approval = ApprovalRequest::query()->where('type', ApprovalRequest::TYPE_TOWER_EXISTING)->firstOrFail();
+        $director = $this->user('director@mocit.local');
+
+        $this->actingAs($director)->get(route('approvals.existing.edit', $approval))
+            ->assertOk()
+            ->assertSee(__('app.existing_towers.save_and_confirm'));
+        $this->actingAs($this->coordinator())->get(route('approvals.existing.edit', $approval))
+            ->assertOk()
+            ->assertDontSee(__('app.existing_towers.save_and_confirm'));
+
+        // Saving corrections alone keeps it pending and tells the Director to confirm.
+        $this->actingAs($director)
+            ->put(route('approvals.existing.update', $approval), $this->form(['height_m' => 40]))
+            ->assertRedirect(route('approvals.show', $approval))
+            ->assertSessionHas('status', __('app.existing_towers.amended_by_reviewer'));
+        $this->assertTrue($approval->fresh()->isPending());
+
+        // The submitter cannot confirm through the correction form.
+        $this->actingAs($this->coordinator())
+            ->put(route('approvals.existing.update', $approval), $this->form(['height_m' => 40, 'confirm' => '1']));
+        $this->assertTrue($approval->fresh()->isPending());
+
+        $response = $this->actingAs($director)
+            ->put(route('approvals.existing.update', $approval), $this->form(['height_m' => 35, 'site_name' => 'Hill Site', 'confirm' => '1']));
+
+        $approval->refresh();
+        $this->assertSame(ApprovalRequest::STATUS_APPROVED, $approval->status);
+        $this->assertSame($director->id, (int) $approval->reviewed_by);
+        $tower = Tower::query()->findOrFail($approval->applied_id);
+        $this->assertSame('Hill Site', $tower->name);
+        $this->assertSame(35.0, (float) $tower->height_m);
+        $this->assertTrue($tower->registered_existing);
+        $response->assertRedirect(route('towers.show', $tower));
+
+        $this->actingAs($director)->get(route('towers.index', ['q' => 'Hill Site']))->assertOk()->assertSee('Hill Site');
+    }
+
     public function test_registrations_are_hidden_from_other_staff(): void
     {
         $this->actingAs($this->coordinator())->post(route('towers.existing.store'), $this->form());

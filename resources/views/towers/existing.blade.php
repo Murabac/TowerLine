@@ -177,14 +177,28 @@
                 </div>
             </section>
 
-            <div class="flex flex-wrap items-center gap-3">
-                <button class="inline-flex items-center px-6 py-3 bg-brand text-white text-sm font-semibold rounded-xl hover:bg-brand-dark">
-                    {{ $editing ? __('app.approvals.save_corrections') : __('app.existing_towers.submit') }}
-                </button>
-                @unless ($editing)
-                    <p class="text-sm text-gray-500">{{ __('app.existing_towers.submit_hint') }}</p>
-                @endunless
-            </div>
+            @if ($editing && auth()->user()->can('review', $approval))
+                <div class="space-y-2">
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button class="inline-flex items-center px-6 py-3 border border-gray-300 bg-white text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-50">
+                            {{ __('app.approvals.save_corrections') }}
+                        </button>
+                        <button name="confirm" value="1" class="inline-flex items-center px-6 py-3 bg-brand text-white text-sm font-semibold rounded-xl hover:bg-brand-dark">
+                            {{ __('app.existing_towers.save_and_confirm') }}
+                        </button>
+                    </div>
+                    <p class="text-sm text-gray-500">{{ __('app.existing_towers.confirm_hint') }}</p>
+                </div>
+            @else
+                <div class="flex flex-wrap items-center gap-3">
+                    <button class="inline-flex items-center px-6 py-3 bg-brand text-white text-sm font-semibold rounded-xl hover:bg-brand-dark">
+                        {{ $editing ? __('app.approvals.save_corrections') : __('app.existing_towers.submit') }}
+                    </button>
+                    @unless ($editing)
+                        <p class="text-sm text-gray-500">{{ __('app.existing_towers.submit_hint') }}</p>
+                    @endunless
+                </div>
+            @endif
         </form>
     </div>
 

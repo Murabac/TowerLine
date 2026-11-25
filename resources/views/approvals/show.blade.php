@@ -141,7 +141,7 @@
         @if ($approval->isPending())
             @can('update', $approval)
                 <div class="mt-4 flex flex-wrap items-center gap-3">
-                    <a href="{{ route('approvals.edit', $approval) }}" class="inline-flex items-center px-5 py-2.5 bg-brand text-white text-sm font-semibold rounded-xl hover:bg-brand-dark">
+                    <a href="{{ route('approvals.edit', $approval) }}" class="inline-flex items-center px-5 py-2.5 text-sm font-semibold rounded-xl {{ auth()->user()->can('review', $approval) ? 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50' : 'bg-brand text-white hover:bg-brand-dark' }}">
                         {{ __('app.approvals.correct_this') }}
                     </a>
                     <p class="text-sm text-gray-500">{{ __('app.approvals.correct_hint') }}</p>
