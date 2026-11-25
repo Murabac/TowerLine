@@ -170,6 +170,41 @@ class GeographyReference
     }
 
     /**
+     * Approximate outline boxes of the six regions, only used to zoom map pickers.
+     */
+    private const REGION_BOUNDS = [
+        'awdal' => ['south' => 9.70, 'west' => 42.65, 'north' => 11.45, 'east' => 43.75],
+        'maroodi jeex' => ['south' => 8.95, 'west' => 43.35, 'north' => 10.05, 'east' => 44.75],
+        'sahil' => ['south' => 9.75, 'west' => 43.75, 'north' => 10.95, 'east' => 45.35],
+        'togdheer' => ['south' => 8.40, 'west' => 44.40, 'north' => 10.10, 'east' => 46.40],
+        'sanaag' => ['south' => 9.70, 'west' => 46.00, 'north' => 11.35, 'east' => 48.95],
+        'sool' => ['south' => 8.00, 'west' => 46.10, 'north' => 10.10, 'east' => 48.20],
+    ];
+
+    /**
+     * @return array{south: float, west: float, north: float, east: float}|null
+     */
+    public static function regionBounds(?string $regionName): ?array
+    {
+        return self::REGION_BOUNDS[strtolower(trim((string) $regionName))] ?? null;
+    }
+
+    /**
+     * @param  iterable<\App\Models\Region>  $regions
+     * @return array<string, array{south: float, west: float, north: float, east: float}|null>
+     */
+    public static function regionBoundsById(iterable $regions): array
+    {
+        $bounds = [];
+
+        foreach ($regions as $region) {
+            $bounds[(string) $region->id] = self::regionBounds($region->name_en);
+        }
+
+        return $bounds;
+    }
+
+    /**
      * @param  iterable<array{south: float, west: float, north: float, east: float}|null>  $boundsList
      * @return array{south: float, west: float, north: float, east: float}|null
      */

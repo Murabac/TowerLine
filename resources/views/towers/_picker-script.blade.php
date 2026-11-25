@@ -36,11 +36,72 @@
             let previewTimer = null;
             let previewRequest = 0;
 
-            const lat = parseFloat(latInput.value) || 9.562;
-            const lng = parseFloat(lngInput.value) || 44.077;
-            const map = L.map('picker-map').setView([lat, lng], 8);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' }).addTo(map);
-            let marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+            const mapLabels = {
+                street: @json(__('app.towers.map_street')),
+                satellite: @json(__('app.towers.map_satellite')),
+                bigger: @json(__('app.towers.map_bigger')),
+                smaller: @json(__('app.towers.map_smaller')),
+                noLocation: @json(__('app.towers.no_location_yet')),
+            };
+
+            // New towers start without a location, so nothing is saved on a default spot by mistake.
+            const startLat = parseFloat(latInput.value);
+            const startLng = parseFloat(lngInput.value);
+            const hasStart = latInput.value !== '' && lngInput.value !== '' && Number.isFinite(startLat) && Number.isFinite(startLng);
+
+            const map = L.map('picker-map').setView(hasStart ? [startLat, startLng] : [9.75, 45.4], hasStart ? 15 : 6);
+            const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(map);
+            const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: 'Imagery &copy; Esri' });
+            L.control.layers({ [mapLabels.street]: streetLayer, [mapLabels.satellite]: satelliteLayer }, null, { collapsed: false, position: 'topright' }).addTo(map);
+            map.getContainer().style.cursor = 'crosshair';
+
+            const SizeControl = L.Control.extend({
+                options: { position: 'bottomleft' },
+                onAdd() {
+                    const button = L.DomUtil.create('button', 'bg-white text-gray-800 text-xs font-semibold px-3 py-2 rounded-lg shadow border border-gray-300');
+                    button.type = 'button';
+                    button.textContent = mapLabels.bigger;
+                    L.DomEvent.disableClickPropagation(button);
+                    let large = false;
+                    const container = map.getContainer();
+                    const normalHeight = container.style.height;
+                    button.addEventListener('click', () => {
+                        large = ! large;
+                        container.style.height = large ? '75vh' : normalHeight;
+                        button.textContent = large ? mapLabels.smaller : mapLabels.bigger;
+                        setTimeout(() => {
+                            map.invalidateSize();
+                            if (marker) {
+                                map.panTo(marker.getLatLng());
+                            }
+                        }, 50);
+                        if (large) {
+                            container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    });
+
+                    return button;
+                },
+            });
+            new SizeControl().addTo(map);
+
+            let marker = null;
+
+            function placeMarker(ll) {
+                if (! marker) {
+                    marker = L.marker(ll, { draggable: true }).addTo(map);
+                    marker.on('dragend', () => {
+                        const dragged = marker.getLatLng();
+                        setLocation(dragged.lat, dragged.lng, map.getZoom());
+                    });
+                } else {
+                    marker.setLatLng(ll);
+                }
+            }
+
+            if (hasStart) {
+                placeMarker([startLat, startLng]);
+            }
 
             function applyAmenity(prefix, match) {
                 const nameEl = document.getElementById(`nearest_${prefix}_name`);
@@ -165,8 +226,11 @@
                 const ll = L.latLng(nextLat, nextLng);
                 latInput.value = ll.lat.toFixed(7);
                 lngInput.value = ll.lng.toFixed(7);
-                marker.setLatLng(ll);
+                placeMarker(ll);
                 map.setView(ll, zoom);
+                if (gpsStatus.textContent === mapLabels.noLocation) {
+                    gpsStatus.classList.add('hidden');
+                }
                 notifyLocationChange();
             }
 
@@ -176,10 +240,6 @@
                 gpsStatus.classList.add(isError ? 'text-red-600' : 'text-brand');
             }
 
-            marker.on('dragend', () => {
-                const ll = marker.getLatLng();
-                setLocation(ll.lat, ll.lng, map.getZoom());
-            });
             map.on('click', (e) => setLocation(e.latlng.lat, e.latlng.lng, Math.max(map.getZoom(), 14)));
 
             ['change', 'input'].forEach((evt) => {
@@ -191,7 +251,7 @@
                 const nextLat = parseFloat(latInput.value);
                 const nextLng = parseFloat(lngInput.value);
                 if (Number.isFinite(nextLat) && Number.isFinite(nextLng)) {
-                    marker.setLatLng([nextLat, nextLng]);
+                    placeMarker([nextLat, nextLng]);
                     map.panTo([nextLat, nextLng]);
                     notifyLocationChange();
                 }
@@ -229,7 +289,12 @@
                 );
             });
 
-            scheduleLocationPreview();
+            if (hasStart) {
+                scheduleLocationPreview();
+            } else {
+                gpsStatus.textContent = mapLabels.noLocation;
+                gpsStatus.classList.remove('hidden');
+            }
 
             window.addEventListener('geography-map-focus', (event) => {
                 const bounds = event.detail && event.detail.bounds;

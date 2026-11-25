@@ -23,7 +23,13 @@
               x-data="{
                   regionId: @js((string) $regionDefault),
                   districtId: @js((string) $value('district_id', '')),
-                  districts: @js($districts->map(fn ($d) => ['id' => (string) $d->id, 'region_id' => (string) $d->region_id, 'name' => $d->name])->values()),
+                  districts: @js($districts->map(fn ($d) => ['id' => (string) $d->id, 'region_id' => (string) $d->region_id, 'name' => $d->name, 'bounds' => $d->mapBounds()])->values()),
+                  focusMap() {
+                      const district = this.districts.find(d => d.id === this.districtId);
+                      const bounds = (district && district.bounds) || this.regionBounds[this.regionId] || null;
+                      window.dispatchEvent(new CustomEvent('geography-map-focus', { detail: { bounds, maxZoom: 13 } }));
+                  },
+                  regionBounds: @js(\App\Support\GeographyReference::regionBoundsById($regions)),
                   height: @js((string) $value('height_m', '')),
                   get regionDistricts() { return this.districts.filter(d => d.region_id === this.regionId); },
               }">
@@ -71,7 +77,7 @@
                 <div class="grid sm:grid-cols-2 gap-4">
                     <div>
                         <x-input-label for="region_id" :value="__('app.towers.region')" />
-                        <select id="region_id" name="region_id" class="field mt-1 w-full" required x-model="regionId" @change="districtId = ''">
+                        <select id="region_id" name="region_id" class="field mt-1 w-full" required x-model="regionId" @change="districtId = ''; $nextTick(() => focusMap())">
                             @if ($regions->count() !== 1)
                                 <option value="">{{ __('app.existing_towers.choose_region') }}</option>
                             @endif
@@ -83,7 +89,7 @@
                     </div>
                     <div>
                         <x-input-label for="district_id" :value="__('app.towers.district')" />
-                        <select id="district_id" name="district_id" class="field mt-1 w-full" x-model="districtId">
+                        <select id="district_id" name="district_id" class="field mt-1 w-full" x-model="districtId" @change="$nextTick(() => focusMap())">
                             <option value="">{{ __('app.existing_towers.district_from_location') }}</option>
                             <template x-for="district in regionDistricts" :key="district.id">
                                 <option :value="district.id" x-text="district.name" :selected="district.id === districtId"></option>
@@ -113,12 +119,12 @@
                 <div class="mt-3 grid grid-cols-2 gap-3">
                     <div>
                         <x-input-label for="latitude" :value="__('app.towers.latitude')" />
-                        <x-text-input id="latitude" name="latitude" type="number" step="0.0000001" inputmode="decimal" class="mt-1 block w-full" :value="$value('latitude', 9.562)" required />
+                        <x-text-input id="latitude" name="latitude" type="number" step="0.0000001" inputmode="decimal" class="mt-1 block w-full" :value="$value('latitude')" required />
                         <x-input-error :messages="$errors->get('latitude')" class="mt-1" />
                     </div>
                     <div>
                         <x-input-label for="longitude" :value="__('app.towers.longitude')" />
-                        <x-text-input id="longitude" name="longitude" type="number" step="0.0000001" inputmode="decimal" class="mt-1 block w-full" :value="$value('longitude', 44.077)" required />
+                        <x-text-input id="longitude" name="longitude" type="number" step="0.0000001" inputmode="decimal" class="mt-1 block w-full" :value="$value('longitude')" required />
                         <x-input-error :messages="$errors->get('longitude')" class="mt-1" />
                     </div>
                 </div>

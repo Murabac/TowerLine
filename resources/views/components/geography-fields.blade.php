@@ -30,6 +30,7 @@
         districts: @js($initialDistricts),
         subDistricts: @js($initialSubDistricts),
         cities: @js($initialCities),
+        regionBounds: @js(\App\Support\GeographyReference::regionBoundsById($regions)),
         labels: {
             district: @js(__('app.geography.select_district')),
             subDistrict: @js(__('app.geography.select_sub_district')),
@@ -87,6 +88,7 @@
                     districtsUrl: config.districtsUrl,
                     subDistrictsUrl: config.subDistrictsUrl,
                     citiesUrl: config.citiesUrl,
+                    regionBounds: config.regionBounds || {},
                     regionId: config.regionId || '',
                     districtId: config.districtId || '',
                     subDistrictId: config.subDistrictId || '',
@@ -126,11 +128,12 @@
                     emitMapFocus() {
                         const sub = this.subDistricts.find((item) => String(item.id) === String(this.subDistrictId));
                         const district = this.districts.find((item) => String(item.id) === String(this.districtId));
-                        const bounds = (sub && sub.bounds) || (district && district.bounds) || null;
+                        const regionBounds = (this.regionBounds || {})[String(this.regionId)] || null;
+                        const bounds = (sub && sub.bounds) || (district && district.bounds) || regionBounds;
                         window.dispatchEvent(new CustomEvent('geography-map-focus', {
                             detail: {
                                 bounds,
-                                maxZoom: sub && sub.bounds ? 14 : 12,
+                                maxZoom: sub && sub.bounds ? 14 : (district && district.bounds ? 12 : 9),
                             },
                         }));
                     },

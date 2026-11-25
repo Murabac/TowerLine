@@ -331,6 +331,23 @@ class ExistingTowerRegistrationTest extends TestCase
         $this->actingAs($director)->get(route('towers.index', ['q' => 'Hill Site']))->assertOk()->assertSee('Hill Site');
     }
 
+    public function test_new_tower_forms_start_without_a_location_and_offer_satellite(): void
+    {
+        $forms = [
+            ['section.head@mocit.local', route('towers.existing.create')],
+            ['superadmin@mocit.local', route('towers.create')],
+        ];
+
+        foreach ($forms as [$email, $url]) {
+            $this->actingAs($this->user($email))->get($url)
+                ->assertOk()
+                ->assertDontSee('value="9.562"', false)
+                ->assertDontSee('value="44.077"', false)
+                ->assertSee('World_Imagery', false)
+                ->assertSee(json_encode(__('app.towers.map_satellite')), false);
+        }
+    }
+
     public function test_registrations_are_hidden_from_other_staff(): void
     {
         $this->actingAs($this->coordinator())->post(route('towers.existing.store'), $this->form());

@@ -256,6 +256,11 @@ return [
         'last_inspection' => 'Kormeerkii ugu dambeeyay',
         'pick_map' => 'Guji khariidadda, ama isticmaal GPS-ka goobta tower-ka',
         'use_gps' => 'Isticmaal goobta hadda',
+        'map_street' => 'Khariidad', // TODO(somali): review
+        'map_satellite' => 'Sawir dayax-gacmeed', // TODO(somali): review
+        'map_bigger' => 'Weyneey khariidadda', // TODO(somali): review
+        'map_smaller' => 'Yaree khariidadda', // TODO(somali): review
+        'no_location_yet' => 'Goob weli lama dooran. Taabo meesha tower-ku yaal ee khariidadda (dooro Sawir dayax-gacmeed si aad u aragto), ama isticmaal GPS-ka marka aad tower-ka joogto.', // TODO(somali): review
         'locating' => 'GPS waa la raadinayaa…',
         'gps_accuracy' => 'Saxnaanta qiyaas :meters m',
         'gps_denied' => 'Oggolaanshaha goobta waa la diiday. U oggolow goobta browser-ka, ama guji khariidadda.',
@@ -1164,7 +1169,7 @@ return [
         'choose_operator' => 'Dooro shirkadda',
         'choose_region' => 'Dooro gobolka',
         'location' => 'Goobta',
-        'location_hint' => 'Tower-ka agtiisa istaag oo riix badhanka, ama dhaqaaji calaamadda khariidadda.',
+        'location_hint' => 'Haddii aad tower-ka joogto, riix badhanka. Haddii kale, taabo meesha tower-ku yaal ee khariidadda (Sawir dayax-gacmeed ayaa caawiya), kadibna dhaqaaji calaamadda si aad u saxdo.', // TODO(somali): review
         'nearby_title' => 'Tower-yada u dhow',
         'type' => 'Nooca tower',
         'height' => 'Dhererka qiyaasta ah (m)',

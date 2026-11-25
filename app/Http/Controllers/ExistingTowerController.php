@@ -85,6 +85,7 @@ class ExistingTowerController extends Controller
             'regions' => $regions,
             'districts' => District::query()
                 ->whereIn('region_id', $regions->pluck('id'))
+                ->with('subDistricts')
                 ->orderBy('name')
                 ->get(['id', 'region_id', 'name']),
             'duplicates' => session('existing_tower_duplicates', []),

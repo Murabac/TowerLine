@@ -71,12 +71,12 @@
             <div class="mt-2 grid sm:grid-cols-2 gap-4">
                 <div>
                     <x-input-label for="latitude" :value="__('app.towers.latitude')" />
-                    <x-text-input id="latitude" name="latitude" type="number" step="0.0000001" class="mt-1 block w-full" :value="old('latitude', $tower?->latitude ?? 9.562)" required />
+                    <x-text-input id="latitude" name="latitude" type="number" step="0.0000001" class="mt-1 block w-full" :value="old('latitude', $tower?->latitude)" required />
                     <x-input-error :messages="$errors->get('latitude')" class="mt-1" />
                 </div>
                 <div>
                     <x-input-label for="longitude" :value="__('app.towers.longitude')" />
-                    <x-text-input id="longitude" name="longitude" type="number" step="0.0000001" class="mt-1 block w-full" :value="old('longitude', $tower?->longitude ?? 44.077)" required />
+                    <x-text-input id="longitude" name="longitude" type="number" step="0.0000001" class="mt-1 block w-full" :value="old('longitude', $tower?->longitude)" required />
                     <x-input-error :messages="$errors->get('longitude')" class="mt-1" />
                 </div>
             </div>
