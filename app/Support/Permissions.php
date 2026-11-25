@@ -193,6 +193,9 @@ class Permissions
             'towers.register_existing',
             'applications.view',
             'applications.assign',
+            'reports.view',
+            'reports.print',
+            'reports.export_excel',
         ],
         'assigned_officer' => [
             'geography.view',

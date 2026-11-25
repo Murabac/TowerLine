@@ -142,6 +142,37 @@ class ReportCentreTest extends TestCase
             ->assertOk();
     }
 
+    public function test_section_head_opens_reports_for_every_region_but_not_the_audit_report(): void
+    {
+        [$awdal, $sahil, $telesom, $somtel] = $this->fixtures();
+        $this->tower('Awdal site', $awdal, $telesom);
+        $this->tower('Sahil site', $sahil, $somtel);
+        $sectionHead = User::factory()->create(['role' => 'section_head']);
+
+        $this->actingAs($sectionHead)->get(route('dashboard'))->assertOk()->assertSee(route('reports.index'), false);
+
+        $this->actingAs($sectionHead)
+            ->get(route('reports.index'))
+            ->assertOk()
+            ->assertSee(__('app.reports.items.towers_master'), false)
+            ->assertDontSee(__('app.reports.items.governance_audit'), false);
+
+        $this->actingAs($sectionHead)
+            ->get(route('reports.show', 'towers.master'))
+            ->assertOk()
+            ->assertSee('Awdal site', false)
+            ->assertSee('Sahil site', false);
+
+        $this->actingAs($sectionHead)->get(route('reports.excel', 'towers.master'))->assertOk();
+        $this->actingAs($sectionHead)->get(route('reports.show', 'governance.audit'))->assertNotFound();
+
+        foreach (\App\Reports\ReportCatalog::all() as $report) {
+            if ($report->allowedFor($sectionHead)) {
+                $this->actingAs($sectionHead)->get(route('reports.show', $report->key))->assertOk();
+            }
+        }
+    }
+
     public function test_admin_can_open_every_catalogue_report(): void
     {
         [$awdal, $sahil, $telesom, $somtel] = $this->fixtures();
